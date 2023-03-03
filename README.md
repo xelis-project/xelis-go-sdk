@@ -1,6 +1,6 @@
-# XELIS-GO
+# XELIS-GO-SDK
 
-Xelis client for GO. Will contain all Xelis libraries.
+Xelis software development kit for GO. Will contain all Xelis libraries.
 
 ## Install
 
@@ -10,4 +10,4 @@ go get github.com/xelis-project/xelis-go
 
 ## Usage
 
-Check test files for examples: `daemon_rpc_test.go` `daemon_ws_test.go`
+Check test files for examples: `daemon/rpc_test.go` `daemon/websocket_test.go`

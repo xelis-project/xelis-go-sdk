@@ -1,4 +1,4 @@
-package xelis
+package config
 
 import "fmt"
 

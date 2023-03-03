@@ -1,4 +1,4 @@
-module github.com/xelis-project/xelis-go
+module github.com/xelis-project/xelis-go-sdk
 
 go 1.19
 

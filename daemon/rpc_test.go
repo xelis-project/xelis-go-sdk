@@ -1,12 +1,14 @@
-package xelis
+package daemon
 
 import (
 	"context"
 	"testing"
+
+	"github.com/xelis-project/xelis-go-sdk/config"
 )
 
 func TestRPCGetInfo(t *testing.T) {
-	daemon, err := NewDaemonRPC(DEV_NODE_RPC)
+	daemon, err := NewRPC(config.DEV_NODE_RPC)
 	if err != nil {
 		t.Error(err)
 		return

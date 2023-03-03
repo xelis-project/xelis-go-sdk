@@ -1,12 +1,14 @@
-package xelis
+package daemon
 
 import (
 	"testing"
 	"time"
+
+	"github.com/xelis-project/xelis-go-sdk/config"
 )
 
 func TestWSGetInfo(t *testing.T) {
-	daemon, err := NewDaemonWS(DEV_NODE_WS)
+	daemon, err := NewWebSocket(config.DEV_NODE_WS)
 	if err != nil {
 		t.Error(err)
 		return
@@ -22,7 +24,7 @@ func TestWSGetInfo(t *testing.T) {
 }
 
 func TestWSNewBlock(t *testing.T) {
-	daemon, err := NewDaemonWS(DEV_NODE_WS)
+	daemon, err := NewWebSocket(config.DEV_NODE_WS)
 	if err != nil {
 		t.Error(err)
 		return
