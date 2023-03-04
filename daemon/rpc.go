@@ -29,12 +29,12 @@ func NewRPC(url string) (*RPC, error) {
 
 func (d *RPC) GetInfo(ctx context.Context) (*GetInfoResult, error) {
 	var result GetInfoResult
-	err := d.Client.CallResult(ctx, "get_info", nil, &result)
+	err := d.Client.CallResult(ctx, string(GetInfo), nil, &result)
 	return &result, err
 }
 
 func (d *RPC) GetTopoHeight(ctx context.Context) (uint64, error) {
 	var topoHeight uint64
-	err := d.Client.CallResult(ctx, "get_topoheight", nil, &topoHeight)
+	err := d.Client.CallResult(ctx, string(GetTopoHeight), nil, &topoHeight)
 	return topoHeight, err
 }
