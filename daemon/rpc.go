@@ -27,10 +27,10 @@ func NewRPC(url string) (*RPC, error) {
 	return daemon, nil
 }
 
-func (d *RPC) GetInfo(ctx context.Context) (GetInfoResult, error) {
+func (d *RPC) GetInfo(ctx context.Context) (*GetInfoResult, error) {
 	var result GetInfoResult
 	err := d.Client.CallResult(ctx, "get_info", nil, &result)
-	return result, err
+	return &result, err
 }
 
 func (d *RPC) GetTopoHeight(ctx context.Context) (uint64, error) {

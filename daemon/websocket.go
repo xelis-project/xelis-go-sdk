@@ -13,7 +13,7 @@ type WebSocket struct {
 	Conn *websocket.Conn
 }
 
-func createRPCRequest(method string, params map[string]interface{}) ([]byte, int64, error) {
+func createRPCRequest(method RPCMethod, params map[string]interface{}) ([]byte, int64, error) {
 	id := time.Now().UnixMicro()
 	rpcRequest := RPCRequest{ID: id, JSONRPC: "2.0", Method: method, Params: params}
 
@@ -57,23 +57,28 @@ func (w *WebSocket) Listen(onData func(int, []byte, error), done chan struct{}) 
 	}()
 }
 
-func (w *WebSocket) Subscribe(event string, onData func(RPCResponse, error), done chan struct{}) error {
-	subscribeResponse, err := w.Call("subscribe", map[string]interface{}{
+func (w *WebSocket) Subscribe(event RPCEvent, onData func(*RPCResponse, error), done chan struct{}) error {
+	subRes, err := w.Call("subscribe", map[string]interface{}{
 		"notify": event,
 	})
 	if err != nil {
 		return err
 	}
 
+	if subRes.Error != nil {
+		return fmt.Errorf(subRes.Error.Message)
+	}
+
 	w.Listen(func(msgType int, msg []byte, err error) {
 		if err != nil {
-			onData(RPCResponse{}, err)
+			onData(nil, err)
 		} else if msgType == websocket.TextMessage {
 			var rpcResponse RPCResponse
 			err := json.Unmarshal(msg, &rpcResponse)
-
-			if subscribeResponse.ID == rpcResponse.ID {
-				onData(rpcResponse, err)
+			if err != nil {
+				onData(nil, err)
+			} else if subRes.ID == rpcResponse.ID {
+				onData(&rpcResponse, nil)
 			}
 		}
 	}, done)
@@ -81,53 +86,48 @@ func (w *WebSocket) Subscribe(event string, onData func(RPCResponse, error), don
 	return err
 }
 
-func (w *WebSocket) NewBlock(onData func(NewBlockResult, error), done chan struct{}) error {
-	return w.Subscribe("NewBlock", func(response RPCResponse, err error) {
+func (w *WebSocket) OnNewBlock(onData func(*NewBlockResult, error), done chan struct{}) error {
+	return w.Subscribe(NewBlock, func(response *RPCResponse, err error) {
 		var result NewBlockResult
 		if err != nil {
-			onData(result, err)
+			onData(nil, err)
 		}
 
-		data, err := json.Marshal(response.Result)
-		if err != nil {
-			onData(result, err)
-			return
-		}
-
-		err = json.Unmarshal(data, &result)
-		onData(result, err)
+		err = json.Unmarshal(response.Result, &result)
+		onData(&result, err)
 	}, done)
 }
 
-func (w *WebSocket) Call(method string, params map[string]interface{}) (response RPCResponse, err error) {
+func (w *WebSocket) Call(method RPCMethod, params map[string]interface{}) (*RPCResponse, error) {
 	msg, id, err := createRPCRequest(method, params)
 	if err != nil {
-		return response, err
+		return nil, err
 	}
 
 	err = w.Conn.WriteMessage(websocket.TextMessage, msg)
 	if err != nil {
-		return response, err
+		return nil, err
 	}
 
 	for {
 		select {
 		case <-time.After(5 * time.Second):
-			return response, fmt.Errorf("timeout waiting for response")
+			return nil, fmt.Errorf("timeout waiting for response")
 		default:
 			msgType, msg, err := w.Conn.ReadMessage()
 			if err != nil {
-				return response, err
+				return nil, err
 			}
 
 			if msgType == websocket.TextMessage {
+				var response RPCResponse
 				err := json.Unmarshal(msg, &response)
 				if err != nil {
-					return response, err
+					return nil, err
 				}
 
 				if response.ID == id {
-					return response, nil
+					return &response, nil
 				}
 			}
 
@@ -136,17 +136,13 @@ func (w *WebSocket) Call(method string, params map[string]interface{}) (response
 	}
 }
 
-func (w *WebSocket) CallGetInfo() (result GetInfoResult, err error) {
-	response, err := w.Call("get_info", nil)
+func (w *WebSocket) GetInfo() (*GetInfoResult, error) {
+	response, err := w.Call(GetInfo, nil)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 
-	data, err := json.Marshal(response.Result)
-	if err != nil {
-		return result, err
-	}
-
-	err = json.Unmarshal(data, &result)
-	return result, err
+	var result GetInfoResult
+	err = json.Unmarshal(response.Result, &result)
+	return &result, err
 }

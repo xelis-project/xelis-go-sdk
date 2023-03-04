@@ -14,7 +14,7 @@ func TestWSGetInfo(t *testing.T) {
 		return
 	}
 
-	info, err := daemon.CallGetInfo()
+	info, err := daemon.GetInfo()
 	if err != nil {
 		t.Error(err)
 		return
@@ -31,13 +31,18 @@ func TestWSNewBlock(t *testing.T) {
 	}
 
 	done := make(chan struct{})
-	err = daemon.NewBlock(func(newBlock NewBlockResult, err error) {
+	err = daemon.OnNewBlock(func(newBlock *NewBlockResult, err error) {
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
 		t.Logf("%+v", newBlock)
 		close(done)
 	}, done)
 
 	if err != nil {
-		t.Log(err)
+		t.Error(err)
 		return
 	}
 

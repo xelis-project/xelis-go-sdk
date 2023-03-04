@@ -1,16 +1,18 @@
 package daemon
 
+import "encoding/json"
+
 type RPCRequest struct {
 	ID      int64                  `json:"id"`
 	JSONRPC string                 `json:"jsonrpc"`
-	Method  string                 `json:"method"`
+	Method  RPCMethod              `json:"method"`
 	Params  map[string]interface{} `json:"params,omitempty"`
 }
 
 type RPCResponse struct {
-	ID     int64       `json:"id"`
-	Result interface{} `json:"result,omitempty"`
-	Error  RPCError    `json:"error,omitempty"`
+	ID     int64           `json:"id"`
+	Result json.RawMessage `json:"result,omitempty"`
+	Error  *RPCError       `json:"error,omitempty"`
 }
 
 type RPCError struct {
@@ -50,3 +52,37 @@ type GetInfoResult struct {
 	Network         string `json:"network"`
 	TopoHeight      uint64 `json:"topoheight"`
 }
+
+type RPCEvent string
+
+const (
+	NewBlock                  RPCEvent = `NewBlock`
+	TransactionAddedInMempool RPCEvent = `TransactionAddedInMempool`
+	TransactionExecuted       RPCEvent = `TransactionExecuted`
+	BlockOrdered              RPCEvent = `BlockOrdered`
+)
+
+type RPCMethod string
+
+const (
+	GetInfo                RPCMethod = "get_info"
+	GetHeight              RPCMethod = "get_height"
+	GetTopoHeight          RPCMethod = "get_topoheight"
+	GetStableHeight        RPCMethod = "get_stableheight"
+	GetBlockTemplate       RPCMethod = "get_block_template"
+	GetBlockAtTopoHeight   RPCMethod = "get_block_at_topoheight"
+	GetBlocksAtHeight      RPCMethod = "get_blocks_at_height"
+	GetBlockByHash         RPCMethod = "get_block_by_hash"
+	GetTopBlock            RPCMethod = "get_top_block"
+	GetNonce               RPCMethod = "get_nonce"
+	GetLastBalance         RPCMethod = "get_last_balance"
+	GetBalanceAtTopoHeight RPCMethod = "get_balance_at_topoheight"
+	GetAssets              RPCMethod = "get_assets"
+	CountTransactions      RPCMethod = "count_transactions"
+	GetTips                RPCMethod = "get_tips"
+	P2PStatus              RPCMethod = "p2p_status"
+	GetDAGOrder            RPCMethod = "get_dag_order"
+	GetMempool             RPCMethod = "get_mempool"
+	GetTransaction         RPCMethod = "get_transaction"
+	GetTransactions        RPCMethod = "get_transactions"
+)
