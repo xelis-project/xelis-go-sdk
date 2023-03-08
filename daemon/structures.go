@@ -85,4 +85,5 @@ const (
 	GetMempool             RPCMethod = "get_mempool"
 	GetTransaction         RPCMethod = "get_transaction"
 	GetTransactions        RPCMethod = "get_transactions"
+	GetBlocks              RPCMethod = "get_blocks"
 )
