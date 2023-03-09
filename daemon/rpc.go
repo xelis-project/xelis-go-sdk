@@ -38,3 +38,21 @@ func (d *RPC) GetTopoHeight(ctx context.Context) (uint64, error) {
 	err := d.Client.CallResult(ctx, string(GetTopoHeight), nil, &topoHeight)
 	return topoHeight, err
 }
+
+func (d *RPC) GetStableHeight(ctx context.Context) (uint64, error) {
+	var stableHeight uint64
+	err := d.Client.CallResult(ctx, string(GetStableHeight), nil, &stableHeight)
+	return stableHeight, err
+}
+
+func (d *RPC) GetBlocks(ctx context.Context, params *GetRangeParams) ([]Block, error) {
+	var blocks []Block
+	err := d.Client.CallResult(ctx, string(GetBlocks), params, &blocks)
+	return blocks, err
+}
+
+func (d *RPC) GetTransactions(ctx context.Context, params *GetTransactionsParams) ([]Transaction, error) {
+	var txs []Transaction
+	err := d.Client.CallResult(ctx, string(GetTransactions), params, &txs)
+	return txs, err
+}

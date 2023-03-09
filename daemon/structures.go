@@ -20,6 +20,55 @@ type RPCError struct {
 	Message string `json:"message"`
 }
 
+type GetRangeParams struct {
+	StartTopoheight uint64 `json:"start_topoheight"`
+	EndTopoheight   uint64 `json:"end_topoheight"`
+}
+
+type GetTransactionsParams struct {
+	TxHashes []string `json:"tx_hashes"`
+}
+
+type Block struct {
+	BlockType            string   `json:"block_type"`
+	CumulativeDifficulty uint64   `json:"cumulative_difficulty"`
+	Difficulty           uint64   `json:"difficulty"`
+	ExtraNonce           string   `json:"extra_nonce"`
+	Hash                 string   `json:"hash"`
+	Height               uint64   `json:"height"`
+	Miner                string   `json:"miner"`
+	Nonce                uint64   `json:"nonce"`
+	Reward               uint64   `json:"reward"`
+	Supply               uint64   `json:"supply"`
+	Timestamp            uint64   `json:"timestamp"`
+	Tips                 []string `json:"tips"`
+	Topoheight           uint64   `json:"topoheight"`
+	TotalFees            uint64   `json:"total_fees"`
+	TotalSizeInBytes     uint64   `json:"total_size_in_bytes"`
+	TxsHashes            []string `json:"txs_hashes"`
+}
+
+type Transfer struct {
+	Amount    int64  `json:"amount"`
+	Asset     string `json:"asset"`
+	ExtraData string `json:"extra_data"`
+	To        string `json:"to"`
+}
+
+type Data struct {
+	Transfer []Transfer `json:"Transfer"`
+}
+
+type Transaction struct {
+	Blocks    []string `json:"blocks"`
+	Hash      string   `json:"hash"`
+	Data      Data     `json:"data"`
+	Fee       int64    `json:"fee"`
+	Nonce     int64    `json:"nonce"`
+	Owner     string   `json:"owner"`
+	Signature string   `json:"signature"`
+}
+
 type NewBlockResult struct {
 	BlockType            string   `json:"block_type"`
 	CumulativeDifficulty uint64   `json:"cumulative_difficulty"`
