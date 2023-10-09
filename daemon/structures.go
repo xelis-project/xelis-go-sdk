@@ -20,13 +20,76 @@ type RPCError struct {
 	Message string `json:"message"`
 }
 
-type GetRangeParams struct {
+type GetTopoHeightRangeParams struct {
 	StartTopoheight uint64 `json:"start_topoheight"`
 	EndTopoheight   uint64 `json:"end_topoheight"`
 }
 
+type GetBlockAtTopoheightParams struct {
+	Topoheight uint64 `json:"topoheight"`
+	IncludeTxs bool   `json:"include_txs"`
+}
+
+type GetBlocksAtHeightParams struct {
+	Height     uint64 `json:"height"`
+	IncludeTxs bool   `json:"include_txs"`
+}
+
+type GetBlockByHashParams struct {
+	Hash       string `json:"hash"`
+	IncludeTxs bool   `json:"include_txs"`
+}
+
+type GetTopBlockParams struct {
+	IncludeTxs bool `json:"include_txs"`
+}
+
+type GetLastBalanceParams struct {
+	Address string `json:"address"`
+	Asset   string `json:"asset"`
+}
+
+type Balance struct {
+	Balance            uint64 `json:"balance"`
+	PreviousTopoheight uint64 `json:"previous_topoheight"`
+}
+
+type GetLastBalanceResult struct {
+	Balance    Balance
+	Topoheight uint64 `json:"topoheight"`
+}
+
+type GetBalanceAtTopoheightParams struct {
+	Address    string `json:"address"`
+	Asset      string `json:"asset"`
+	Topoheight uint64 `json:"topoheight"`
+}
+
+type GetHeightRangeParams struct {
+	StartHeight uint64 `json:"start_height"`
+	EndHeight   uint64 `json:"end_height"`
+}
+
 type GetTransactionsParams struct {
 	TxHashes []string `json:"tx_hashes"`
+}
+
+type P2PStatusResult struct {
+	BestTopoheight uint64 `json:"best_topoheight"`
+	MaxPeers       uint64 `json:"max_peers"`
+	OurTopoheight  uint64 `json:"our_topoheight"`
+	PeerCount      uint64 `json:"peer_count"`
+	PeerId         uint64 `json:"peer_id"`
+	Tag            string `json:"tag"`
+}
+
+type GetAssetsParams = GetAccountsParams
+
+type GetAccountsParams struct {
+	Skip              uint64 `json:"skip"`
+	Maximum           uint64 `json:"maximum"`
+	MinimumTopoheight uint64 `json:"minimum_topoheight"`
+	MaximumTopoheight uint64 `json:"maximum_topoheight"`
 }
 
 type Block struct {
@@ -56,7 +119,7 @@ type Transfer struct {
 }
 
 type Data struct {
-	Transfer []Transfer `json:"Transfer"`
+	Transfers []Transfer `json:"transfers"`
 }
 
 type Transaction struct {
@@ -90,16 +153,25 @@ type NewBlockResult struct {
 }
 
 type GetInfoResult struct {
-	BlockTimeTarget uint64 `json:"block_time_target"`
-	Difficulty      uint64 `json:"difficulty"`
-	Height          uint64 `json:"height"`
-	MempoolSize     uint64 `json:"mempool_size"`
-	NativeSupply    uint64 `json:"native_supply"`
-	StableHeight    uint64 `json:"stableheight"`
-	TopHash         string `json:"top_hash"`
-	Version         string `json:"version"`
-	Network         string `json:"network"`
-	TopoHeight      uint64 `json:"topoheight"`
+	AverageBlocktime uint64 `json:"average_block_time"`
+	BlockReward      uint64 `json:"block_reward"`
+	BlockTimeTarget  uint64 `json:"block_time_target"`
+	Difficulty       uint64 `json:"difficulty"`
+	Height           uint64 `json:"height"`
+	MempoolSize      uint64 `json:"mempool_size"`
+	NativeSupply     uint64 `json:"native_supply"`
+	Network          string `json:"network"`
+	PrunedTopoheight uint64 `json:"pruned_topoheight"`
+	Stableheight     uint64 `json:"stableheight"`
+	TopHash          string `json:"top_hash"`
+	Topoheight       uint64 `json:"topoheight"`
+	Version          string `json:"version"`
+}
+
+type GetBlockTemplateResult struct {
+	Difficulty uint64 `json:"difficulty"`
+	Height     uint64 `json:"height"`
+	Template   string `json:"template"`
 }
 
 type RPCEvent string
@@ -114,25 +186,29 @@ const (
 type RPCMethod string
 
 const (
-	GetInfo                RPCMethod = "get_info"
-	GetHeight              RPCMethod = "get_height"
-	GetTopoHeight          RPCMethod = "get_topoheight"
-	GetStableHeight        RPCMethod = "get_stableheight"
-	GetBlockTemplate       RPCMethod = "get_block_template"
-	GetBlockAtTopoHeight   RPCMethod = "get_block_at_topoheight"
-	GetBlocksAtHeight      RPCMethod = "get_blocks_at_height"
-	GetBlockByHash         RPCMethod = "get_block_by_hash"
-	GetTopBlock            RPCMethod = "get_top_block"
-	GetNonce               RPCMethod = "get_nonce"
-	GetLastBalance         RPCMethod = "get_last_balance"
-	GetBalanceAtTopoHeight RPCMethod = "get_balance_at_topoheight"
-	GetAssets              RPCMethod = "get_assets"
-	CountTransactions      RPCMethod = "count_transactions"
-	GetTips                RPCMethod = "get_tips"
-	P2PStatus              RPCMethod = "p2p_status"
-	GetDAGOrder            RPCMethod = "get_dag_order"
-	GetMempool             RPCMethod = "get_mempool"
-	GetTransaction         RPCMethod = "get_transaction"
-	GetTransactions        RPCMethod = "get_transactions"
-	GetBlocks              RPCMethod = "get_blocks"
+	GetVersion                 RPCMethod = "get_version"
+	GetInfo                    RPCMethod = "get_info"
+	GetHeight                  RPCMethod = "get_height"
+	GetTopoHeight              RPCMethod = "get_topoheight"
+	GetStableHeight            RPCMethod = "get_stableheight"
+	GetBlockTemplate           RPCMethod = "get_block_template"
+	GetBlockAtTopoheight       RPCMethod = "get_block_at_topoheight"
+	GetBlocksAtHeight          RPCMethod = "get_blocks_at_height"
+	GetBlockByHash             RPCMethod = "get_block_by_hash"
+	GetTopBlock                RPCMethod = "get_top_block"
+	GetNonce                   RPCMethod = "get_nonce"
+	GetLastBalance             RPCMethod = "get_last_balance"
+	GetBalanceAtTopoheight     RPCMethod = "get_balance_at_topoheight"
+	GetAssets                  RPCMethod = "get_assets"
+	CountAssets                RPCMethod = "count_assets"
+	CountTransactions          RPCMethod = "count_transactions"
+	GetTips                    RPCMethod = "get_tips"
+	P2PStatus                  RPCMethod = "p2p_status"
+	GetDAGOrder                RPCMethod = "get_dag_order"
+	GetMempool                 RPCMethod = "get_mempool"
+	GetTransaction             RPCMethod = "get_transaction"
+	GetTransactions            RPCMethod = "get_transactions"
+	GetBlocksRangeByHeight     RPCMethod = "get_blocks_range_by_height"
+	GetBlocksRangeByTopoheight RPCMethod = "get_blocks_range_by_topoheight"
+	GetAccounts                RPCMethod = "get_accounts"
 )

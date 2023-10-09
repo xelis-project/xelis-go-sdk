@@ -1,11 +1,11 @@
 # XELIS-GO-SDK
 
-Xelis software development kit for GO. Will contain all Xelis libraries.
+Xelis software development kit for GO.
 
 ## Install
 
 ```cli
-go get github.com/xelis-project/xelis-go
+go get github.com/xelis-project/xelis-go-sdk
 ```
 
 ## Usage
