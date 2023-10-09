@@ -109,6 +109,7 @@ type Block struct {
 	TotalFees            uint64   `json:"total_fees"`
 	TotalSizeInBytes     uint64   `json:"total_size_in_bytes"`
 	TxsHashes            []string `json:"txs_hashes"`
+	Version              uint64   `json:"version"`
 }
 
 type Transfer struct {
@@ -118,18 +119,33 @@ type Transfer struct {
 	To        string `json:"to"`
 }
 
-type Data struct {
-	Transfers []Transfer `json:"transfers"`
+type Burn struct {
+	Asset  string `json:"asset"`
+	Amount uint64 `json:"amount"`
+}
+
+type CallContract struct {
+	Contract string `json:"contract"`
+}
+
+type TransactionData struct {
+	Transfers      []Transfer `json:"transfers"`
+	Burn           Burn       `json:"burn"`
+	CallContract   string     `json:"call_contract"`
+	DeployContract string     `json:"deploy_contract"`
 }
 
 type Transaction struct {
-	Blocks    []string `json:"blocks"`
-	Hash      string   `json:"hash"`
-	Data      Data     `json:"data"`
-	Fee       int64    `json:"fee"`
-	Nonce     int64    `json:"nonce"`
-	Owner     string   `json:"owner"`
-	Signature string   `json:"signature"`
+	Blocks          []string        `json:"blocks"`
+	Hash            string          `json:"hash"`
+	Data            TransactionData `json:"data"`
+	Fee             int64           `json:"fee"`
+	Nonce           int64           `json:"nonce"`
+	Owner           string          `json:"owner"`
+	Signature       string          `json:"signature"`
+	ExecutedInBlock string          `json:"executed_in_block"`
+	Version         uint64          `json:"version"`
+	FirstSeen       uint64          `json:"first_seen"`
 }
 
 type NewBlockResult struct {
