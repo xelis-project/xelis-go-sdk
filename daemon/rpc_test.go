@@ -109,6 +109,16 @@ func TestRPCUnknownMethod(t *testing.T) {
 	t.Log(res)
 }
 
+func TestRPCHasNonce(t *testing.T) {
+	daemon, ctx := setupRPC(t)
+	res, err := daemon.HasNonce(ctx, "xet1qqq8ar5gagvjhznhj59l3r4lqhe7edutendy6vd4y7jd59exl6u7xschfuhym")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(res)
+}
+
 func TestRPCGetBlocksRange(t *testing.T) {
 	daemon, ctx := setupRPC(t)
 

@@ -84,6 +84,14 @@ func (d *RPC) GetNonce(ctx context.Context, addr string) (nonce uint64, err erro
 	return
 }
 
+func (d *RPC) HasNonce(ctx context.Context, addr string) (hasNonce bool, err error) {
+	params := map[string]string{"address": addr}
+	var result map[string]bool
+	err = d.Client.CallResult(ctx, string(HasNonce), params, &result)
+	hasNonce = result["exist"]
+	return
+}
+
 func (d *RPC) GetLastBalance(ctx context.Context, params GetLastBalanceParams) (balance GetLastBalanceResult, err error) {
 	err = d.Client.CallResult(ctx, string(GetLastBalance), params, &balance)
 	return
@@ -106,6 +114,11 @@ func (d *RPC) CountAssets(ctx context.Context) (count uint64, err error) {
 
 func (d *RPC) CountTransactions(ctx context.Context) (count uint64, err error) {
 	err = d.Client.CallResult(ctx, string(CountTransactions), nil, &count)
+	return
+}
+
+func (d *RPC) CountAccounts(ctx context.Context) (count uint64, err error) {
+	err = d.Client.CallResult(ctx, string(CountAccounts), nil, &count)
 	return
 }
 
@@ -150,7 +163,36 @@ func (d *RPC) GetDAGOrder(ctx context.Context, params GetTopoHeightRangeParams) 
 	return
 }
 
+func (d *RPC) SubmitBlock(ctx context.Context, blockTemplate string) (result bool, err error) {
+	params := map[string]string{"block_template": blockTemplate}
+	err = d.Client.CallResult(ctx, string(SubmitBlock), params, &result)
+	return
+}
+
+func (d *RPC) SubmitTransaction(ctx context.Context, data string) (result bool, err error) {
+	params := map[string]string{"data": data}
+	err = d.Client.CallResult(ctx, string(SubmitTransaction), params, &result)
+	return
+}
+
 func (d *RPC) GetAccounts(ctx context.Context, params GetAccountsParams) (addresses []string, err error) {
 	err = d.Client.CallResult(ctx, string(GetAccounts), params, &addresses)
+	return
+}
+
+func (d *RPC) GetAccountHistory(ctx context.Context, addr string) (history AccountHistory, err error) {
+	params := map[string]string{"address": addr}
+	err = d.Client.CallResult(ctx, string(GetAccountHistory), params, &history)
+	return
+}
+
+func (d *RPC) GetAccountAssets(ctx context.Context, addr string) (assets []string, err error) {
+	params := map[string]string{"address": addr}
+	err = d.Client.CallResult(ctx, string(GetAccountAssets), params, &assets)
+	return
+}
+
+func (d *RPC) GetPeers(ctx context.Context) (peers []Peer, err error) {
+	err = d.Client.CallResult(ctx, string(GetPeers), nil, &peers)
 	return
 }

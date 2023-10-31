@@ -113,7 +113,7 @@ type Block struct {
 }
 
 type Transfer struct {
-	Amount    int64  `json:"amount"`
+	Amount    uint64 `json:"amount"`
 	Asset     string `json:"asset"`
 	ExtraData string `json:"extra_data"`
 	To        string `json:"to"`
@@ -139,8 +139,8 @@ type Transaction struct {
 	Blocks          []string        `json:"blocks"`
 	Hash            string          `json:"hash"`
 	Data            TransactionData `json:"data"`
-	Fee             int64           `json:"fee"`
-	Nonce           int64           `json:"nonce"`
+	Fee             uint64          `json:"fee"`
+	Nonce           uint64          `json:"nonce"`
 	Owner           string          `json:"owner"`
 	Signature       string          `json:"signature"`
 	ExecutedInBlock string          `json:"executed_in_block"`
@@ -190,6 +190,37 @@ type GetBlockTemplateResult struct {
 	Template   string `json:"template"`
 }
 
+type Peer struct {
+	Addr                 string `json:"addr"`
+	CumulativeDifficulty uint64 `json:"cumulative_difficulty"`
+	Height               uint64 `json:"height"`
+	Id                   uint64 `json:"id"`
+	LastPing             uint64 `json:"last_ping"`
+	PrunedTopoheight     uint64 `json:"pruned_topoheight"`
+	Tag                  string
+	TopBlockHash         string `json:"top_block_hash"`
+	Topoheight           uint64 `json:"topoheight"`
+	Version              string `json:"version"`
+}
+
+type MiningHistory struct {
+	Reward uint64 `json:"reward"`
+}
+
+type AmountHistory struct {
+	Amount uint64 `json:"amount"`
+}
+
+type AccountHistory struct {
+	Topoheight     uint64        `json:"topoheight"`
+	BlockTimestamp uint64        `json:"block_timestamp"`
+	Hash           string        `json:"hash"`
+	Mining         MiningHistory `json:"mining"`
+	Burn           AmountHistory `json:"burn"`
+	Outgoing       AmountHistory `json:"outgoing"`
+	Incoming       AmountHistory `json:"incoming"`
+}
+
 type RPCEvent string
 
 const (
@@ -213,18 +244,25 @@ const (
 	GetBlockByHash             RPCMethod = "get_block_by_hash"
 	GetTopBlock                RPCMethod = "get_top_block"
 	GetNonce                   RPCMethod = "get_nonce"
+	HasNonce                   RPCMethod = "has_nonce"
 	GetLastBalance             RPCMethod = "get_last_balance"
 	GetBalanceAtTopoheight     RPCMethod = "get_balance_at_topoheight"
 	GetAssets                  RPCMethod = "get_assets"
 	CountAssets                RPCMethod = "count_assets"
 	CountTransactions          RPCMethod = "count_transactions"
+	CountAccounts              RPCMethod = "count_accounts"
 	GetTips                    RPCMethod = "get_tips"
 	P2PStatus                  RPCMethod = "p2p_status"
 	GetDAGOrder                RPCMethod = "get_dag_order"
+	SubmitBlock                RPCMethod = "submit_block"
+	SubmitTransaction          RPCMethod = "submit_transaction"
 	GetMempool                 RPCMethod = "get_mempool"
 	GetTransaction             RPCMethod = "get_transaction"
 	GetTransactions            RPCMethod = "get_transactions"
 	GetBlocksRangeByHeight     RPCMethod = "get_blocks_range_by_height"
 	GetBlocksRangeByTopoheight RPCMethod = "get_blocks_range_by_topoheight"
 	GetAccounts                RPCMethod = "get_accounts"
+	GetAccountHistory          RPCMethod = "get_account_history"
+	GetAccountAssets           RPCMethod = "get_account_assets"
+	GetPeers                   RPCMethod = "get_peers"
 )
