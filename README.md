@@ -1,6 +1,6 @@
 # XELIS-GO-SDK
 
-Xelis software development kit for GO.
+XELIS software development kit for GO.
 
 ## Install
 
