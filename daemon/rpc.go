@@ -92,8 +92,8 @@ func (d *RPC) HasNonce(ctx context.Context, addr string) (hasNonce bool, err err
 	return
 }
 
-func (d *RPC) GetLastBalance(ctx context.Context, params GetLastBalanceParams) (balance GetLastBalanceResult, err error) {
-	err = d.Client.CallResult(ctx, string(GetLastBalance), params, &balance)
+func (d *RPC) GetBalance(ctx context.Context, params GetBalanceParams) (balance GetBalanceResult, err error) {
+	err = d.Client.CallResult(ctx, string(GetBalance), params, &balance)
 	return
 }
 

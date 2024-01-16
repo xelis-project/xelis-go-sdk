@@ -70,7 +70,7 @@ func TestRPCGetInfo(t *testing.T) {
 
 	nonce, err := daemon.GetNonce(ctx, "xet1qqqyvh9vgkcurtj2la0e4jspnfsq7vkaqm863zcfdnej92xg4mpzz3suf96k4")
 	if err != nil {
-		//t.Fatal(err)
+		t.Fatal(err)
 	}
 	t.Logf("%+v", nonce)
 

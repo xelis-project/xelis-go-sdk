@@ -44,7 +44,7 @@ type GetTopBlockParams struct {
 	IncludeTxs bool `json:"include_txs"`
 }
 
-type GetLastBalanceParams struct {
+type GetBalanceParams struct {
 	Address string `json:"address"`
 	Asset   string `json:"asset"`
 }
@@ -54,7 +54,7 @@ type Balance struct {
 	PreviousTopoheight uint64 `json:"previous_topoheight"`
 }
 
-type GetLastBalanceResult struct {
+type GetBalanceResult struct {
 	Balance    Balance
 	Topoheight uint64 `json:"topoheight"`
 }
@@ -245,7 +245,7 @@ const (
 	GetTopBlock                RPCMethod = "get_top_block"
 	GetNonce                   RPCMethod = "get_nonce"
 	HasNonce                   RPCMethod = "has_nonce"
-	GetLastBalance             RPCMethod = "get_last_balance"
+	GetBalance                 RPCMethod = "get_balance"
 	GetBalanceAtTopoheight     RPCMethod = "get_balance_at_topoheight"
 	GetAssets                  RPCMethod = "get_assets"
 	CountAssets                RPCMethod = "count_assets"
