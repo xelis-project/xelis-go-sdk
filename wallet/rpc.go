@@ -18,16 +18,25 @@ type RPC struct {
 	Client *jrpc2.Client
 }
 
-type HeaderTransport struct {
+type AuthTransport struct {
 	Transport http.RoundTripper
-	Headers   map[string]string
+	Username  string
+	Password  string
 }
 
-func (t *HeaderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	for key, value := range t.Headers {
-		req.Header.Set(key, value)
-	}
+func (t *AuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	setAuthHeader(req.Header, t.Username, t.Password)
 	return t.Transport.RoundTrip(req)
+}
+
+func setAuthHeader(header http.Header, username string, password string) {
+	auth := fmt.Sprintf("%s:%s", username, password)
+	buf := bytes.Buffer{}
+	encoder := base64.NewEncoder(base64.StdEncoding, &buf)
+	encoder.Write([]byte(auth))
+	encoder.Close()
+
+	header.Set("Authorization", fmt.Sprintf("Basic %s", buf.String()))
 }
 
 func NewRPC(ctx context.Context, url string, username string, password string) (*RPC, error) {
@@ -36,21 +45,12 @@ func NewRPC(ctx context.Context, url string, username string, password string) (
 		return nil, err
 	}
 
-	headers := make(map[string]string)
-	auth := fmt.Sprintf("%s:%s", username, password)
-
-	buf := bytes.Buffer{}
-	encoder := base64.NewEncoder(base64.StdEncoding, &buf)
-	encoder.Write([]byte(auth))
-	encoder.Close()
-
-	headers["Authorization"] = fmt.Sprintf("Basic %s", buf.String())
-
 	channel := jhttp.NewChannel(daemonUrl.String(), &jhttp.ChannelOptions{
 		Client: &http.Client{
-			Transport: &HeaderTransport{
+			Transport: &AuthTransport{
 				Transport: http.DefaultTransport,
-				Headers:   headers,
+				Username:  username,
+				Password:  password,
 			},
 		},
 	})
@@ -124,8 +124,8 @@ func (d *RPC) BuildTransaction(params BuildTransactionParams) (result BuildTrans
 	return
 }
 
-func (d *RPC) ListTransactions(params ListTransactionsParams) (transactions []daemon.Transaction, err error) {
-	err = d.Client.CallResult(d.ctx, string(ListTransaction), params, &transactions)
+func (d *RPC) ListTransactions(params ListTransactionsParams) (txs []daemon.Transaction, err error) {
+	err = d.Client.CallResult(d.ctx, string(ListTransactions), params, &txs)
 	return
 }
 

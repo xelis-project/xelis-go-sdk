@@ -13,7 +13,7 @@ type WebSocket struct {
 }
 
 func NewWebSocket(ctx context.Context, url string) (*WebSocket, error) {
-	ws, err := lib.NewWebSocket(ctx, url)
+	ws, err := lib.NewWebSocket(ctx, url, nil)
 	if err != nil {
 		return nil, err
 	}

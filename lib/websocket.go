@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	netUrl "net/url"
 	"time"
 
@@ -19,13 +20,13 @@ type WebSocket struct {
 	id       int64
 }
 
-func NewWebSocket(ctx context.Context, url string) (*WebSocket, error) {
+func NewWebSocket(ctx context.Context, url string, header http.Header) (*WebSocket, error) {
 	daemonUrl, err := netUrl.Parse(url)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial(daemonUrl.String(), nil)
+	conn, _, err := websocket.DefaultDialer.Dial(daemonUrl.String(), header)
 	if err != nil {
 		return nil, err
 	}

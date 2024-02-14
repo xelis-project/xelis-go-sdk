@@ -95,7 +95,7 @@ const (
 	GetAssetPrecision lib.RPCMethod = "get_asset_precision"
 	GetTransaction    lib.RPCMethod = "get_transaction"
 	BuildTransaction  lib.RPCMethod = "build_transaction"
-	ListTransaction   lib.RPCMethod = "list_transaction"
+	ListTransactions  lib.RPCMethod = "list_transactions"
 	IsOnline          lib.RPCMethod = "is_online"
 	SignData          lib.RPCMethod = "sign_data"
 	EstimateFees      lib.RPCMethod = "estimate_fees"
