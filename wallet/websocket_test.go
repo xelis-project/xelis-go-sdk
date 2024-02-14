@@ -1,7 +1,6 @@
 package wallet
 
 import (
-	"context"
 	"log"
 	"testing"
 
@@ -9,8 +8,7 @@ import (
 )
 
 func setupWebSocket(t *testing.T) (wallet *WebSocket) {
-	ctx := context.Background()
-	wallet, err := NewWebSocket(ctx, config.LOCAL_WALLET_WS, "test", "test")
+	wallet, err := NewWebSocket(config.LOCAL_WALLET_WS, "test", "test")
 	if err != nil {
 		t.Fatal(err)
 	}

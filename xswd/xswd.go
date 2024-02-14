@@ -1,7 +1,6 @@
 package xswd
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,8 +32,8 @@ type XSWD struct {
 	Wallet *wallet.WebSocket
 }
 
-func NewXSWD(ctx context.Context, endpoint string) (*XSWD, error) {
-	ws, err := lib.NewWebSocket(ctx, endpoint, nil)
+func NewXSWD(endpoint string) (*XSWD, error) {
+	ws, err := lib.NewWebSocket(endpoint, nil)
 	if err != nil {
 		return nil, err
 	}

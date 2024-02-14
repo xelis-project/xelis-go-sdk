@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -13,8 +12,8 @@ type WebSocket struct {
 	WS     *lib.WebSocket
 }
 
-func NewWebSocket(ctx context.Context, endpoint string) (*WebSocket, error) {
-	ws, err := lib.NewWebSocket(ctx, endpoint, nil)
+func NewWebSocket(endpoint string) (*WebSocket, error) {
+	ws, err := lib.NewWebSocket(endpoint, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package xswd
 
 import (
-	"context"
 	"log"
 	"testing"
 
@@ -9,8 +8,7 @@ import (
 )
 
 func setupWebSocket(t *testing.T) (xswd *XSWD) {
-	ctx := context.Background()
-	xswd, err := NewXSWD(ctx, config.LOCAL_XSWD_WS)
+	xswd, err := NewXSWD(config.LOCAL_XSWD_WS)
 	if err != nil {
 		t.Fatal(err)
 	}

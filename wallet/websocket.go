@@ -1,7 +1,6 @@
 package wallet
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,10 +14,10 @@ type WebSocket struct {
 	WS     *lib.WebSocket
 }
 
-func NewWebSocket(ctx context.Context, endpoint string, username string, password string) (*WebSocket, error) {
+func NewWebSocket(endpoint string, username string, password string) (*WebSocket, error) {
 	header := make(http.Header)
 	setAuthHeader(header, username, password)
-	ws, err := lib.NewWebSocket(ctx, endpoint, header)
+	ws, err := lib.NewWebSocket(endpoint, header)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,30 +14,25 @@ import (
 type WebSocket struct {
 	CallTimeout time.Duration
 	id          int64
-	ctx         context.Context
-	cancel      context.CancelFunc
 	conn        *websocket.Conn
 	channels    map[int64]chan RPCResponse
 	events      map[string]int64
 	mutex       sync.Mutex
 }
 
-func NewWebSocket(ctx context.Context, endpoint string, header http.Header) (*WebSocket, error) {
-	daemonUrl, err := url.Parse(endpoint)
+func NewWebSocket(endpoint string, header http.Header) (*WebSocket, error) {
+	socketUrl, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial(daemonUrl.String(), header)
+	conn, _, err := websocket.DefaultDialer.Dial(socketUrl.String(), header)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
 	ws := &WebSocket{
 		CallTimeout: 3 * time.Second,
-		ctx:         ctx,
-		cancel:      cancel,
 		conn:        conn,
 		channels:    make(map[int64]chan RPCResponse),
 		events:      make(map[string]int64),
@@ -50,45 +44,37 @@ func NewWebSocket(ctx context.Context, endpoint string, header http.Header) (*We
 
 func (w *WebSocket) listen() {
 	go func() {
-		select {
-		case <-w.ctx.Done():
-			return
-		default:
-			for {
-				msgType, msg, err := w.conn.ReadMessage()
-				if err != nil {
-					w.cancel()
-					return
-				}
+		for {
+			_, msg, err := w.conn.ReadMessage()
+			if err != nil {
+				return
+			}
 
-				w.mutex.Lock()
-				if msgType == websocket.TextMessage {
-					var rpcResponse RPCResponse
-					json.Unmarshal(msg, &rpcResponse)
-					id := rpcResponse.ID
-					ch, ok := w.channels[rpcResponse.ID]
-					if ok {
-						ch <- rpcResponse
+			w.mutex.Lock()
+			var rpcResponse RPCResponse
+			json.Unmarshal(msg, &rpcResponse)
+			id := rpcResponse.ID
+			ch, ok := w.channels[rpcResponse.ID]
+			if ok {
+				ch <- rpcResponse
 
-						// Close channel if it's not an event.
-						// We will never receive data from that channel ever again, because the id is incremented each call.
-						// I'm not sure if it's OK to leave a channel open. Maybe it's picked up by GC, but I prefer to close manually and avoid leak.
-						isEvent := false
-						for _, eventId := range w.events {
-							if eventId == id {
-								isEvent = true
-								break
-							}
-						}
-
-						if !isEvent {
-							close(ch)
-							delete(w.channels, id)
-						}
+				// Close channel if it's not an event.
+				// We will never receive data from that channel ever again, because the id is incremented each call.
+				// I'm not sure if it's OK to leave a channel open. Maybe it's picked up by GC, but I prefer to close manually and avoid leak.
+				isEvent := false
+				for _, eventId := range w.events {
+					if eventId == id {
+						isEvent = true
+						break
 					}
 				}
-				w.mutex.Unlock()
+
+				if !isEvent {
+					close(ch)
+					delete(w.channels, id)
+				}
 			}
+			w.mutex.Unlock()
 		}
 	}()
 }
@@ -121,7 +107,6 @@ func (w *WebSocket) Close() error {
 		delete(w.events, event)
 	}
 
-	w.cancel()
 	return w.conn.Close()
 }
 
