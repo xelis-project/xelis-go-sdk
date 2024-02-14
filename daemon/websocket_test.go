@@ -3,7 +3,6 @@ package daemon
 import (
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/xelis-project/xelis-go-sdk/config"
 	"github.com/xelis-project/xelis-go-sdk/lib"
@@ -42,8 +41,30 @@ func TestWSGetInfo(t *testing.T) {
 
 	t.Logf("%+v", size)
 
-	//daemon.Close()
-	time.Sleep(10 * time.Second)
+	daemon.Close()
+}
+
+func TestWSCloseBeforeAndRetry(t *testing.T) {
+	testClose := true
+retry:
+	daemon, err := NewWebSocket(config.TESTNET_NODE_WS)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if testClose {
+		daemon.Close()
+	}
+
+	_, err = daemon.GetInfo()
+	if err != nil {
+		if !testClose {
+			t.Fatal(err)
+		}
+
+		testClose = false
+		goto retry
+	}
 }
 
 func TestWSNewBlock(t *testing.T) {
