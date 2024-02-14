@@ -65,6 +65,81 @@ func NewRPC(ctx context.Context, url string, username string, password string) (
 }
 
 func (d *RPC) GetVersion() (version string, err error) {
-	err = d.Client.CallResult(d.ctx, string(daemon.GetVersion), nil, &version)
+	err = d.Client.CallResult(d.ctx, string(GetVersion), nil, &version)
+	return
+}
+
+func (d *RPC) GetNetwork() (network string, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetNetwork), nil, &network)
+	return
+}
+
+func (d *RPC) GetNonce() (nonce uint64, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetNetwork), nil, &nonce)
+	return
+}
+
+func (d *RPC) GetTopoheight() (topoheight uint64, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetTopoheight), nil, &topoheight)
+	return
+}
+
+func (d *RPC) GetAddress(params GetAddressParams) (address string, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetAddress), params, &address)
+	return
+}
+
+func (d *RPC) SplitAddress(params SplitAddressParams) (result SplitAddressResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(SplitAddress), params, &result)
+	return
+}
+
+func (d *RPC) Rescan(params RescanParams) (success bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(Rescan), params, &success)
+	return
+}
+
+func (d *RPC) GetBalance(params GetBalanceParams) (balance uint64, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetBalance), nil, &balance)
+	return
+}
+
+func (d *RPC) GetTrackedAssets() (assets []string, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetTrackedAssets), nil, &assets)
+	return
+}
+
+func (d *RPC) GetAssetPrecision(params GetAssetPrecisionParams) (decimals int, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetAssetPrecision), params, &decimals)
+	return
+}
+
+func (d *RPC) GetTransaction(params GetTransactionParams) (transaction daemon.Transaction, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetTransaction), params, &transaction)
+	return
+}
+
+func (d *RPC) BuildTransaction(params BuildTransactionParams) (result BuildTransactionResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(BuildTransaction), params, &result)
+	return
+}
+
+func (d *RPC) ListTransactions(params ListTransactionsParams) (transactions []daemon.Transaction, err error) {
+	err = d.Client.CallResult(d.ctx, string(ListTransaction), params, &transactions)
+	return
+}
+
+func (d *RPC) IsOnline() (online bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(IsOnline), nil, &online)
+	return
+}
+
+func (d *RPC) SignData(data interface{}) (signature string, err error) {
+	err = d.Client.CallResult(d.ctx, string(SignData), data, &signature)
+	return
+}
+
+func (d *RPC) EstimateFees(params EstimateFeesParams) (amount uint64, err error) {
+	err = d.Client.CallResult(d.ctx, string(EstimateFees), params, &amount)
 	return
 }

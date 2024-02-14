@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/xelis-project/xelis-go-sdk/config"
+	"github.com/xelis-project/xelis-go-sdk/lib"
 )
 
 func setupWebSocket(t *testing.T) (daemon *WebSocket) {
@@ -34,7 +35,7 @@ func TestWSNewBlock(t *testing.T) {
 	daemon := setupWebSocket(t)
 	var wg sync.WaitGroup
 	wg.Add(1)
-	_, err := daemon.NewBlockFunc(func(newBlock NewBlockResult, res RPCResponse) {
+	_, err := daemon.NewBlockFunc(func(newBlock NewBlockResult, res lib.RPCResponse) {
 		t.Logf("%+v", newBlock)
 		wg.Done()
 	})
@@ -44,13 +45,13 @@ func TestWSNewBlock(t *testing.T) {
 	}
 
 	wg.Wait()
-	daemon.Close()
+	daemon.ws.Close()
 }
 
 func TestWSUnsubscribe(t *testing.T) {
 	daemon := setupWebSocket(t)
 
-	closeEvent, err := daemon.ListenEventFunc(NewBlock, func(res RPCResponse) {
+	closeEvent, err := daemon.NewBlockFunc(func(block NewBlockResult, res lib.RPCResponse) {
 		t.Logf("%+v", res)
 	})
 
@@ -71,7 +72,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	_, err := daemon.ListenEventFunc(NewBlock, func(res RPCResponse) {
+	_, err := daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})
@@ -80,7 +81,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	}
 
 	wg.Add(1)
-	_, err = daemon.ListenEventFunc(NewBlock, func(res RPCResponse) {
+	_, err = daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})

@@ -25,4 +25,10 @@ func TestRPCGetInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", version)
+
+	network, err := wallet.GetNetwork()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", network)
 }

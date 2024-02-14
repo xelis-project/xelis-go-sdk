@@ -1,24 +1,6 @@
 package daemon
 
-import "encoding/json"
-
-type RPCRequest struct {
-	ID      int64                  `json:"id"`
-	JSONRPC string                 `json:"jsonrpc"`
-	Method  RPCMethod              `json:"method"`
-	Params  map[string]interface{} `json:"params,omitempty"`
-}
-
-type RPCResponse struct {
-	ID     int64           `json:"id"`
-	Result json.RawMessage `json:"result,omitempty"`
-	Error  *RPCError       `json:"error,omitempty"`
-}
-
-type RPCError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
+import "github.com/xelis-project/xelis-go-sdk/lib"
 
 type GetTopoHeightRangeParams struct {
 	StartTopoheight uint64 `json:"start_topoheight"`
@@ -247,53 +229,49 @@ type AccountHistory struct {
 	Incoming       AmountHistory `json:"incoming"`
 }
 
-type RPCEvent string
-
 const (
-	NewBlock                  RPCEvent = `new_block`
-	TransactionAddedInMempool RPCEvent = `transaction_added_in_mempool`
-	TransactionExecuted       RPCEvent = `transaction_executed`
-	BlockOrdered              RPCEvent = `block_ordered`
+	NewBlock                  lib.RPCEvent = `new_block`
+	TransactionAddedInMempool lib.RPCEvent = `transaction_added_in_mempool`
+	TransactionExecuted       lib.RPCEvent = `transaction_executed`
+	BlockOrdered              lib.RPCEvent = `block_ordered`
 )
 
-type RPCMethod string
-
 const (
-	GetVersion                 RPCMethod = "get_version"
-	GetInfo                    RPCMethod = "get_info"
-	GetHeight                  RPCMethod = "get_height"
-	GetTopoHeight              RPCMethod = "get_topoheight"
-	GetStableHeight            RPCMethod = "get_stableheight"
-	GetBlockTemplate           RPCMethod = "get_block_template"
-	GetBlockAtTopoheight       RPCMethod = "get_block_at_topoheight"
-	GetBlocksAtHeight          RPCMethod = "get_blocks_at_height"
-	GetBlockByHash             RPCMethod = "get_block_by_hash"
-	GetTopBlock                RPCMethod = "get_top_block"
-	GetNonce                   RPCMethod = "get_nonce"
-	HasNonce                   RPCMethod = "has_nonce"
-	GetBalance                 RPCMethod = "get_balance"
-	HasBalance                 RPCMethod = "has_balance"
-	GetBalanceAtTopoheight     RPCMethod = "get_balance_at_topoheight"
-	GetAsset                   RPCMethod = "get_asset"
-	GetAssets                  RPCMethod = "get_assets"
-	CountAssets                RPCMethod = "count_assets"
-	CountTransactions          RPCMethod = "count_transactions"
-	CountAccounts              RPCMethod = "count_accounts"
-	GetTips                    RPCMethod = "get_tips"
-	P2PStatus                  RPCMethod = "p2p_status"
-	GetDAGOrder                RPCMethod = "get_dag_order"
-	SubmitBlock                RPCMethod = "submit_block"
-	SubmitTransaction          RPCMethod = "submit_transaction"
-	GetMempool                 RPCMethod = "get_mempool"
-	GetTransaction             RPCMethod = "get_transaction"
-	GetTransactions            RPCMethod = "get_transactions"
-	GetBlocksRangeByHeight     RPCMethod = "get_blocks_range_by_height"
-	GetBlocksRangeByTopoheight RPCMethod = "get_blocks_range_by_topoheight"
-	GetAccounts                RPCMethod = "get_accounts"
-	GetAccountHistory          RPCMethod = "get_account_history"
-	GetAccountAssets           RPCMethod = "get_account_assets"
-	GetPeers                   RPCMethod = "get_peers"
-	GetDevFeeThresholds        RPCMethod = "get_dev_fee_thresholds"
-	GetSizeOnDisk              RPCMethod = "get_size_on_disk"
-	IsTxExecutedInBlock        RPCMethod = "is_tx_executed_in_block"
+	GetVersion                 lib.RPCMethod = "get_version"
+	GetInfo                    lib.RPCMethod = "get_info"
+	GetHeight                  lib.RPCMethod = "get_height"
+	GetTopoHeight              lib.RPCMethod = "get_topoheight"
+	GetStableHeight            lib.RPCMethod = "get_stableheight"
+	GetBlockTemplate           lib.RPCMethod = "get_block_template"
+	GetBlockAtTopoheight       lib.RPCMethod = "get_block_at_topoheight"
+	GetBlocksAtHeight          lib.RPCMethod = "get_blocks_at_height"
+	GetBlockByHash             lib.RPCMethod = "get_block_by_hash"
+	GetTopBlock                lib.RPCMethod = "get_top_block"
+	GetNonce                   lib.RPCMethod = "get_nonce"
+	HasNonce                   lib.RPCMethod = "has_nonce"
+	GetBalance                 lib.RPCMethod = "get_balance"
+	HasBalance                 lib.RPCMethod = "has_balance"
+	GetBalanceAtTopoheight     lib.RPCMethod = "get_balance_at_topoheight"
+	GetAsset                   lib.RPCMethod = "get_asset"
+	GetAssets                  lib.RPCMethod = "get_assets"
+	CountAssets                lib.RPCMethod = "count_assets"
+	CountTransactions          lib.RPCMethod = "count_transactions"
+	CountAccounts              lib.RPCMethod = "count_accounts"
+	GetTips                    lib.RPCMethod = "get_tips"
+	P2PStatus                  lib.RPCMethod = "p2p_status"
+	GetDAGOrder                lib.RPCMethod = "get_dag_order"
+	SubmitBlock                lib.RPCMethod = "submit_block"
+	SubmitTransaction          lib.RPCMethod = "submit_transaction"
+	GetMempool                 lib.RPCMethod = "get_mempool"
+	GetTransaction             lib.RPCMethod = "get_transaction"
+	GetTransactions            lib.RPCMethod = "get_transactions"
+	GetBlocksRangeByHeight     lib.RPCMethod = "get_blocks_range_by_height"
+	GetBlocksRangeByTopoheight lib.RPCMethod = "get_blocks_range_by_topoheight"
+	GetAccounts                lib.RPCMethod = "get_accounts"
+	GetAccountHistory          lib.RPCMethod = "get_account_history"
+	GetAccountAssets           lib.RPCMethod = "get_account_assets"
+	GetPeers                   lib.RPCMethod = "get_peers"
+	GetDevFeeThresholds        lib.RPCMethod = "get_dev_fee_thresholds"
+	GetSizeOnDisk              lib.RPCMethod = "get_size_on_disk"
+	IsTxExecutedInBlock        lib.RPCMethod = "is_tx_executed_in_block"
 )
