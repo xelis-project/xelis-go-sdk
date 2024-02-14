@@ -22,12 +22,27 @@ func setupWebSocket(t *testing.T) (daemon *WebSocket) {
 func TestWSGetInfo(t *testing.T) {
 	daemon := setupWebSocket(t)
 
-	info, _, err := daemon.GetInfo()
+	info, err := daemon.GetInfo()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Logf("%+v", info)
+
+	fees, err := daemon.GetDevFeeThresholds()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("%+v", fees)
+
+	size, err := daemon.GetSizeOnDisk()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("%+v", size)
+
 	daemon.Close()
 }
 
@@ -35,7 +50,7 @@ func TestWSNewBlock(t *testing.T) {
 	daemon := setupWebSocket(t)
 	var wg sync.WaitGroup
 	wg.Add(1)
-	_, err := daemon.NewBlockFunc(func(newBlock NewBlockResult, res lib.RPCResponse) {
+	err := daemon.NewBlockFunc(func(newBlock Block, err error) {
 		t.Logf("%+v", newBlock)
 		wg.Done()
 	})
@@ -51,15 +66,15 @@ func TestWSNewBlock(t *testing.T) {
 func TestWSUnsubscribe(t *testing.T) {
 	daemon := setupWebSocket(t)
 
-	closeEvent, err := daemon.NewBlockFunc(func(block NewBlockResult, res lib.RPCResponse) {
-		t.Logf("%+v", res)
+	err := daemon.NewBlockFunc(func(block Block, err error) {
+		t.Logf("%+v", block)
 	})
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = closeEvent()
+	err = daemon.CloseEvent(NewBlock)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +87,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	_, err := daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	err := daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})
@@ -81,7 +96,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	}
 
 	wg.Add(1)
-	_, err = daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	err = daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})
@@ -89,12 +104,46 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	info, _, err := daemon.GetInfo()
+	info, err := daemon.GetInfo()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Logf("%+v", info)
+
+	wg.Wait()
+	daemon.Close()
+}
+
+func TestWSPeers(t *testing.T) {
+	daemon := setupWebSocket(t)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	daemon.PeerConnectedFunc(func(p Peer, err error) {
+		t.Logf("%+v", p)
+		wg.Done()
+	})
+
+	wg.Add(1)
+	daemon.PeerDisconnectedFunc(func(id uint64, err error) {
+		t.Logf("%d", id)
+		wg.Done()
+	})
+
+	wg.Wait()
+	daemon.Close()
+}
+
+func TestWSPeerUpdated(t *testing.T) {
+	daemon := setupWebSocket(t)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	daemon.PeerStateUpdatedFunc(func(p Peer, err error) {
+		t.Logf("%+v", p)
+		wg.Done()
+	})
 
 	wg.Wait()
 	daemon.Close()

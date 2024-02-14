@@ -2,7 +2,7 @@ package daemon
 
 import "github.com/xelis-project/xelis-go-sdk/lib"
 
-type GetTopoHeightRangeParams struct {
+type GetTopoheightRangeParams struct {
 	StartTopoheight uint64 `json:"start_topoheight"`
 	EndTopoheight   uint64 `json:"end_topoheight"`
 }
@@ -130,26 +130,6 @@ type Transaction struct {
 	FirstSeen       uint64          `json:"first_seen"`
 }
 
-type NewBlockResult struct {
-	BlockType            string   `json:"block_type"`
-	CumulativeDifficulty uint64   `json:"cumulative_difficulty"`
-	Difficulty           uint64   `json:"difficulty"`
-	Event                string   `json:"event"`
-	ExtraNonce           string   `json:"extra_nonce"`
-	Hash                 string   `json:"hash"`
-	Height               uint64   `json:"height"`
-	Miner                string   `json:"miner"`
-	Nonce                uint64   `json:"nonce"`
-	Reward               uint64   `json:"reward"`
-	Supply               uint64   `json:"supply"`
-	Timestamp            uint64   `json:"timestamp"`
-	Tips                 []string `json:"tips"`
-	Topoheight           uint64   `json:"topoheight"`
-	TotalFees            uint64   `json:"total_fees"`
-	TotalSizeInBytes     uint64   `json:"total_size_in_bytes"`
-	TxsHashes            []string `json:"txs_hashes"`
-}
-
 type GetInfoResult struct {
 	AverageBlocktime uint64 `json:"average_block_time"`
 	BlockReward      uint64 `json:"block_reward"`
@@ -176,19 +156,6 @@ type GetNonceResult struct {
 	Nonce              uint64 `json:"nonce"`
 	PreviousTopoheight uint64 `json:"previous_topoheight"`
 	Topoheight         uint64 `json:"topoheight"`
-}
-
-type Peer struct {
-	Addr                 string `json:"addr"`
-	CumulativeDifficulty uint64 `json:"cumulative_difficulty"`
-	Height               uint64 `json:"height"`
-	Id                   uint64 `json:"id"`
-	LastPing             uint64 `json:"last_ping"`
-	PrunedTopoheight     uint64 `json:"pruned_topoheight"`
-	Tag                  string
-	TopBlockHash         string `json:"top_block_hash"`
-	Topoheight           uint64 `json:"topoheight"`
-	Version              string `json:"version"`
 }
 
 type MiningHistory struct {
@@ -229,11 +196,44 @@ type AccountHistory struct {
 	Incoming       AmountHistory `json:"incoming"`
 }
 
+type TransactionExecutedResult struct {
+	BlockHash  string `json:"block_hash"`
+	Topoheight uint64 `json:"topoheight"`
+	TxHash     string `json:"tx_hash"`
+}
+
+type PeerDirection string
+
+const (
+	PeerIn   PeerDirection = "In"
+	PeerOut  PeerDirection = "Out"
+	PeerBoth PeerDirection = "Both"
+)
+
+type Peer struct {
+	Id                   uint64                   `json:"id"`
+	CumulativeDifficulty uint64                   `json:"cumulative_difficulty"`
+	PrunedTopoheight     uint64                   `json:"pruned_topoheight"`
+	ConnectedOn          uint64                   `json:"connected_on"`
+	Height               uint64                   `json:"height"`
+	LocalPort            int                      `json:"local_port"`
+	TopBlockHash         string                   `json:"top_block_hash"`
+	Addr                 string                   `json:"addr"`
+	LastPing             uint64                   `json:"last_ping"`
+	Tag                  string                   `json:"tag"`
+	Topoheight           uint64                   `json:"topoheight"`
+	Peers                map[string]PeerDirection `json:"peers"`
+	Version              string                   `json:"version"`
+}
+
 const (
 	NewBlock                  lib.RPCEvent = `new_block`
 	TransactionAddedInMempool lib.RPCEvent = `transaction_added_in_mempool`
 	TransactionExecuted       lib.RPCEvent = `transaction_executed`
 	BlockOrdered              lib.RPCEvent = `block_ordered`
+	PeerConnected             lib.RPCEvent = `peer_connected`
+	PeerDisconnected          lib.RPCEvent = `peer_disconnect`
+	PeerStateUpdated          lib.RPCEvent = `peer_state_updated`
 )
 
 const (

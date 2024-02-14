@@ -6,10 +6,10 @@ type RPCMethod string
 type RPCEvent string
 
 type RPCRequest struct {
-	ID      int64                  `json:"id"`
-	JSONRPC string                 `json:"jsonrpc"`
-	Method  RPCMethod              `json:"method"`
-	Params  map[string]interface{} `json:"params,omitempty"`
+	ID      int64       `json:"id"`
+	JSONRPC string      `json:"jsonrpc"`
+	Method  RPCMethod   `json:"method"`
+	Params  interface{} `json:"params,omitempty"`
 }
 
 type RPCResponse struct {

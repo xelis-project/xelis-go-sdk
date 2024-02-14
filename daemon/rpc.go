@@ -148,7 +148,7 @@ func (d *RPC) P2PStatus() (status P2PStatusResult, err error) {
 	return
 }
 
-func (d *RPC) GetDAGOrder(params GetTopoHeightRangeParams) (hashes []string, err error) {
+func (d *RPC) GetDAGOrder(params GetTopoheightRangeParams) (hashes []string, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetDAGOrder), params, &hashes)
 	return
 }
@@ -170,9 +170,9 @@ func (d *RPC) GetMempool() (txs []Transaction, err error) {
 	return
 }
 
-func (d *RPC) GetTransaction(hash string) (txs []Transaction, err error) {
+func (d *RPC) GetTransaction(hash string) (tx Transaction, err error) {
 	params := map[string]string{"hash": hash}
-	err = d.Client.CallResult(d.ctx, string(GetTransaction), params, &txs)
+	err = d.Client.CallResult(d.ctx, string(GetTransaction), params, &tx)
 	return
 }
 
@@ -181,7 +181,7 @@ func (d *RPC) GetTransactions(params GetTransactionsParams) (txs []Transaction, 
 	return
 }
 
-func (d *RPC) GetBlocksRangeByTopoheight(params GetTopoHeightRangeParams) (blocks []Block, err error) {
+func (d *RPC) GetBlocksRangeByTopoheight(params GetTopoheightRangeParams) (blocks []Block, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetBlocksRangeByTopoheight), params, &blocks)
 	return
 }

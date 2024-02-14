@@ -150,7 +150,7 @@ func TestRPCGetBlocksRange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	blocks, err := daemon.GetBlocksRangeByTopoheight(GetTopoHeightRangeParams{
+	blocks, err := daemon.GetBlocksRangeByTopoheight(GetTopoheightRangeParams{
 		StartTopoheight: topoheight - 10,
 		EndTopoheight:   topoheight,
 	})

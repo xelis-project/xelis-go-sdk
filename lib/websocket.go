@@ -98,7 +98,28 @@ func (w *WebSocket) Close() error {
 	return w.conn.Close()
 }
 
-func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (closeEvent func() error, err error) {
+func (w *WebSocket) CloseEvent(event RPCEvent) error {
+	id, ok := w.events[event]
+	if ok {
+		res, err := w.unsubscribeEvent(event)
+		if err != nil {
+			return err
+		}
+
+		if res.Error != nil {
+			return fmt.Errorf(res.Error.Message)
+		}
+
+		ch := w.channels[id]
+		close(ch)
+		delete(w.channels, id)
+		delete(w.events, event)
+	}
+
+	return nil
+}
+
+func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (err error) {
 	id, ok := w.events[event]
 	if !ok {
 		var res RPCResponse
@@ -124,45 +145,21 @@ func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (c
 		}
 	}()
 
-	closeEvent = func() error {
-		_, ok := w.events[event]
-		if ok {
-			res, err := w.unsubscribeEvent(event)
-
-			if err != nil {
-				return err
-			}
-
-			if res.Error != nil {
-				return fmt.Errorf(res.Error.Message)
-			}
-
-			close(ch)
-			delete(w.channels, id)
-			delete(w.events, event)
-		}
-
-		return nil
-	}
-
 	return
 }
 
-func (w *WebSocket) Call(method RPCMethod, params map[string]interface{}) (RPCResponse, error) {
-	var res RPCResponse
-	var err error
-
+func (w *WebSocket) Call(method RPCMethod, params interface{}) (res RPCResponse, err error) {
 	w.id++
 	rpcRequest := RPCRequest{ID: w.id, JSONRPC: "2.0", Method: method, Params: params}
 	msg, err := json.Marshal(rpcRequest)
 	if err != nil {
-		return res, err
+		return
 	}
 
 	ch := make(chan RPCResponse)
 	w.channels[w.id] = ch
 
-	timer := time.AfterFunc(10*time.Second, func() {
+	timer := time.AfterFunc(3*time.Second, func() {
 		close(ch)
 		delete(w.channels, w.id)
 		err = fmt.Errorf("timeout waiting for response")
@@ -170,10 +167,10 @@ func (w *WebSocket) Call(method RPCMethod, params map[string]interface{}) (RPCRe
 
 	err = w.conn.WriteMessage(websocket.TextMessage, msg)
 	if err != nil {
-		return res, err
+		return
 	}
 
 	res = <-ch
 	timer.Stop()
-	return res, err
+	return
 }
