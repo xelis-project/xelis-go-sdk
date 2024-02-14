@@ -1,7 +1,5 @@
 package daemon
 
-import "github.com/xelis-project/xelis-go-sdk/lib"
-
 type GetTopoheightRangeParams struct {
 	StartTopoheight uint64 `json:"start_topoheight"`
 	EndTopoheight   uint64 `json:"end_topoheight"`
@@ -227,51 +225,51 @@ type Peer struct {
 }
 
 const (
-	NewBlock                  lib.RPCEvent = `new_block`
-	TransactionAddedInMempool lib.RPCEvent = `transaction_added_in_mempool`
-	TransactionExecuted       lib.RPCEvent = `transaction_executed`
-	BlockOrdered              lib.RPCEvent = `block_ordered`
-	PeerConnected             lib.RPCEvent = `peer_connected`
-	PeerDisconnected          lib.RPCEvent = `peer_disconnect`
-	PeerStateUpdated          lib.RPCEvent = `peer_state_updated`
+	NewBlock                  string = `new_block`
+	TransactionAddedInMempool string = `transaction_added_in_mempool`
+	TransactionExecuted       string = `transaction_executed`
+	BlockOrdered              string = `block_ordered`
+	PeerConnected             string = `peer_connected`
+	PeerDisconnected          string = `peer_disconnect`
+	PeerStateUpdated          string = `peer_state_updated`
 )
 
 const (
-	GetVersion                 lib.RPCMethod = "get_version"
-	GetInfo                    lib.RPCMethod = "get_info"
-	GetHeight                  lib.RPCMethod = "get_height"
-	GetTopoHeight              lib.RPCMethod = "get_topoheight"
-	GetStableHeight            lib.RPCMethod = "get_stableheight"
-	GetBlockTemplate           lib.RPCMethod = "get_block_template"
-	GetBlockAtTopoheight       lib.RPCMethod = "get_block_at_topoheight"
-	GetBlocksAtHeight          lib.RPCMethod = "get_blocks_at_height"
-	GetBlockByHash             lib.RPCMethod = "get_block_by_hash"
-	GetTopBlock                lib.RPCMethod = "get_top_block"
-	GetNonce                   lib.RPCMethod = "get_nonce"
-	HasNonce                   lib.RPCMethod = "has_nonce"
-	GetBalance                 lib.RPCMethod = "get_balance"
-	HasBalance                 lib.RPCMethod = "has_balance"
-	GetBalanceAtTopoheight     lib.RPCMethod = "get_balance_at_topoheight"
-	GetAsset                   lib.RPCMethod = "get_asset"
-	GetAssets                  lib.RPCMethod = "get_assets"
-	CountAssets                lib.RPCMethod = "count_assets"
-	CountTransactions          lib.RPCMethod = "count_transactions"
-	CountAccounts              lib.RPCMethod = "count_accounts"
-	GetTips                    lib.RPCMethod = "get_tips"
-	P2PStatus                  lib.RPCMethod = "p2p_status"
-	GetDAGOrder                lib.RPCMethod = "get_dag_order"
-	SubmitBlock                lib.RPCMethod = "submit_block"
-	SubmitTransaction          lib.RPCMethod = "submit_transaction"
-	GetMempool                 lib.RPCMethod = "get_mempool"
-	GetTransaction             lib.RPCMethod = "get_transaction"
-	GetTransactions            lib.RPCMethod = "get_transactions"
-	GetBlocksRangeByHeight     lib.RPCMethod = "get_blocks_range_by_height"
-	GetBlocksRangeByTopoheight lib.RPCMethod = "get_blocks_range_by_topoheight"
-	GetAccounts                lib.RPCMethod = "get_accounts"
-	GetAccountHistory          lib.RPCMethod = "get_account_history"
-	GetAccountAssets           lib.RPCMethod = "get_account_assets"
-	GetPeers                   lib.RPCMethod = "get_peers"
-	GetDevFeeThresholds        lib.RPCMethod = "get_dev_fee_thresholds"
-	GetSizeOnDisk              lib.RPCMethod = "get_size_on_disk"
-	IsTxExecutedInBlock        lib.RPCMethod = "is_tx_executed_in_block"
+	GetVersion                 string = "get_version"
+	GetInfo                    string = "get_info"
+	GetHeight                  string = "get_height"
+	GetTopoHeight              string = "get_topoheight"
+	GetStableHeight            string = "get_stableheight"
+	GetBlockTemplate           string = "get_block_template"
+	GetBlockAtTopoheight       string = "get_block_at_topoheight"
+	GetBlocksAtHeight          string = "get_blocks_at_height"
+	GetBlockByHash             string = "get_block_by_hash"
+	GetTopBlock                string = "get_top_block"
+	GetNonce                   string = "get_nonce"
+	HasNonce                   string = "has_nonce"
+	GetBalance                 string = "get_balance"
+	HasBalance                 string = "has_balance"
+	GetBalanceAtTopoheight     string = "get_balance_at_topoheight"
+	GetAsset                   string = "get_asset"
+	GetAssets                  string = "get_assets"
+	CountAssets                string = "count_assets"
+	CountTransactions          string = "count_transactions"
+	CountAccounts              string = "count_accounts"
+	GetTips                    string = "get_tips"
+	P2PStatus                  string = "p2p_status"
+	GetDAGOrder                string = "get_dag_order"
+	SubmitBlock                string = "submit_block"
+	SubmitTransaction          string = "submit_transaction"
+	GetMempool                 string = "get_mempool"
+	GetTransaction             string = "get_transaction"
+	GetTransactions            string = "get_transactions"
+	GetBlocksRangeByHeight     string = "get_blocks_range_by_height"
+	GetBlocksRangeByTopoheight string = "get_blocks_range_by_topoheight"
+	GetAccounts                string = "get_accounts"
+	GetAccountHistory          string = "get_account_history"
+	GetAccountAssets           string = "get_account_assets"
+	GetPeers                   string = "get_peers"
+	GetDevFeeThresholds        string = "get_dev_fee_thresholds"
+	GetSizeOnDisk              string = "get_size_on_disk"
+	IsTxExecutedInBlock        string = "is_tx_executed_in_block"
 )

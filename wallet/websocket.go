@@ -11,34 +11,35 @@ import (
 )
 
 type WebSocket struct {
-	ws *lib.WebSocket
+	Prefix string
+	WS     *lib.WebSocket
 }
 
-func NewWebSocket(ctx context.Context, url string, username string, password string) (*WebSocket, error) {
+func NewWebSocket(ctx context.Context, endpoint string, username string, password string) (*WebSocket, error) {
 	header := make(http.Header)
 	setAuthHeader(header, username, password)
-	ws, err := lib.NewWebSocket(ctx, url, header)
+	ws, err := lib.NewWebSocket(ctx, endpoint, header)
 	if err != nil {
 		return nil, err
 	}
 
 	daemonWS := &WebSocket{
-		ws: ws,
+		WS: ws,
 	}
 
 	return daemonWS, nil
 }
 
 func (w *WebSocket) Close() error {
-	return w.ws.Close()
+	return w.WS.Close()
 }
 
-func (w *WebSocket) CloseEvent(event lib.RPCEvent) error {
-	return w.ws.CloseEvent(event)
+func (w *WebSocket) CloseEvent(event string) error {
+	return w.WS.CloseEvent(event)
 }
 
 func (w *WebSocket) GetVersion() (version string, err error) {
-	res, err := w.ws.Call(GetVersion, nil)
+	res, err := w.WS.Call(w.Prefix+GetVersion, nil)
 	if err != nil {
 		return
 	}
@@ -53,7 +54,7 @@ func (w *WebSocket) GetVersion() (version string, err error) {
 }
 
 func (w *WebSocket) GetNetwork() (network string, err error) {
-	res, err := w.ws.Call(GetNetwork, nil)
+	res, err := w.WS.Call(w.Prefix+GetNetwork, nil)
 	if err != nil {
 		return
 	}
@@ -68,7 +69,7 @@ func (w *WebSocket) GetNetwork() (network string, err error) {
 }
 
 func (w *WebSocket) GetNonce() (nonce uint64, err error) {
-	res, err := w.ws.Call(GetNonce, nil)
+	res, err := w.WS.Call(w.Prefix+GetNonce, nil)
 	if err != nil {
 		return
 	}
@@ -83,7 +84,7 @@ func (w *WebSocket) GetNonce() (nonce uint64, err error) {
 }
 
 func (w *WebSocket) GetTopoheight() (topoheight uint64, err error) {
-	res, err := w.ws.Call(GetTopoheight, nil)
+	res, err := w.WS.Call(w.Prefix+GetTopoheight, nil)
 	if err != nil {
 		return
 	}
@@ -98,7 +99,7 @@ func (w *WebSocket) GetTopoheight() (topoheight uint64, err error) {
 }
 
 func (w *WebSocket) GetAddress(params GetAddressParams) (address uint64, err error) {
-	res, err := w.ws.Call(GetAddress, params)
+	res, err := w.WS.Call(w.Prefix+GetAddress, params)
 	if err != nil {
 		return
 	}
@@ -113,7 +114,7 @@ func (w *WebSocket) GetAddress(params GetAddressParams) (address uint64, err err
 }
 
 func (w *WebSocket) SplitAddress(params SplitAddressParams) (result SplitAddressResult, err error) {
-	res, err := w.ws.Call(SplitAddress, params)
+	res, err := w.WS.Call(w.Prefix+SplitAddress, params)
 	if err != nil {
 		return
 	}
@@ -128,7 +129,7 @@ func (w *WebSocket) SplitAddress(params SplitAddressParams) (result SplitAddress
 }
 
 func (w *WebSocket) Rescan(params RescanParams) (success bool, err error) {
-	res, err := w.ws.Call(Rescan, params)
+	res, err := w.WS.Call(w.Prefix+Rescan, params)
 	if err != nil {
 		return
 	}
@@ -143,7 +144,7 @@ func (w *WebSocket) Rescan(params RescanParams) (success bool, err error) {
 }
 
 func (w *WebSocket) GetBalance(params GetBalanceParams) (balance uint64, err error) {
-	res, err := w.ws.Call(Rescan, params)
+	res, err := w.WS.Call(w.Prefix+Rescan, params)
 	if err != nil {
 		return
 	}
@@ -158,7 +159,7 @@ func (w *WebSocket) GetBalance(params GetBalanceParams) (balance uint64, err err
 }
 
 func (w *WebSocket) GetTrackedAssets() (assets []string, err error) {
-	res, err := w.ws.Call(GetTrackedAssets, nil)
+	res, err := w.WS.Call(w.Prefix+GetTrackedAssets, nil)
 	if err != nil {
 		return
 	}
@@ -173,7 +174,7 @@ func (w *WebSocket) GetTrackedAssets() (assets []string, err error) {
 }
 
 func (w *WebSocket) GetAssetPrecision(params GetAssetPrecisionParams) (decimals int, err error) {
-	res, err := w.ws.Call(GetAssetPrecision, nil)
+	res, err := w.WS.Call(w.Prefix+GetAssetPrecision, nil)
 	if err != nil {
 		return
 	}
@@ -188,7 +189,7 @@ func (w *WebSocket) GetAssetPrecision(params GetAssetPrecisionParams) (decimals 
 }
 
 func (w *WebSocket) GetTransaction(params GetTransactionParams) (transaction daemon.Transaction, err error) {
-	res, err := w.ws.Call(GetTransaction, params)
+	res, err := w.WS.Call(w.Prefix+GetTransaction, params)
 	if err != nil {
 		return
 	}
@@ -203,7 +204,7 @@ func (w *WebSocket) GetTransaction(params GetTransactionParams) (transaction dae
 }
 
 func (w *WebSocket) BuildTransaction(params BuildTransactionParams) (result BuildTransactionResult, err error) {
-	res, err := w.ws.Call(BuildTransaction, params)
+	res, err := w.WS.Call(w.Prefix+BuildTransaction, params)
 	if err != nil {
 		return
 	}
@@ -218,7 +219,7 @@ func (w *WebSocket) BuildTransaction(params BuildTransactionParams) (result Buil
 }
 
 func (w *WebSocket) ListTransactions(params ListTransactionsParams) (txs []daemon.Transaction, err error) {
-	res, err := w.ws.Call(ListTransactions, params)
+	res, err := w.WS.Call(w.Prefix+ListTransactions, params)
 	if err != nil {
 		return
 	}
@@ -233,7 +234,7 @@ func (w *WebSocket) ListTransactions(params ListTransactionsParams) (txs []daemo
 }
 
 func (w *WebSocket) IsOnline() (online bool, err error) {
-	res, err := w.ws.Call(IsOnline, nil)
+	res, err := w.WS.Call(w.Prefix+IsOnline, nil)
 	if err != nil {
 		return
 	}
@@ -248,7 +249,7 @@ func (w *WebSocket) IsOnline() (online bool, err error) {
 }
 
 func (w *WebSocket) SignData(data interface{}) (signature string, err error) {
-	res, err := w.ws.Call(SignData, data)
+	res, err := w.WS.Call(w.Prefix+SignData, data)
 	if err != nil {
 		return
 	}
@@ -263,7 +264,7 @@ func (w *WebSocket) SignData(data interface{}) (signature string, err error) {
 }
 
 func (w *WebSocket) EstimateFees(params EstimateFeesParams) (amount uint64, err error) {
-	res, err := w.ws.Call(EstimateFees, params)
+	res, err := w.WS.Call(w.Prefix+EstimateFees, params)
 	if err != nil {
 		return
 	}

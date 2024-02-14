@@ -1,7 +1,5 @@
 package wallet
 
-import "github.com/xelis-project/xelis-go-sdk/lib"
-
 type GetAddressParams struct {
 	IntegratedData string `json:"integrated_data"`
 }
@@ -83,20 +81,20 @@ type EstimateFeesParams struct {
 }
 
 const (
-	GetVersion        lib.RPCMethod = "get_version"
-	GetNetwork        lib.RPCMethod = "get_network"
-	GetNonce          lib.RPCMethod = "get_nonce"
-	GetTopoheight     lib.RPCMethod = "get_topoheight"
-	GetAddress        lib.RPCMethod = "get_address"
-	SplitAddress      lib.RPCMethod = "split_address"
-	Rescan            lib.RPCMethod = "rescan"
-	GetBalance        lib.RPCMethod = "get_balance"
-	GetTrackedAssets  lib.RPCMethod = "get_tracked_assets"
-	GetAssetPrecision lib.RPCMethod = "get_asset_precision"
-	GetTransaction    lib.RPCMethod = "get_transaction"
-	BuildTransaction  lib.RPCMethod = "build_transaction"
-	ListTransactions  lib.RPCMethod = "list_transactions"
-	IsOnline          lib.RPCMethod = "is_online"
-	SignData          lib.RPCMethod = "sign_data"
-	EstimateFees      lib.RPCMethod = "estimate_fees"
+	GetVersion        string = "get_version"
+	GetNetwork        string = "get_network"
+	GetNonce          string = "get_nonce"
+	GetTopoheight     string = "get_topoheight"
+	GetAddress        string = "get_address"
+	SplitAddress      string = "split_address"
+	Rescan            string = "rescan"
+	GetBalance        string = "get_balance"
+	GetTrackedAssets  string = "get_tracked_assets"
+	GetAssetPrecision string = "get_asset_precision"
+	GetTransaction    string = "get_transaction"
+	BuildTransaction  string = "build_transaction"
+	ListTransactions  string = "list_transactions"
+	IsOnline          string = "is_online"
+	SignData          string = "sign_data"
+	EstimateFees      string = "estimate_fees"
 )

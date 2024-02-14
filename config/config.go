@@ -22,3 +22,6 @@ var LOCAL_NODE_WS = fmt.Sprintf("wss://%s/json_rpc", LOCAL_NODE_URL)
 var LOCAL_WALLET_URL = fmt.Sprintf("127.0.0.1:%d", WALLET_RPC_PORT)
 var LOCAL_WALLET_RPC = fmt.Sprintf("http://%s/json_rpc", LOCAL_WALLET_URL)
 var LOCAL_WALLET_WS = fmt.Sprintf("ws://%s/json_rpc", LOCAL_WALLET_URL)
+
+var LOCAL_XSWD_URL = fmt.Sprintf("127.0.0.1:%d", XSWD_PORT)
+var LOCAL_XSWD_WS = fmt.Sprintf("ws://%s/xswd", LOCAL_XSWD_URL)

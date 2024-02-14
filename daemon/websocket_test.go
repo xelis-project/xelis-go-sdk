@@ -60,7 +60,7 @@ func TestWSNewBlock(t *testing.T) {
 	}
 
 	wg.Wait()
-	daemon.ws.Close()
+	daemon.Close()
 }
 
 func TestWSUnsubscribe(t *testing.T) {
@@ -87,7 +87,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	err := daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	err := daemon.WS.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})
@@ -96,7 +96,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	}
 
 	wg.Add(1)
-	err = daemon.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	err = daemon.WS.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})

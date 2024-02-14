@@ -9,32 +9,31 @@ import (
 )
 
 type WebSocket struct {
-	ws *lib.WebSocket
+	Prefix string
+	WS     *lib.WebSocket
 }
 
-func NewWebSocket(ctx context.Context, url string) (*WebSocket, error) {
-	ws, err := lib.NewWebSocket(ctx, url, nil)
+func NewWebSocket(ctx context.Context, endpoint string) (*WebSocket, error) {
+	ws, err := lib.NewWebSocket(ctx, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	daemonWS := &WebSocket{
-		ws: ws,
-	}
-
-	return daemonWS, nil
+	return &WebSocket{
+		WS: ws,
+	}, nil
 }
 
 func (w *WebSocket) Close() error {
-	return w.ws.Close()
+	return w.WS.Close()
 }
 
-func (w *WebSocket) CloseEvent(event lib.RPCEvent) error {
-	return w.ws.CloseEvent(event)
+func (w *WebSocket) CloseEvent(event string) error {
+	return w.WS.CloseEvent(event)
 }
 
 func (w *WebSocket) NewBlockFunc(onData func(Block, error)) error {
-	return w.ws.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
 		var result Block
 		if res.Error != nil {
 			onData(result, fmt.Errorf(res.Error.Message))
@@ -47,7 +46,7 @@ func (w *WebSocket) NewBlockFunc(onData func(Block, error)) error {
 }
 
 func (w *WebSocket) TransactionAddedInMempoolFunc(onData func(Transaction, error)) error {
-	return w.ws.ListenEventFunc(TransactionAddedInMempool, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(TransactionAddedInMempool, func(res lib.RPCResponse) {
 		var result Transaction
 		if res.Error != nil {
 			onData(result, fmt.Errorf(res.Error.Message))
@@ -60,7 +59,7 @@ func (w *WebSocket) TransactionAddedInMempoolFunc(onData func(Transaction, error
 }
 
 func (w *WebSocket) BlockOrderedFunc(onData func(Block, error)) error {
-	return w.ws.ListenEventFunc(BlockOrdered, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(BlockOrdered, func(res lib.RPCResponse) {
 		var result Block
 		if res.Error != nil {
 			onData(result, fmt.Errorf(res.Error.Message))
@@ -73,7 +72,7 @@ func (w *WebSocket) BlockOrderedFunc(onData func(Block, error)) error {
 }
 
 func (w *WebSocket) TransactionExecutedFunc(onData func(TransactionExecutedResult, error)) error {
-	return w.ws.ListenEventFunc(TransactionExecuted, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(TransactionExecuted, func(res lib.RPCResponse) {
 		var result TransactionExecutedResult
 		if res.Error != nil {
 			onData(result, fmt.Errorf(res.Error.Message))
@@ -86,7 +85,7 @@ func (w *WebSocket) TransactionExecutedFunc(onData func(TransactionExecutedResul
 }
 
 func (w *WebSocket) PeerConnectedFunc(onData func(Peer, error)) error {
-	return w.ws.ListenEventFunc(PeerConnected, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(PeerConnected, func(res lib.RPCResponse) {
 		var result Peer
 		if res.Error != nil {
 			onData(result, fmt.Errorf(res.Error.Message))
@@ -99,7 +98,7 @@ func (w *WebSocket) PeerConnectedFunc(onData func(Peer, error)) error {
 }
 
 func (w *WebSocket) PeerDisconnectedFunc(onData func(uint64, error)) error {
-	return w.ws.ListenEventFunc(PeerDisconnected, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(PeerDisconnected, func(res lib.RPCResponse) {
 		var id uint64
 		if res.Error != nil {
 			onData(id, fmt.Errorf(res.Error.Message))
@@ -112,7 +111,7 @@ func (w *WebSocket) PeerDisconnectedFunc(onData func(uint64, error)) error {
 }
 
 func (w *WebSocket) PeerStateUpdatedFunc(onData func(Peer, error)) error {
-	return w.ws.ListenEventFunc(PeerStateUpdated, func(res lib.RPCResponse) {
+	return w.WS.ListenEventFunc(PeerStateUpdated, func(res lib.RPCResponse) {
 		var result Peer
 		if res.Error != nil {
 			onData(result, fmt.Errorf(res.Error.Message))
@@ -125,7 +124,7 @@ func (w *WebSocket) PeerStateUpdatedFunc(onData func(Peer, error)) error {
 }
 
 func (w *WebSocket) GetVersion() (version string, err error) {
-	res, err := w.ws.Call(GetVersion, nil)
+	res, err := w.WS.Call(w.Prefix+GetVersion, nil)
 	if err != nil {
 		return
 	}
@@ -140,7 +139,7 @@ func (w *WebSocket) GetVersion() (version string, err error) {
 }
 
 func (w *WebSocket) GetInfo() (result GetInfoResult, err error) {
-	res, err := w.ws.Call(GetInfo, nil)
+	res, err := w.WS.Call(w.Prefix+GetInfo, nil)
 	if err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (w *WebSocket) GetInfo() (result GetInfoResult, err error) {
 }
 
 func (w *WebSocket) GetHeight() (height uint64, err error) {
-	res, err := w.ws.Call(GetHeight, nil)
+	res, err := w.WS.Call(w.Prefix+GetHeight, nil)
 	if err != nil {
 		return
 	}
@@ -170,7 +169,7 @@ func (w *WebSocket) GetHeight() (height uint64, err error) {
 }
 
 func (w *WebSocket) GetTopoheight() (topoheight uint64, err error) {
-	res, err := w.ws.Call(GetTopoHeight, nil)
+	res, err := w.WS.Call(w.Prefix+GetTopoHeight, nil)
 	if err != nil {
 		return
 	}
@@ -185,7 +184,7 @@ func (w *WebSocket) GetTopoheight() (topoheight uint64, err error) {
 }
 
 func (w *WebSocket) GetStableheight() (stableheight uint64, err error) {
-	res, err := w.ws.Call(GetStableHeight, nil)
+	res, err := w.WS.Call(w.Prefix+GetStableHeight, nil)
 	if err != nil {
 		return
 	}
@@ -201,7 +200,7 @@ func (w *WebSocket) GetStableheight() (stableheight uint64, err error) {
 
 func (w *WebSocket) GetBlockTemplate(addr string) (result GetBlockTemplateResult, err error) {
 	params := map[string]string{"address": addr}
-	res, err := w.ws.Call(GetBlockTemplate, params)
+	res, err := w.WS.Call(w.Prefix+GetBlockTemplate, params)
 	if err != nil {
 		return
 	}
@@ -216,7 +215,7 @@ func (w *WebSocket) GetBlockTemplate(addr string) (result GetBlockTemplateResult
 }
 
 func (w *WebSocket) GetBlockAtTopoheight(params GetBlockAtTopoheightParams) (block Block, err error) {
-	res, err := w.ws.Call(GetBlockAtTopoheight, params)
+	res, err := w.WS.Call(w.Prefix+GetBlockAtTopoheight, params)
 	if err != nil {
 		return
 	}
@@ -231,7 +230,7 @@ func (w *WebSocket) GetBlockAtTopoheight(params GetBlockAtTopoheightParams) (blo
 }
 
 func (w *WebSocket) GetBlocksAtHeight(params GetBlockAtTopoheightParams) (blocks []Block, err error) {
-	res, err := w.ws.Call(GetBlocksAtHeight, params)
+	res, err := w.WS.Call(w.Prefix+GetBlocksAtHeight, params)
 	if err != nil {
 		return
 	}
@@ -246,7 +245,7 @@ func (w *WebSocket) GetBlocksAtHeight(params GetBlockAtTopoheightParams) (blocks
 }
 
 func (w *WebSocket) GetBlockByHash(params GetBlockByHashParams) (block Block, err error) {
-	res, err := w.ws.Call(GetBlockByHash, params)
+	res, err := w.WS.Call(w.Prefix+GetBlockByHash, params)
 	if err != nil {
 		return
 	}
@@ -261,7 +260,7 @@ func (w *WebSocket) GetBlockByHash(params GetBlockByHashParams) (block Block, er
 }
 
 func (w *WebSocket) GetTopBlock(params GetTopBlockParams) (block Block, err error) {
-	res, err := w.ws.Call(GetTopBlock, params)
+	res, err := w.WS.Call(w.Prefix+GetTopBlock, params)
 	if err != nil {
 		return
 	}
@@ -277,7 +276,7 @@ func (w *WebSocket) GetTopBlock(params GetTopBlockParams) (block Block, err erro
 
 func (w *WebSocket) GetNonce(addr string) (nonce GetNonceResult, err error) {
 	params := map[string]string{"address": addr}
-	res, err := w.ws.Call(GetNonce, params)
+	res, err := w.WS.Call(w.Prefix+GetNonce, params)
 	if err != nil {
 		return
 	}
@@ -293,7 +292,7 @@ func (w *WebSocket) GetNonce(addr string) (nonce GetNonceResult, err error) {
 
 func (w *WebSocket) HasNonce(addr string) (hasNonce bool, err error) {
 	params := map[string]string{"address": addr}
-	res, err := w.ws.Call(HasNonce, params)
+	res, err := w.WS.Call(w.Prefix+HasNonce, params)
 	if err != nil {
 		return
 	}
@@ -310,7 +309,7 @@ func (w *WebSocket) HasNonce(addr string) (hasNonce bool, err error) {
 }
 
 func (w *WebSocket) GetBalance(params GetBalanceParams) (balance GetBalanceResult, err error) {
-	res, err := w.ws.Call(GetBalance, params)
+	res, err := w.WS.Call(w.Prefix+GetBalance, params)
 	if err != nil {
 		return
 	}
@@ -325,7 +324,7 @@ func (w *WebSocket) GetBalance(params GetBalanceParams) (balance GetBalanceResul
 }
 
 func (w *WebSocket) HasBalance(params GetBalanceParams) (hasBalance bool, err error) {
-	res, err := w.ws.Call(HasBalance, params)
+	res, err := w.WS.Call(w.Prefix+HasBalance, params)
 	if err != nil {
 		return
 	}
@@ -342,7 +341,7 @@ func (w *WebSocket) HasBalance(params GetBalanceParams) (hasBalance bool, err er
 }
 
 func (w *WebSocket) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) (balance Balance, err error) {
-	res, err := w.ws.Call(GetBalanceAtTopoheight, params)
+	res, err := w.WS.Call(w.Prefix+GetBalanceAtTopoheight, params)
 	if err != nil {
 		return
 	}
@@ -358,7 +357,7 @@ func (w *WebSocket) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) 
 
 func (w *WebSocket) GetAsset(assetId string) (asset Asset, err error) {
 	params := map[string]string{"asset": assetId}
-	res, err := w.ws.Call(GetAsset, params)
+	res, err := w.WS.Call(w.Prefix+GetAsset, params)
 	if err != nil {
 		return
 	}
@@ -373,7 +372,7 @@ func (w *WebSocket) GetAsset(assetId string) (asset Asset, err error) {
 }
 
 func (w *WebSocket) GetAssets(params GetAssetsParams) (assets []string, err error) {
-	res, err := w.ws.Call(GetAssets, params)
+	res, err := w.WS.Call(w.Prefix+GetAssets, params)
 	if err != nil {
 		return
 	}
@@ -388,7 +387,7 @@ func (w *WebSocket) GetAssets(params GetAssetsParams) (assets []string, err erro
 }
 
 func (w *WebSocket) CountAssets() (count uint64, err error) {
-	res, err := w.ws.Call(CountAssets, nil)
+	res, err := w.WS.Call(w.Prefix+CountAssets, nil)
 	if err != nil {
 		return
 	}
@@ -403,7 +402,7 @@ func (w *WebSocket) CountAssets() (count uint64, err error) {
 }
 
 func (w *WebSocket) CountTransactions() (count uint64, err error) {
-	res, err := w.ws.Call(CountTransactions, nil)
+	res, err := w.WS.Call(w.Prefix+CountTransactions, nil)
 	if err != nil {
 		return
 	}
@@ -418,7 +417,7 @@ func (w *WebSocket) CountTransactions() (count uint64, err error) {
 }
 
 func (w *WebSocket) CountAccounts() (count uint64, err error) {
-	res, err := w.ws.Call(CountAccounts, nil)
+	res, err := w.WS.Call(w.Prefix+CountAccounts, nil)
 	if err != nil {
 		return
 	}
@@ -433,7 +432,7 @@ func (w *WebSocket) CountAccounts() (count uint64, err error) {
 }
 
 func (w *WebSocket) GetTips() (tips []string, err error) {
-	res, err := w.ws.Call(GetTips, nil)
+	res, err := w.WS.Call(w.Prefix+GetTips, nil)
 	if err != nil {
 		return
 	}
@@ -448,7 +447,7 @@ func (w *WebSocket) GetTips() (tips []string, err error) {
 }
 
 func (w *WebSocket) P2PStatus() (status P2PStatusResult, err error) {
-	res, err := w.ws.Call(P2PStatus, nil)
+	res, err := w.WS.Call(w.Prefix+P2PStatus, nil)
 	if err != nil {
 		return
 	}
@@ -463,7 +462,7 @@ func (w *WebSocket) P2PStatus() (status P2PStatusResult, err error) {
 }
 
 func (w *WebSocket) GetDAGOrder(params GetTopoheightRangeParams) (hashes []string, err error) {
-	res, err := w.ws.Call(GetDAGOrder, params)
+	res, err := w.WS.Call(w.Prefix+GetDAGOrder, params)
 	if err != nil {
 		return
 	}
@@ -479,7 +478,7 @@ func (w *WebSocket) GetDAGOrder(params GetTopoheightRangeParams) (hashes []strin
 
 func (w *WebSocket) SubmitBlock(hexData string) (result bool, err error) {
 	params := map[string]string{"block_template": hexData}
-	res, err := w.ws.Call(SubmitBlock, params)
+	res, err := w.WS.Call(w.Prefix+SubmitBlock, params)
 	if err != nil {
 		return
 	}
@@ -495,7 +494,7 @@ func (w *WebSocket) SubmitBlock(hexData string) (result bool, err error) {
 
 func (w *WebSocket) SubmitTransaction(hexData string) (result bool, err error) {
 	params := map[string]string{"data": hexData}
-	res, err := w.ws.Call(SubmitTransaction, params)
+	res, err := w.WS.Call(w.Prefix+SubmitTransaction, params)
 	if err != nil {
 		return
 	}
@@ -510,7 +509,7 @@ func (w *WebSocket) SubmitTransaction(hexData string) (result bool, err error) {
 }
 
 func (w *WebSocket) GetMempool() (txs []Transaction, err error) {
-	res, err := w.ws.Call(GetMempool, nil)
+	res, err := w.WS.Call(w.Prefix+GetMempool, nil)
 	if err != nil {
 		return
 	}
@@ -526,7 +525,7 @@ func (w *WebSocket) GetMempool() (txs []Transaction, err error) {
 
 func (w *WebSocket) GetTransaction(hash string) (tx Transaction, err error) {
 	params := map[string]string{"hash": hash}
-	res, err := w.ws.Call(GetTransaction, params)
+	res, err := w.WS.Call(w.Prefix+GetTransaction, params)
 	if err != nil {
 		return
 	}
@@ -541,7 +540,7 @@ func (w *WebSocket) GetTransaction(hash string) (tx Transaction, err error) {
 }
 
 func (w *WebSocket) GetTransactions(params GetTransactionsParams) (txs []Transaction, err error) {
-	res, err := w.ws.Call(GetTransactions, params)
+	res, err := w.WS.Call(w.Prefix+GetTransactions, params)
 	if err != nil {
 		return
 	}
@@ -556,7 +555,7 @@ func (w *WebSocket) GetTransactions(params GetTransactionsParams) (txs []Transac
 }
 
 func (w *WebSocket) GetBlocksRangeByTopoheight(params GetTopoheightRangeParams) (blocks []Block, err error) {
-	res, err := w.ws.Call(GetBlocksRangeByTopoheight, params)
+	res, err := w.WS.Call(w.Prefix+GetBlocksRangeByTopoheight, params)
 	if err != nil {
 		return
 	}
@@ -571,7 +570,7 @@ func (w *WebSocket) GetBlocksRangeByTopoheight(params GetTopoheightRangeParams) 
 }
 
 func (w *WebSocket) GetBlocksRangeByHeight(params GetHeightRangeParams) (blocks []Block, err error) {
-	res, err := w.ws.Call(GetBlocksRangeByHeight, params)
+	res, err := w.WS.Call(w.Prefix+GetBlocksRangeByHeight, params)
 	if err != nil {
 		return
 	}
@@ -586,7 +585,7 @@ func (w *WebSocket) GetBlocksRangeByHeight(params GetHeightRangeParams) (blocks 
 }
 
 func (w *WebSocket) GetAccounts(params GetAccountsParams) (addresses []string, err error) {
-	res, err := w.ws.Call(GetAccounts, params)
+	res, err := w.WS.Call(w.Prefix+GetAccounts, params)
 	if err != nil {
 		return
 	}
@@ -602,7 +601,7 @@ func (w *WebSocket) GetAccounts(params GetAccountsParams) (addresses []string, e
 
 func (w *WebSocket) GetAccountHistory(addr string) (history AccountHistory, err error) {
 	params := map[string]string{"address": addr}
-	res, err := w.ws.Call(GetAccountHistory, params)
+	res, err := w.WS.Call(w.Prefix+GetAccountHistory, params)
 	if err != nil {
 		return
 	}
@@ -618,7 +617,7 @@ func (w *WebSocket) GetAccountHistory(addr string) (history AccountHistory, err 
 
 func (w *WebSocket) GetAccountAssets(addr string) (assets []string, err error) {
 	params := map[string]string{"address": addr}
-	res, err := w.ws.Call(GetAccountAssets, params)
+	res, err := w.WS.Call(w.Prefix+GetAccountAssets, params)
 	if err != nil {
 		return
 	}
@@ -633,7 +632,7 @@ func (w *WebSocket) GetAccountAssets(addr string) (assets []string, err error) {
 }
 
 func (w *WebSocket) GetPeers() (peers []Peer, err error) {
-	res, err := w.ws.Call(GetPeers, nil)
+	res, err := w.WS.Call(w.Prefix+GetPeers, nil)
 	if err != nil {
 		return
 	}
@@ -648,7 +647,7 @@ func (w *WebSocket) GetPeers() (peers []Peer, err error) {
 }
 
 func (w *WebSocket) GetDevFeeThresholds() (fees []Fee, err error) {
-	res, err := w.ws.Call(GetDevFeeThresholds, nil)
+	res, err := w.WS.Call(w.Prefix+GetDevFeeThresholds, nil)
 	if err != nil {
 		return
 	}
@@ -663,7 +662,7 @@ func (w *WebSocket) GetDevFeeThresholds() (fees []Fee, err error) {
 }
 
 func (w *WebSocket) GetSizeOnDisk() (sizeOnDisk SizeOnDisk, err error) {
-	res, err := w.ws.Call(GetSizeOnDisk, nil)
+	res, err := w.WS.Call(w.Prefix+GetSizeOnDisk, nil)
 	if err != nil {
 		return
 	}
@@ -678,7 +677,7 @@ func (w *WebSocket) GetSizeOnDisk() (sizeOnDisk SizeOnDisk, err error) {
 }
 
 func (w *WebSocket) IsTxExecutedInBlock(params IsTxExecutedInBlockParams) (executed bool, err error) {
-	res, err := w.ws.Call(IsTxExecutedInBlock, params)
+	res, err := w.WS.Call(w.Prefix+IsTxExecutedInBlock, params)
 	if err != nil {
 		return
 	}

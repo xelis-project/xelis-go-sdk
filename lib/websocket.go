@@ -5,23 +5,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	netUrl "net/url"
+	"net/url"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 type WebSocket struct {
-	ctx      context.Context
-	cancel   context.CancelFunc
-	conn     *websocket.Conn
-	channels map[int64]chan RPCResponse
-	events   map[RPCEvent]int64
-	id       int64
+	CallTimeout time.Duration
+	id          int64
+	ctx         context.Context
+	cancel      context.CancelFunc
+	conn        *websocket.Conn
+	channels    map[int64]chan RPCResponse
+	events      map[string]int64
+	mutex       sync.Mutex
 }
 
-func NewWebSocket(ctx context.Context, url string, header http.Header) (*WebSocket, error) {
-	daemonUrl, err := netUrl.Parse(url)
+func NewWebSocket(ctx context.Context, endpoint string, header http.Header) (*WebSocket, error) {
+	daemonUrl, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -33,11 +36,12 @@ func NewWebSocket(ctx context.Context, url string, header http.Header) (*WebSock
 
 	ctx, cancel := context.WithCancel(ctx)
 	ws := &WebSocket{
-		ctx:      ctx,
-		cancel:   cancel,
-		conn:     conn,
-		channels: make(map[int64]chan RPCResponse),
-		events:   make(map[RPCEvent]int64),
+		CallTimeout: 3 * time.Second,
+		ctx:         ctx,
+		cancel:      cancel,
+		conn:        conn,
+		channels:    make(map[int64]chan RPCResponse),
+		events:      make(map[string]int64),
 	}
 
 	go ws.listen()
@@ -57,32 +61,54 @@ func (w *WebSocket) listen() {
 					return
 				}
 
+				w.mutex.Lock()
 				if msgType == websocket.TextMessage {
 					var rpcResponse RPCResponse
 					json.Unmarshal(msg, &rpcResponse)
-					channel, ok := w.channels[rpcResponse.ID]
+					id := rpcResponse.ID
+					ch, ok := w.channels[rpcResponse.ID]
 					if ok {
-						channel <- rpcResponse
+						ch <- rpcResponse
+
+						// Close channel if it's not an event.
+						// We will never receive data from that channel ever again, because the id is incremented each call.
+						// I'm not sure if it's OK to leave a channel open. Maybe it's picked up by GC, but I prefer to close manually and avoid leak.
+						isEvent := false
+						for _, eventId := range w.events {
+							if eventId == id {
+								isEvent = true
+								break
+							}
+						}
+
+						if !isEvent {
+							close(ch)
+							delete(w.channels, id)
+						}
 					}
 				}
+				w.mutex.Unlock()
 			}
 		}
 	}()
 }
 
-func (w *WebSocket) subscribeEvent(event RPCEvent) (RPCResponse, error) {
+func (w *WebSocket) subscribeEvent(event string) (RPCResponse, error) {
 	return w.Call("subscribe", map[string]interface{}{
 		"notify": event,
 	})
 }
 
-func (w *WebSocket) unsubscribeEvent(event RPCEvent) (RPCResponse, error) {
+func (w *WebSocket) unsubscribeEvent(event string) (RPCResponse, error) {
 	return w.Call("unsubscribe", map[string]interface{}{
 		"notify": event,
 	})
 }
 
 func (w *WebSocket) Close() error {
+	defer w.mutex.Unlock()
+	w.mutex.Lock()
+
 	// Remove channels and events.
 	// We don't need to send unsubscribe event if we just close the connection.
 	for id := range w.channels {
@@ -99,7 +125,7 @@ func (w *WebSocket) Close() error {
 	return w.conn.Close()
 }
 
-func (w *WebSocket) CloseEvent(event RPCEvent) error {
+func (w *WebSocket) CloseEvent(event string) error {
 	id, ok := w.events[event]
 	if ok {
 		res, err := w.unsubscribeEvent(event)
@@ -111,16 +137,18 @@ func (w *WebSocket) CloseEvent(event RPCEvent) error {
 			return fmt.Errorf(res.Error.Message)
 		}
 
+		w.mutex.Lock()
 		ch := w.channels[id]
 		close(ch)
 		delete(w.channels, id)
 		delete(w.events, event)
+		w.mutex.Unlock()
 	}
 
 	return nil
 }
 
-func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (err error) {
+func (w *WebSocket) ListenEventFunc(event string, onData func(RPCResponse)) (err error) {
 	id, ok := w.events[event]
 	if !ok {
 		var res RPCResponse
@@ -138,7 +166,11 @@ func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (e
 		w.events[event] = id
 	}
 
-	ch := w.channels[id] // We don't need to make a channel because subscribeEvent already created it. It receives the ws messages on the same id.
+	ch, ok := w.channels[id]
+	if !ok {
+		ch = make(chan RPCResponse)
+		w.channels[id] = ch
+	}
 
 	go func() {
 		for res := range ch {
@@ -149,29 +181,45 @@ func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (e
 	return
 }
 
-func (w *WebSocket) Call(method RPCMethod, params interface{}) (res RPCResponse, err error) {
+func (w *WebSocket) Call(method string, params interface{}) (res RPCResponse, err error) {
 	w.id++
 	rpcRequest := RPCRequest{ID: w.id, JSONRPC: "2.0", Method: method, Params: params}
-	msg, err := json.Marshal(rpcRequest)
+	data, err := json.Marshal(rpcRequest)
 	if err != nil {
 		return
 	}
 
+	return w.RawCall(w.id, data)
+}
+
+func (w *WebSocket) RawCall(id int64, data []byte) (res RPCResponse, err error) {
 	ch := make(chan RPCResponse)
-	w.channels[w.id] = ch
+	w.channels[id] = ch
 
-	timer := time.AfterFunc(3*time.Second, func() {
-		close(ch)
-		delete(w.channels, w.id)
-		err = fmt.Errorf("timeout waiting for response")
-	})
+	var timer *time.Timer
+	if w.CallTimeout > 0 {
+		timer = time.AfterFunc(w.CallTimeout, func() {
+			defer w.mutex.Unlock()
+			w.mutex.Lock()
 
-	err = w.conn.WriteMessage(websocket.TextMessage, msg)
+			ch, ok := w.channels[w.id]
+			if ok {
+				close(ch)
+				delete(w.channels, w.id)
+				err = fmt.Errorf("timeout waiting for response")
+			}
+		})
+	}
+
+	err = w.conn.WriteMessage(websocket.TextMessage, data)
 	if err != nil {
 		return
 	}
 
 	res = <-ch
-	timer.Stop()
+	if timer != nil {
+		timer.Stop()
+	}
+
 	return
 }
