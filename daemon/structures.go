@@ -55,8 +55,8 @@ type Balance struct {
 }
 
 type GetBalanceResult struct {
-	Balance    Balance
-	Topoheight uint64 `json:"topoheight"`
+	Version    Balance `json:"version"`
+	Topoheight uint64  `json:"topoheight"`
 }
 
 type GetBalanceAtTopoheightParams struct {
@@ -190,6 +190,12 @@ type GetBlockTemplateResult struct {
 	Template   string `json:"template"`
 }
 
+type GetNonceResult struct {
+	Nonce              uint64 `json:"nonce"`
+	PreviousTopoheight uint64 `json:"previous_topoheight"`
+	Topoheight         uint64 `json:"topoheight"`
+}
+
 type Peer struct {
 	Addr                 string `json:"addr"`
 	CumulativeDifficulty uint64 `json:"cumulative_difficulty"`
@@ -209,6 +215,26 @@ type MiningHistory struct {
 
 type AmountHistory struct {
 	Amount uint64 `json:"amount"`
+}
+
+type Asset struct {
+	Topoheight uint64 `json:"topoheight"`
+	Decimals   int    `json:"decimals"`
+}
+
+type Fee struct {
+	FeePercentage int    `json:"fee_percentage"`
+	Height        uint64 `json:"height"`
+}
+
+type SizeOnDisk struct {
+	SizeBytes     uint64 `json:"size_bytes"`
+	SizeFormatted string `json:"size_formatted"`
+}
+
+type IsTxExecutedInBlockParams struct {
+	TxHash    string `json:"tx_hash"`
+	BlockHash string `json:"block_hash"`
 }
 
 type AccountHistory struct {
@@ -246,7 +272,9 @@ const (
 	GetNonce                   RPCMethod = "get_nonce"
 	HasNonce                   RPCMethod = "has_nonce"
 	GetBalance                 RPCMethod = "get_balance"
+	HasBalance                 RPCMethod = "has_balance"
 	GetBalanceAtTopoheight     RPCMethod = "get_balance_at_topoheight"
+	GetAsset                   RPCMethod = "get_asset"
 	GetAssets                  RPCMethod = "get_assets"
 	CountAssets                RPCMethod = "count_assets"
 	CountTransactions          RPCMethod = "count_transactions"
@@ -265,4 +293,7 @@ const (
 	GetAccountHistory          RPCMethod = "get_account_history"
 	GetAccountAssets           RPCMethod = "get_account_assets"
 	GetPeers                   RPCMethod = "get_peers"
+	GetDevFeeThresholds        RPCMethod = "get_dev_fee_thresholds"
+	GetSizeOnDisk              RPCMethod = "get_size_on_disk"
+	IsTxExecutedInBlock        RPCMethod = "is_tx_executed_in_block"
 )
