@@ -224,10 +224,10 @@ type AccountHistory struct {
 type RPCEvent string
 
 const (
-	NewBlock                  RPCEvent = `NewBlock`
-	TransactionAddedInMempool RPCEvent = `TransactionAddedInMempool`
-	TransactionExecuted       RPCEvent = `TransactionExecuted`
-	BlockOrdered              RPCEvent = `BlockOrdered`
+	NewBlock                  RPCEvent = `new_block`
+	TransactionAddedInMempool RPCEvent = `transaction_added_in_mempool`
+	TransactionExecuted       RPCEvent = `transaction_executed`
+	BlockOrdered              RPCEvent = `block_ordered`
 )
 
 type RPCMethod string

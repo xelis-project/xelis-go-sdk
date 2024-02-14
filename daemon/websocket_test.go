@@ -2,8 +2,8 @@ package daemon
 
 import (
 	"context"
+	"sync"
 	"testing"
-	"time"
 
 	"github.com/xelis-project/xelis-go-sdk/config"
 )
@@ -21,103 +21,80 @@ func setupWebSocket(t *testing.T) (daemon *WebSocket) {
 func TestWSGetInfo(t *testing.T) {
 	daemon := setupWebSocket(t)
 
-	err := daemon.GetInfo(func(info *GetInfoResult, res *RPCResponse, err error) {
-		t.Logf("%+v", info)
-		daemon.cancel()
-	})
-
+	info, _, err := daemon.GetInfo()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = daemon.HandleListeners()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	daemon.conn.Close()
+	t.Logf("%+v", info)
+	daemon.Close()
 }
 
 func TestWSNewBlock(t *testing.T) {
 	daemon := setupWebSocket(t)
-
-	var closeListener func() error
-	closeListener, err := daemon.OnNewBlock(func(newBlock *NewBlockResult, r *RPCResponse) {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	_, err := daemon.NewBlockFunc(func(newBlock NewBlockResult, res RPCResponse) {
 		t.Logf("%+v", newBlock)
-		err := closeListener() // testing closeListener but not needed if we simply close the connection
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		daemon.cancel()
+		wg.Done()
 	})
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = daemon.HandleListeners()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	daemon.conn.Close()
-}
-
-func TestRoutineHandleListener(t *testing.T) {
-	daemon := setupWebSocket(t)
-
-	_, err := daemon.OnNewBlock(func(newBlock *NewBlockResult, r *RPCResponse) {
-		t.Logf("%+v", newBlock)
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	go daemon.HandleListeners()
-	time.Sleep(10 * time.Second)
+	wg.Wait()
 	daemon.Close()
 }
 
-func TestWSMultiSubcribe(t *testing.T) {
+func TestWSUnsubscribe(t *testing.T) {
 	daemon := setupWebSocket(t)
 
-	count := 0
-	tryClose := func() {
-		count++
-		if count > 2 {
-			daemon.cancel()
-		}
-	}
-
-	_, err := daemon.OnListenEvent(NewBlock, func(res *RPCResponse) {
+	closeEvent, err := daemon.ListenEventFunc(NewBlock, func(res RPCResponse) {
 		t.Logf("%+v", res)
-		tryClose()
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = daemon.OnListenEvent(NewBlock, func(res *RPCResponse) {
+	err = closeEvent()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	daemon.Close()
+}
+
+func TestWSCallAndMultiSubscribe(t *testing.T) {
+	daemon := setupWebSocket(t)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	_, err := daemon.ListenEventFunc(NewBlock, func(res RPCResponse) {
 		t.Logf("%+v", res)
-		tryClose()
+		wg.Done()
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = daemon.GetInfo(func(info *GetInfoResult, res *RPCResponse, err error) {
-		t.Logf("%+v", info)
-		tryClose()
+	wg.Add(1)
+	_, err = daemon.ListenEventFunc(NewBlock, func(res RPCResponse) {
+		t.Logf("%+v", res)
+		wg.Done()
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = daemon.HandleListeners()
+	info, _, err := daemon.GetInfo()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	daemon.conn.Close()
+	t.Logf("%+v", info)
+
+	wg.Wait()
+	daemon.Close()
 }

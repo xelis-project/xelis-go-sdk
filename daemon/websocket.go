@@ -5,31 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 	netUrl "net/url"
-	"reflect"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 type WebSocket struct {
-	ctx       context.Context
-	cancel    context.CancelFunc
-	conn      *websocket.Conn
-	listeners map[int64][]func(*RPCResponse)
-	events    map[RPCEvent]int64
-}
-
-func funcUniqueId(f interface{}) string {
-	v := reflect.ValueOf(f).Pointer()
-	return fmt.Sprintf("%d", v)
-}
-
-func createRPCRequest(method RPCMethod, params map[string]interface{}) ([]byte, int64, error) {
-	id := time.Now().Unix()
-	rpcRequest := RPCRequest{ID: id, JSONRPC: "2.0", Method: method, Params: params}
-
-	msg, err := json.Marshal(rpcRequest)
-	return []byte(msg), id, err
+	ctx      context.Context
+	cancel   context.CancelFunc
+	conn     *websocket.Conn
+	channels map[int64]chan RPCResponse
+	events   map[RPCEvent]int64
+	id       int64
 }
 
 func NewWebSocket(ctx context.Context, url string) (*WebSocket, error) {
@@ -45,18 +32,18 @@ func NewWebSocket(ctx context.Context, url string) (*WebSocket, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	ws := &WebSocket{
-		ctx:       ctx,
-		cancel:    cancel,
-		conn:      conn,
-		listeners: make(map[int64][]func(*RPCResponse)),
-		events:    make(map[RPCEvent]int64),
+		ctx:      ctx,
+		cancel:   cancel,
+		conn:     conn,
+		channels: make(map[int64]chan RPCResponse),
+		events:   make(map[RPCEvent]int64),
 	}
 
-	go ws.readLoop()
+	go ws.listen()
 	return ws, nil
 }
 
-func (w *WebSocket) readLoop() {
+func (w *WebSocket) listen() {
 	go func() {
 		select {
 		case <-w.ctx.Done():
@@ -72,11 +59,9 @@ func (w *WebSocket) readLoop() {
 				if msgType == websocket.TextMessage {
 					var rpcResponse RPCResponse
 					json.Unmarshal(msg, &rpcResponse)
-					for id, listeners := range w.listeners {
+					for id, channel := range w.channels {
 						if rpcResponse.ID == id {
-							for _, listener := range listeners {
-								go listener(&rpcResponse)
-							}
+							channel <- rpcResponse
 						}
 					}
 				}
@@ -85,179 +70,131 @@ func (w *WebSocket) readLoop() {
 	}()
 }
 
-func (w *WebSocket) HandleListeners() error {
-	for {
-		select {
-		case <-w.ctx.Done():
-			return nil
-		default:
-			err := w.ctx.Err()
-			if err != nil {
-				return err
-			}
-
-			time.Sleep(time.Millisecond)
-		}
-	}
-}
-
-func (w *WebSocket) subscribeEvent(event RPCEvent) (int64, error) {
-	wait := make(chan struct{})
-	var resError error
-	var id int64
-	err := w.Call("subscribe", map[string]interface{}{
+func (w *WebSocket) subscribeEvent(event RPCEvent) (RPCResponse, error) {
+	return w.Call("subscribe", map[string]interface{}{
 		"notify": event,
-	}, func(res *RPCResponse, err error) {
-		if err != nil {
-			resError = err
-		} else if res.Error != nil {
-			resError = fmt.Errorf(res.Error.Message)
-		} else {
-			id = res.ID
-		}
-
-		close(wait)
 	})
-	if err != nil {
-		return 0, err
-	}
-
-	<-wait
-	if resError != nil {
-		return 0, resError
-	}
-
-	return id, nil
 }
 
-func (w *WebSocket) unsubscribeEvent(event RPCEvent) error {
-	wait := make(chan struct{})
-	var resError error
-	err := w.Call("unsubscribe", map[string]interface{}{
+func (w *WebSocket) unsubscribeEvent(event RPCEvent) (RPCResponse, error) {
+	return w.Call("unsubscribe", map[string]interface{}{
 		"notify": event,
-	}, func(res *RPCResponse, err error) {
-		if err != nil {
-			resError = err
-		} else if res.Error != nil {
-			resError = fmt.Errorf(res.Error.Message)
-		}
-
-		close(wait)
 	})
-
-	if err != nil {
-		return err
-	}
-	<-wait
-	if resError != nil {
-		return resError
-	}
-
-	return nil
 }
 
-func (w *WebSocket) clearListeners() {
-	for id := range w.listeners {
-		delete(w.listeners, id)
+func (w *WebSocket) Close() {
+	// Remove channels and events
+	// We don't need to send unsubscribe event if we just close the connection
+	for id := range w.channels {
+		ch := w.channels[id]
+		close(ch)
+		delete(w.channels, id)
 	}
 
 	for event := range w.events {
 		delete(w.events, event)
 	}
-}
 
-func (w *WebSocket) Close() {
-	// just remove listeners and events
-	// we don't need to send unsubscribe event if we just close the connection
-	w.clearListeners()
 	w.cancel()
 	w.conn.Close()
 }
 
-func (w *WebSocket) OnListenEvent(event RPCEvent, onData func(*RPCResponse)) (func() error, error) {
+func (w *WebSocket) ListenEventFunc(event RPCEvent, onData func(RPCResponse)) (closeEvent func() error, err error) {
 	id, ok := w.events[event]
 	if !ok {
-		newId, err := w.subscribeEvent(event)
+		var res RPCResponse
+		res, err = w.subscribeEvent(event)
 		if err != nil {
-			return nil, err
+			return
 		}
 
-		id = newId
+		if res.Error != nil {
+			err = fmt.Errorf(res.Error.Message)
+			return
+		}
+
+		id = res.ID
 		w.events[event] = id
 	}
 
-	w.listeners[id] = append(w.listeners[id], onData)
+	ch := w.channels[id] // Channel is created because of subscribeEvent. It's the same id.
 
-	closeListen := func() error {
-		if len(w.listeners[id]) == 1 {
-			err := w.unsubscribeEvent(event)
+	go func() {
+		for res := range ch {
+			onData(res)
+		}
+	}()
+
+	closeEvent = func() error {
+		_, ok := w.events[event]
+		if ok {
+			res, err := w.unsubscribeEvent(event)
+
 			if err != nil {
 				return err
 			}
-		}
 
-		var newListeners []func(*RPCResponse)
-		funcId := funcUniqueId(onData)
-		for _, f := range w.listeners[id] {
-			if funcUniqueId(f) != funcId {
-				newListeners = append(newListeners, f)
+			if res.Error != nil {
+				return fmt.Errorf(res.Error.Message)
 			}
-		}
 
-		w.listeners[id] = newListeners
-		if len(w.listeners[id]) == 0 {
-			delete(w.listeners, id)
+			close(ch)
+			delete(w.channels, id)
 			delete(w.events, event)
 		}
 
 		return nil
 	}
 
-	return closeListen, nil
+	return
 }
 
-func (w *WebSocket) OnNewBlock(onData func(*NewBlockResult, *RPCResponse)) (func() error, error) {
-	return w.OnListenEvent(NewBlock, func(res *RPCResponse) {
+func (w *WebSocket) NewBlockFunc(onData func(NewBlockResult, RPCResponse)) (func() error, error) {
+	return w.ListenEventFunc(NewBlock, func(res RPCResponse) {
 		var result NewBlockResult
 		json.Unmarshal(res.Result, &result)
-		onData(&result, res)
+		onData(result, res)
 	})
 }
 
-func (w *WebSocket) Call(method RPCMethod, params map[string]interface{}, onData func(*RPCResponse, error)) error {
-	msg, id, err := createRPCRequest(method, params)
+func (w *WebSocket) Call(method RPCMethod, params map[string]interface{}) (RPCResponse, error) {
+	var res RPCResponse
+	var err error
+
+	w.id++
+	rpcRequest := RPCRequest{ID: w.id, JSONRPC: "2.0", Method: method, Params: params}
+	msg, err := json.Marshal(rpcRequest)
 	if err != nil {
-		return err
+		return res, err
 	}
 
-	timer := time.AfterFunc(10*time.Second, func() {
-		delete(w.listeners, id)
-		onData(nil, fmt.Errorf("timeout waiting for response"))
-	})
+	ch := make(chan RPCResponse)
+	w.channels[w.id] = ch
 
-	w.listeners[id] = append(w.listeners[id], func(res *RPCResponse) {
-		timer.Stop()
-		delete(w.listeners, id)
-		onData(res, nil)
+	timer := time.AfterFunc(10*time.Second, func() {
+		close(ch)
+		delete(w.channels, w.id)
+		err = fmt.Errorf("timeout waiting for response")
 	})
 
 	err = w.conn.WriteMessage(websocket.TextMessage, msg)
 	if err != nil {
-		return err
+		return res, err
 	}
 
-	return nil
+	res = <-ch
+	timer.Stop()
+	return res, err
 }
 
-func (w *WebSocket) GetInfo(onData func(*GetInfoResult, *RPCResponse, error)) error {
-	return w.Call(GetInfo, nil, func(res *RPCResponse, err error) {
-		if err != nil {
-			onData(nil, nil, err)
-			return
-		}
+func (w *WebSocket) GetInfo() (GetInfoResult, RPCResponse, error) {
+	var result GetInfoResult
 
-		var result GetInfoResult
-		err = json.Unmarshal(res.Result, &result)
-		onData(&result, res, err)
-	})
+	res, err := w.Call(GetInfo, nil)
+	if err != nil {
+		return result, res, err
+	}
+
+	err = json.Unmarshal(res.Result, &result)
+	return result, res, err
 }
