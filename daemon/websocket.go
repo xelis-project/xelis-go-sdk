@@ -59,10 +59,9 @@ func (w *WebSocket) listen() {
 				if msgType == websocket.TextMessage {
 					var rpcResponse RPCResponse
 					json.Unmarshal(msg, &rpcResponse)
-					for id, channel := range w.channels {
-						if rpcResponse.ID == id {
-							channel <- rpcResponse
-						}
+					channel, ok := w.channels[rpcResponse.ID]
+					if ok {
+						channel <- rpcResponse
 					}
 				}
 			}
