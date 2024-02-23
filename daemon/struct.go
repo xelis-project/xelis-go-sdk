@@ -95,7 +95,7 @@ type Block struct {
 type Transfer struct {
 	Amount    uint64 `json:"amount"`
 	Asset     string `json:"asset"`
-	ExtraData string `json:"extra_data"`
+	ExtraData []byte `json:"extra_data"`
 	To        string `json:"to"`
 }
 
