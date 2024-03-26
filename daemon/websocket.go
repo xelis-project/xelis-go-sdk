@@ -339,7 +339,7 @@ func (w *WebSocket) HasBalance(params GetBalanceParams) (hasBalance bool, err er
 	return
 }
 
-func (w *WebSocket) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) (balance Balance, err error) {
+func (w *WebSocket) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) (balance VersionedBalance, err error) {
 	res, err := w.WS.Call(w.Prefix+GetBalanceAtTopoheight, params)
 	if err != nil {
 		return
@@ -630,7 +630,7 @@ func (w *WebSocket) GetAccountAssets(addr string) (assets []string, err error) {
 	return
 }
 
-func (w *WebSocket) GetPeers() (peers []Peer, err error) {
+func (w *WebSocket) GetPeers() (result GetPeersResult, err error) {
 	res, err := w.WS.Call(w.Prefix+GetPeers, nil)
 	if err != nil {
 		return
@@ -641,7 +641,7 @@ func (w *WebSocket) GetPeers() (peers []Peer, err error) {
 		return
 	}
 
-	err = json.Unmarshal(res.Result, &peers)
+	err = json.Unmarshal(res.Result, &result)
 	return
 }
 

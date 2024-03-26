@@ -29,14 +29,29 @@ type GetBalanceParams struct {
 	Asset   string `json:"asset"`
 }
 
-type Balance struct {
-	Balance            uint64 `json:"balance"`
-	PreviousTopoheight uint64 `json:"previous_topoheight"`
+type BalanceType string
+
+var (
+	BalanceInput  BalanceType = `input`
+	BalanceOutput BalanceType = `output`
+	BalanceBoth   BalanceType = `both`
+)
+
+type EncryptedBalance struct {
+	Commitment []byte `json:"commitment"`
+	Handle     []byte `json:"handle"`
+}
+
+type VersionedBalance struct {
+	BalanceType        BalanceType      `json:"balance_type"`
+	FinalBalance       EncryptedBalance `json:"final_balance"`
+	OutputBalance      EncryptedBalance `json:"output_balance"`
+	PreviousTopoheight uint64           `json:"previous_topoheight"`
 }
 
 type GetBalanceResult struct {
-	Version    Balance `json:"version"`
-	Topoheight uint64  `json:"topoheight"`
+	Version    VersionedBalance `json:"version"`
+	Topoheight uint64           `json:"topoheight"`
 }
 
 type GetBalanceAtTopoheightParams struct {
@@ -74,8 +89,8 @@ type GetAccountsParams struct {
 
 type Block struct {
 	BlockType            string   `json:"block_type"`
-	CumulativeDifficulty uint64   `json:"cumulative_difficulty"`
-	Difficulty           uint64   `json:"difficulty"`
+	CumulativeDifficulty string   `json:"cumulative_difficulty"`
+	Difficulty           string   `json:"difficulty"`
 	ExtraNonce           string   `json:"extra_nonce"`
 	Hash                 string   `json:"hash"`
 	Height               uint64   `json:"height"`
@@ -115,24 +130,55 @@ type TransactionData struct {
 	DeployContract string     `json:"deploy_contract"`
 }
 
+type Reference struct {
+	Hash       string `json:"hash"`
+	Topoheight uint64 `json:"topoheight"`
+}
+
+type Proof struct {
+	Y_0 []byte `json:"Y_0"`
+	Y_1 []byte `json:"Y_1"`
+	Z_R []byte `json:"z_r"`
+	Z_X []byte `json:"z_x"`
+}
+
+type EqProof struct {
+	Y_0 []byte `json:"Y_0"`
+	Y_1 []byte `json:"Y_1"`
+	Y_2 []byte `json:"Y_2"`
+	Z_R []byte `json:"Z_R"`
+	Z_S []byte `json:"Z_S"`
+	Z_X []byte `json:"Z_X"`
+}
+
+type SourceCommitment struct {
+	Commitment []byte  `json:"commitment"`
+	Proof      EqProof `json:"proof"`
+	Asset      string  `json:"asset"`
+}
+
 type Transaction struct {
-	Blocks          []string        `json:"blocks"`
-	Hash            string          `json:"hash"`
-	Data            TransactionData `json:"data"`
-	Fee             uint64          `json:"fee"`
-	Nonce           uint64          `json:"nonce"`
-	Owner           string          `json:"owner"`
-	Signature       string          `json:"signature"`
-	ExecutedInBlock string          `json:"executed_in_block"`
-	Version         uint64          `json:"version"`
-	FirstSeen       uint64          `json:"first_seen"`
+	Blocks            []string           `json:"blocks"`
+	Hash              string             `json:"hash"`
+	Data              TransactionData    `json:"data"`
+	Fee               uint64             `json:"fee"`
+	Nonce             uint64             `json:"nonce"`
+	Source            string             `json:"source"`
+	Reference         Reference          `json:"reference"`
+	SourceCommitments []SourceCommitment `json:"source_commitments"`
+	RangeProof        []byte             `json:"range_proof"`
+	Signature         string             `json:"signature"`
+	ExecutedInBlock   string             `json:"executed_in_block"`
+	Version           uint64             `json:"version"`
+	FirstSeen         uint64             `json:"first_seen"`
+	InMempool         bool               `json:"in_mempool"`
 }
 
 type GetInfoResult struct {
 	AverageBlocktime uint64 `json:"average_block_time"`
 	BlockReward      uint64 `json:"block_reward"`
 	BlockTimeTarget  uint64 `json:"block_time_target"`
-	Difficulty       uint64 `json:"difficulty"`
+	Difficulty       string `json:"difficulty"`
 	Height           uint64 `json:"height"`
 	MempoolSize      uint64 `json:"mempool_size"`
 	NativeSupply     uint64 `json:"native_supply"`
@@ -145,7 +191,7 @@ type GetInfoResult struct {
 }
 
 type GetBlockTemplateResult struct {
-	Difficulty uint64 `json:"difficulty"`
+	Difficulty string `json:"difficulty"`
 	Height     uint64 `json:"height"`
 	Template   string `json:"template"`
 }
@@ -160,8 +206,16 @@ type MiningHistory struct {
 	Reward uint64 `json:"reward"`
 }
 
-type AmountHistory struct {
+type BurnHistory struct {
 	Amount uint64 `json:"amount"`
+}
+
+type OutgoingHistory struct {
+	To string `json:"to"`
+}
+
+type IncomingHistory struct {
+	From string `json:"from"`
 }
 
 type Asset struct {
@@ -185,13 +239,13 @@ type IsTxExecutedInBlockParams struct {
 }
 
 type AccountHistory struct {
-	Topoheight     uint64        `json:"topoheight"`
-	BlockTimestamp uint64        `json:"block_timestamp"`
-	Hash           string        `json:"hash"`
-	Mining         MiningHistory `json:"mining"`
-	Burn           AmountHistory `json:"burn"`
-	Outgoing       AmountHistory `json:"outgoing"`
-	Incoming       AmountHistory `json:"incoming"`
+	Topoheight     uint64          `json:"topoheight"`
+	BlockTimestamp uint64          `json:"block_timestamp"`
+	Hash           string          `json:"hash"`
+	Mining         MiningHistory   `json:"mining"`
+	Burn           BurnHistory     `json:"burn"`
+	Outgoing       OutgoingHistory `json:"outgoing"`
+	Incoming       IncomingHistory `json:"incoming"`
 }
 
 type TransactionExecutedResult struct {
@@ -210,7 +264,7 @@ const (
 
 type Peer struct {
 	Id                   uint64                   `json:"id"`
-	CumulativeDifficulty uint64                   `json:"cumulative_difficulty"`
+	CumulativeDifficulty string                   `json:"cumulative_difficulty"`
 	PrunedTopoheight     uint64                   `json:"pruned_topoheight"`
 	ConnectedOn          uint64                   `json:"connected_on"`
 	Height               uint64                   `json:"height"`
@@ -222,6 +276,12 @@ type Peer struct {
 	Topoheight           uint64                   `json:"topoheight"`
 	Peers                map[string]PeerDirection `json:"peers"`
 	Version              string                   `json:"version"`
+}
+
+type GetPeersResult struct {
+	Peers       []Peer `json:"peers"`
+	TotalPeers  int    `json:"total_peers"`
+	HiddenPeers int    `json:"hidden_peers"`
 }
 
 const (

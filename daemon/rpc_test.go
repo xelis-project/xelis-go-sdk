@@ -7,6 +7,8 @@ import (
 	"github.com/xelis-project/xelis-go-sdk/config"
 )
 
+var TESTING_ADDR = "xet:qf5u2p46jpgqmypqc2xwtq25yek2t7qhnqtdhw5kpfwcrlavs5asq0r83r7"
+
 func setupRPC(t *testing.T) (daemon *RPC, ctx context.Context) {
 	ctx = context.Background()
 	daemon, err := NewRPC(ctx, config.TESTNET_NODE_RPC)
@@ -68,7 +70,7 @@ func TestRPCGetInfo(t *testing.T) {
 	}
 	t.Logf("%+v", countTransactions)
 
-	nonce, err := daemon.GetNonce("xet1qqqyvh9vgkcurtj2la0e4jspnfsq7vkaqm863zcfdnej92xg4mpzz3suf96k4")
+	nonce, err := daemon.GetNonce(TESTING_ADDR)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,6 +115,16 @@ func TestRPCGetInfo(t *testing.T) {
 	t.Logf("%+v", size)
 }
 
+func TestGetPeers(t *testing.T) {
+	daemon, _ := setupRPC(t)
+	result, err := daemon.GetPeers()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(result)
+}
+
 func TestRPCUnknownMethod(t *testing.T) {
 	daemon, ctx := setupRPC(t)
 	res, err := daemon.Client.Call(ctx, "UnknownMethod", nil)
@@ -125,7 +137,7 @@ func TestRPCUnknownMethod(t *testing.T) {
 
 func TestRPCHasNonce(t *testing.T) {
 	daemon, _ := setupRPC(t)
-	res, err := daemon.HasNonce("xet1qqq8ar5gagvjhznhj59l3r4lqhe7edutendy6vd4y7jd59exl6u7xschfuhym")
+	res, err := daemon.HasNonce(TESTING_ADDR)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +145,20 @@ func TestRPCHasNonce(t *testing.T) {
 	t.Log(res)
 
 	res, err = daemon.HasBalance(GetBalanceParams{
-		Address: "xet1qqq8ar5gagvjhznhj59l3r4lqhe7edutendy6vd4y7jd59exl6u7xschfuhym",
+		Address: TESTING_ADDR,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(res)
+}
+
+func TestRPCGetBalance(t *testing.T) {
+	daemon, _ := setupRPC(t)
+	res, err := daemon.GetBalance(GetBalanceParams{
+		Address: TESTING_ADDR,
+		Asset:   config.XELIS_ASSET,
 	})
 	if err != nil {
 		t.Fatal(err)

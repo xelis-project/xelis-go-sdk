@@ -107,7 +107,7 @@ func (d *RPC) HasBalance(params GetBalanceParams) (hasBalance bool, err error) {
 	return
 }
 
-func (d *RPC) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) (balance Balance, err error) {
+func (d *RPC) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) (balance VersionedBalance, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetBalanceAtTopoheight), params, &balance)
 	return
 }
@@ -208,8 +208,8 @@ func (d *RPC) GetAccountAssets(addr string) (assets []string, err error) {
 	return
 }
 
-func (d *RPC) GetPeers() (peers []Peer, err error) {
-	err = d.Client.CallResult(d.ctx, string(GetPeers), nil, &peers)
+func (d *RPC) GetPeers() (result GetPeersResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetPeers), nil, &result)
 	return
 }
 
