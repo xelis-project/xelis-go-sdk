@@ -104,6 +104,11 @@ func (d *RPC) GetBalance(params GetBalanceParams) (balance uint64, err error) {
 	return
 }
 
+func (d *RPC) HasBalance(params GetBalanceParams) (exists bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(HasBalance), nil, &exists)
+	return
+}
+
 func (d *RPC) GetTrackedAssets() (assets []string, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetTrackedAssets), nil, &assets)
 	return
@@ -131,6 +136,16 @@ func (d *RPC) ListTransactions(params ListTransactionsParams) (txs []daemon.Tran
 
 func (d *RPC) IsOnline() (online bool, err error) {
 	err = d.Client.CallResult(d.ctx, string(IsOnline), nil, &online)
+	return
+}
+
+func (d *RPC) SetOnlineMode() (success bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(SetOnlineMode), nil, &success)
+	return
+}
+
+func (d *RPC) SetOfflineMode() (success bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(SetOfflineMode), nil, &success)
 	return
 }
 

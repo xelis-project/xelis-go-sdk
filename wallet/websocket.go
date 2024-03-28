@@ -83,6 +83,12 @@ func (w *WebSocket) GetBalance(params GetBalanceParams) (balance uint64, err err
 	return
 }
 
+func (w *WebSocket) HasBalance(params GetBalanceParams) (exists bool, err error) {
+	res, err := w.WS.Call(w.Prefix+HasBalance, params)
+	err = lib.JsonFormatResponse(res, err, &exists)
+	return
+}
+
 func (w *WebSocket) GetTrackedAssets() (assets []string, err error) {
 	res, err := w.WS.Call(w.Prefix+GetTrackedAssets, nil)
 	err = lib.JsonFormatResponse(res, err, &assets)
@@ -116,6 +122,18 @@ func (w *WebSocket) ListTransactions(params ListTransactionsParams) (txs []daemo
 func (w *WebSocket) IsOnline() (online bool, err error) {
 	res, err := w.WS.Call(w.Prefix+IsOnline, nil)
 	err = lib.JsonFormatResponse(res, err, &online)
+	return
+}
+
+func (w *WebSocket) SetOnlineMode() (success bool, err error) {
+	res, err := w.WS.Call(w.Prefix+SetOnlineMode, nil)
+	err = lib.JsonFormatResponse(res, err, &success)
+	return
+}
+
+func (w *WebSocket) SetOfflineMode() (success bool, err error) {
+	res, err := w.WS.Call(w.Prefix+SetOfflineMode, nil)
+	err = lib.JsonFormatResponse(res, err, &success)
 	return
 }
 

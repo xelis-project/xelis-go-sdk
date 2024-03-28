@@ -89,12 +89,23 @@ const (
 	SplitAddress      string = "split_address"
 	Rescan            string = "rescan"
 	GetBalance        string = "get_balance"
+	HasBalance        string = "has_balance"
 	GetTrackedAssets  string = "get_tracked_assets"
 	GetAssetPrecision string = "get_asset_precision"
 	GetTransaction    string = "get_transaction"
 	BuildTransaction  string = "build_transaction"
 	ListTransactions  string = "list_transactions"
 	IsOnline          string = "is_online"
+	SetOnlineMode     string = "set_online_mode"
+	SetOfflineMode    string = "set_offline_mode"
 	SignData          string = "sign_data"
 	EstimateFees      string = "estimate_fees"
+
+	// Interact with wallet encrypted database
+	GetMatchingKeys string = "get_matching_keys"
+	GetValueFromKey string = "get_value_from_key"
+	Store           string = "store"
+	Delete          string = "delete"
+	HasKey          string = "has_key"
+	QueryDB         string = "query_db"
 )
