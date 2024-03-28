@@ -201,7 +201,7 @@ func TestRPCNonceAndBalance(t *testing.T) {
 	/*
 		nonce, err = daemon.GetNonceAtTopoheight(GetNonceAtTopoheightParams{
 			Address:    `xet:g6520vnznu6t6zt8fu85srm7upnlp7tpd5u5tu0urdptmldnwvcqqd539vl`,
-			Topoheight: 0,
+			Topoheight: nonce.Topoheight,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -223,7 +223,7 @@ func TestRPCNonceAndBalance(t *testing.T) {
 	versionedBalance, err := daemon.GetBalanceAtTopoheight(GetBalanceAtTopoheightParams{
 		Address:    TESTING_ADDR,
 		Asset:      config.XELIS_ASSET,
-		Topoheight: 322, // the testing addr does not have a balance before 322
+		Topoheight: nonce.Topoheight, // the testing addr does not have a balance before 322
 	})
 	if err != nil {
 		t.Fatal(err)

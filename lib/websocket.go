@@ -208,3 +208,18 @@ func (w *WebSocket) RawCall(id int64, data []byte) (res RPCResponse, err error) 
 
 	return
 }
+
+func JsonFormatResponse(res RPCResponse, resErr error, result any) (err error) {
+	if resErr != nil {
+		err = resErr
+		return
+	}
+
+	if res.Error != nil {
+		err = fmt.Errorf(res.Error.Message)
+		return
+	}
+
+	err = json.Unmarshal(res.Result, &result)
+	return
+}

@@ -20,6 +20,13 @@ func setupWebSocket(t *testing.T) (daemon *WebSocket) {
 func TestWSGetInfo(t *testing.T) {
 	daemon := setupWebSocket(t)
 
+	version, err := daemon.GetVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("%+v", version)
+
 	info, err := daemon.GetInfo()
 	if err != nil {
 		t.Fatal(err)
