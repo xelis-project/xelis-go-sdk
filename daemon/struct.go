@@ -54,6 +54,11 @@ type GetBalanceResult struct {
 	Topoheight uint64           `json:"topoheight"`
 }
 
+type GetNonceAtTopoheightParams struct {
+	Address    string `json:"address"`
+	Topoheight uint64 `json:"topoheight"`
+}
+
 type GetBalanceAtTopoheightParams struct {
 	Address    string `json:"address"`
 	Asset      string `json:"asset"`
@@ -223,6 +228,12 @@ type Asset struct {
 	Decimals   int    `json:"decimals"`
 }
 
+type AssetWithData struct {
+	Asset      string `json:"asset"`
+	Topoheight uint64 `json:"topoheight"`
+	Decimals   int    `json:"decimals"`
+}
+
 type Fee struct {
 	FeePercentage int    `json:"fee_percentage"`
 	Height        uint64 `json:"height"`
@@ -307,6 +318,7 @@ const (
 	GetTopBlock                string = "get_top_block"
 	GetNonce                   string = "get_nonce"
 	HasNonce                   string = "has_nonce"
+	GetNonceAtTopoheight       string = "get_nonce_at_topoheight"
 	GetBalance                 string = "get_balance"
 	HasBalance                 string = "has_balance"
 	GetBalanceAtTopoheight     string = "get_balance_at_topoheight"

@@ -289,6 +289,21 @@ func (w *WebSocket) GetNonce(addr string) (nonce GetNonceResult, err error) {
 	return
 }
 
+func (w *WebSocket) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (nonce GetNonceResult, err error) {
+	res, err := w.WS.Call(w.Prefix+GetNonceAtTopoheight, params)
+	if err != nil {
+		return
+	}
+
+	if res.Error != nil {
+		err = fmt.Errorf(res.Error.Message)
+		return
+	}
+
+	err = json.Unmarshal(res.Result, &nonce)
+	return
+}
+
 func (w *WebSocket) HasNonce(addr string) (hasNonce bool, err error) {
 	params := map[string]string{"address": addr}
 	res, err := w.WS.Call(w.Prefix+HasNonce, params)
@@ -370,7 +385,7 @@ func (w *WebSocket) GetAsset(assetId string) (asset Asset, err error) {
 	return
 }
 
-func (w *WebSocket) GetAssets(params GetAssetsParams) (assets []string, err error) {
+func (w *WebSocket) GetAssets(params GetAssetsParams) (assets []AssetWithData, err error) {
 	res, err := w.WS.Call(w.Prefix+GetAssets, params)
 	if err != nil {
 		return
@@ -598,7 +613,7 @@ func (w *WebSocket) GetAccounts(params GetAccountsParams) (addresses []string, e
 	return
 }
 
-func (w *WebSocket) GetAccountHistory(addr string) (history AccountHistory, err error) {
+func (w *WebSocket) GetAccountHistory(addr string) (history []AccountHistory, err error) {
 	params := map[string]string{"address": addr}
 	res, err := w.WS.Call(w.Prefix+GetAccountHistory, params)
 	if err != nil {

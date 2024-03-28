@@ -95,6 +95,11 @@ func (d *RPC) HasNonce(addr string) (hasNonce bool, err error) {
 	return
 }
 
+func (d *RPC) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (nonce GetNonceResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetNonce), params, &nonce)
+	return
+}
+
 func (d *RPC) GetBalance(params GetBalanceParams) (balance GetBalanceResult, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetBalance), params, &balance)
 	return
@@ -118,7 +123,7 @@ func (d *RPC) GetAsset(assetId string) (asset Asset, err error) {
 	return
 }
 
-func (d *RPC) GetAssets(params GetAssetsParams) (assets []string, err error) {
+func (d *RPC) GetAssets(params GetAssetsParams) (assets []AssetWithData, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetAssets), params, &assets)
 	return
 }
@@ -196,7 +201,7 @@ func (d *RPC) GetAccounts(params GetAccountsParams) (addresses []string, err err
 	return
 }
 
-func (d *RPC) GetAccountHistory(addr string) (history AccountHistory, err error) {
+func (d *RPC) GetAccountHistory(addr string) (history []AccountHistory, err error) {
 	params := map[string]string{"address": addr}
 	err = d.Client.CallResult(d.ctx, string(GetAccountHistory), params, &history)
 	return

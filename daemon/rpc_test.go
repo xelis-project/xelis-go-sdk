@@ -19,7 +19,7 @@ func setupRPC(t *testing.T) (daemon *RPC, ctx context.Context) {
 	return
 }
 
-func TestRPCGetInfo(t *testing.T) {
+func TestRPCMethods(t *testing.T) {
 	daemon, _ := setupRPC(t)
 
 	version, err := daemon.GetVersion()
@@ -27,18 +27,6 @@ func TestRPCGetInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", version)
-
-	info, err := daemon.GetInfo()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%+v", info)
-
-	topBlock, err := daemon.GetTopBlock(GetTopBlockParams{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%+v", topBlock)
 
 	height, err := daemon.GetHeight()
 	if err != nil {
@@ -58,11 +46,65 @@ func TestRPCGetInfo(t *testing.T) {
 	}
 	t.Logf("%+v", stableheight)
 
+	template, err := daemon.GetBlockTemplate(TESTING_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", template)
+
+	genesisBlock, err := daemon.GetBlockAtTopoheight(GetBlockAtTopoheightParams{Topoheight: 0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", genesisBlock)
+
+	blocks, err := daemon.GetBlocksAtHeight(GetBlocksAtHeightParams{Height: 0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", blocks)
+
+	block, err := daemon.GetBlockByHash(GetBlockByHashParams{Hash: `b715cb0229d13f5f540ae48adf03bc31b094b040b0756a2454631b2ddd899c3a`})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", block)
+
+	topBlock, err := daemon.GetTopBlock(GetTopBlockParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", topBlock)
+
+	info, err := daemon.GetInfo()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", info)
+
+	asset, err := daemon.GetAsset(config.XELIS_ASSET)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", asset)
+
+	assets, err := daemon.GetAssets(GetAssetsParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", assets)
+
 	countAssets, err := daemon.CountAssets()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", countAssets)
+
+	countAccounts, err := daemon.CountAccounts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", countAccounts)
 
 	countTransactions, err := daemon.CountTransactions()
 	if err != nil {
@@ -70,25 +112,18 @@ func TestRPCGetInfo(t *testing.T) {
 	}
 	t.Logf("%+v", countTransactions)
 
-	nonce, err := daemon.GetNonce(TESTING_ADDR)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%+v", nonce)
-
-	/*
-		assets, err := daemon.GetAssets(GetAssetsParams{})
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("%+v", assets)
-	*/
-
 	status, err := daemon.P2PStatus()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", status)
+
+	result, err := daemon.GetPeers()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(result)
 
 	mempool, err := daemon.GetMempool()
 	if err != nil {
@@ -101,6 +136,18 @@ func TestRPCGetInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", tips)
+
+	dagOrder, err := daemon.GetDAGOrder(GetTopoheightRangeParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", dagOrder)
+
+	accounts, err := daemon.GetAccounts(GetAccountsParams{Maximum: 5})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", accounts)
 
 	fees, err := daemon.GetDevFeeThresholds()
 	if err != nil {
@@ -115,16 +162,6 @@ func TestRPCGetInfo(t *testing.T) {
 	t.Logf("%+v", size)
 }
 
-func TestGetPeers(t *testing.T) {
-	daemon, _ := setupRPC(t)
-	result, err := daemon.GetPeers()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Log(result)
-}
-
 func TestRPCUnknownMethod(t *testing.T) {
 	daemon, ctx := setupRPC(t)
 	res, err := daemon.Client.Call(ctx, "UnknownMethod", nil)
@@ -135,28 +172,16 @@ func TestRPCUnknownMethod(t *testing.T) {
 	t.Log(res)
 }
 
-func TestRPCHasNonce(t *testing.T) {
+func TestRPCNonceAndBalance(t *testing.T) {
 	daemon, _ := setupRPC(t)
-	res, err := daemon.HasNonce(TESTING_ADDR)
+	has, err := daemon.HasNonce(TESTING_ADDR)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Log(res)
+	t.Log(has)
 
-	res, err = daemon.HasBalance(GetBalanceParams{
-		Address: TESTING_ADDR,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Log(res)
-}
-
-func TestRPCGetBalance(t *testing.T) {
-	daemon, _ := setupRPC(t)
-	res, err := daemon.GetBalance(GetBalanceParams{
+	has, err = daemon.HasBalance(GetBalanceParams{
 		Address: TESTING_ADDR,
 		Asset:   config.XELIS_ASSET,
 	})
@@ -164,7 +189,47 @@ func TestRPCGetBalance(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(res)
+	t.Log(has)
+
+	nonce, err := daemon.GetNonce(TESTING_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(nonce)
+
+	/*
+		nonce, err = daemon.GetNonceAtTopoheight(GetNonceAtTopoheightParams{
+			Address:    `xet:g6520vnznu6t6zt8fu85srm7upnlp7tpd5u5tu0urdptmldnwvcqqd539vl`,
+			Topoheight: 0,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		t.Log(nonce)
+	*/
+
+	balance, err := daemon.GetBalance(GetBalanceParams{
+		Address: TESTING_ADDR,
+		Asset:   config.XELIS_ASSET,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(balance)
+
+	versionedBalance, err := daemon.GetBalanceAtTopoheight(GetBalanceAtTopoheightParams{
+		Address:    TESTING_ADDR,
+		Asset:      config.XELIS_ASSET,
+		Topoheight: 322, // the testing addr does not have a balance before 322
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(versionedBalance)
 }
 
 func TestRPCGetBlocksRange(t *testing.T) {
@@ -184,30 +249,75 @@ func TestRPCGetBlocksRange(t *testing.T) {
 	}
 
 	t.Log(blocks)
+
+	height, err := daemon.GetHeight()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	blocks, err = daemon.GetBlocksRangeByHeight(GetHeightRangeParams{
+		StartHeight: height - 10,
+		EndHeight:   height,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(blocks)
 }
 
 func TestRPCGetTransactions(t *testing.T) {
 	daemon, _ := setupRPC(t)
+	txHash := "1de03df36b75916c2a440e428a854109c9628ed2c2bd628f9b9408baa78c6f52"
+
 	txs, err := daemon.GetTransactions(GetTransactionsParams{
-		TxHashes: []string{},
+		TxHashes: []string{txHash},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(txs)
+
+	tx, err := daemon.GetTransaction(txHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(tx)
 }
 
 func TestRPCExecutedInBlock(t *testing.T) {
-	// https://testnet-explorer.xelis.io/blocks/109
+	// https://testnet-explorer.xelis.io/blocks/000000001849d07bbb4165c8ba1d1fc472a0629f56895efb8689e06ce62b3ca8
 	daemon, _ := setupRPC(t)
 	executed, err := daemon.IsTxExecutedInBlock(IsTxExecutedInBlockParams{
-		TxHash:    "d4992c0c439ebdba9d8f0086cdefc21e95adcedae04985f21d309c208108765d",
-		BlockHash: "000000a95b4b4ea13ba99d58c7a9bf68a502a2923049a54f8ac9e3826496cd9b",
+		TxHash:    "6e4bbd77b305fb68e2cc7576b4846d2db3617e3cbc2eb851cb2ae69b879e9d0f",
+		BlockHash: "000000001849d07bbb4165c8ba1d1fc472a0629f56895efb8689e06ce62b3ca8",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	if !executed {
+		t.Errorf("tx should be executed in block")
+	}
+
 	t.Log(executed)
+}
+
+func TestRPCAccount(t *testing.T) {
+	daemon, _ := setupRPC(t)
+	history, err := daemon.GetAccountHistory(TESTING_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(history)
+
+	assets, err := daemon.GetAccountAssets(TESTING_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(assets)
 }
