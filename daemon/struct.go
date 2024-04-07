@@ -113,10 +113,13 @@ type Block struct {
 }
 
 type Transfer struct {
-	Amount    uint64 `json:"amount"`
-	Asset     string `json:"asset"`
-	ExtraData []byte `json:"extra_data"`
-	To        string `json:"to"`
+	Asset           string `json:"asset"`
+	ExtraData       []byte `json:"extra_data"`
+	Destination     string `json:"destination"`
+	Commitment      []byte `json:"commitment"`
+	SenderHandle    []byte `json:"sender_handle"`
+	ReceiverHandle  []byte `json:"receiver_handle"`
+	CTValidityProof Proof  `json:"ct_validity_proof"`
 }
 
 type Burn struct {
@@ -129,10 +132,10 @@ type CallContract struct {
 }
 
 type TransactionData struct {
-	Transfers      []Transfer `json:"transfers"`
-	Burn           Burn       `json:"burn"`
-	CallContract   string     `json:"call_contract"`
-	DeployContract string     `json:"deploy_contract"`
+	Transfers []Transfer `json:"transfers"`
+	Burn      *Burn      `json:"burn"`
+	// CallContract   string     `json:"call_contract"`
+	// DeployContract string     `json:"deploy_contract"`
 }
 
 type Reference struct {
@@ -250,13 +253,13 @@ type IsTxExecutedInBlockParams struct {
 }
 
 type AccountHistory struct {
-	Topoheight     uint64          `json:"topoheight"`
-	BlockTimestamp uint64          `json:"block_timestamp"`
-	Hash           string          `json:"hash"`
-	Mining         MiningHistory   `json:"mining"`
-	Burn           BurnHistory     `json:"burn"`
-	Outgoing       OutgoingHistory `json:"outgoing"`
-	Incoming       IncomingHistory `json:"incoming"`
+	Topoheight     uint64           `json:"topoheight"`
+	BlockTimestamp uint64           `json:"block_timestamp"`
+	Hash           string           `json:"hash"`
+	Mining         *MiningHistory   `json:"mining"`
+	Burn           *BurnHistory     `json:"burn"`
+	Outgoing       *OutgoingHistory `json:"outgoing"`
+	Incoming       *IncomingHistory `json:"incoming"`
 }
 
 type TransactionExecutedResult struct {

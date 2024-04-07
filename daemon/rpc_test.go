@@ -198,17 +198,15 @@ func TestRPCNonceAndBalance(t *testing.T) {
 
 	t.Log(nonce)
 
-	/*
-		nonce, err = daemon.GetNonceAtTopoheight(GetNonceAtTopoheightParams{
-			Address:    `xet:g6520vnznu6t6zt8fu85srm7upnlp7tpd5u5tu0urdptmldnwvcqqd539vl`,
-			Topoheight: nonce.Topoheight,
-		})
-		if err != nil {
-			t.Fatal(err)
-		}
+	nonce, err = daemon.GetNonceAtTopoheight(GetNonceAtTopoheightParams{
+		Address:    TESTING_ADDR,
+		Topoheight: nonce.Topoheight,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		t.Log(nonce)
-	*/
+	t.Log(nonce)
 
 	balance, err := daemon.GetBalance(GetBalanceParams{
 		Address: TESTING_ADDR,
