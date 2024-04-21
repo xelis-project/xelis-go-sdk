@@ -10,7 +10,6 @@ import (
 
 	"github.com/creachadair/jrpc2"
 	"github.com/creachadair/jrpc2/jhttp"
-	"github.com/xelis-project/xelis-go-sdk/daemon"
 )
 
 type RPC struct {
@@ -75,7 +74,7 @@ func (d *RPC) GetNetwork() (network string, err error) {
 }
 
 func (d *RPC) GetNonce() (nonce uint64, err error) {
-	err = d.Client.CallResult(d.ctx, string(GetNetwork), nil, &nonce)
+	err = d.Client.CallResult(d.ctx, string(GetNonce), nil, &nonce)
 	return
 }
 
@@ -100,12 +99,12 @@ func (d *RPC) Rescan(params RescanParams) (success bool, err error) {
 }
 
 func (d *RPC) GetBalance(params GetBalanceParams) (balance uint64, err error) {
-	err = d.Client.CallResult(d.ctx, string(GetBalance), nil, &balance)
+	err = d.Client.CallResult(d.ctx, string(GetBalance), params, &balance)
 	return
 }
 
 func (d *RPC) HasBalance(params GetBalanceParams) (exists bool, err error) {
-	err = d.Client.CallResult(d.ctx, string(HasBalance), nil, &exists)
+	err = d.Client.CallResult(d.ctx, string(HasBalance), params, &exists)
 	return
 }
 
@@ -119,7 +118,7 @@ func (d *RPC) GetAssetPrecision(params GetAssetPrecisionParams) (decimals int, e
 	return
 }
 
-func (d *RPC) GetTransaction(params GetTransactionParams) (transaction daemon.Transaction, err error) {
+func (d *RPC) GetTransaction(params GetTransactionParams) (transaction TransactionEntry, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetTransaction), params, &transaction)
 	return
 }
@@ -129,7 +128,7 @@ func (d *RPC) BuildTransaction(params BuildTransactionParams) (result BuildTrans
 	return
 }
 
-func (d *RPC) ListTransactions(params ListTransactionsParams) (txs []daemon.Transaction, err error) {
+func (d *RPC) ListTransactions(params ListTransactionsParams) (txs []TransactionEntry, err error) {
 	err = d.Client.CallResult(d.ctx, string(ListTransactions), params, &txs)
 	return
 }

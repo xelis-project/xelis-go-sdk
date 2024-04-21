@@ -1,7 +1,7 @@
 package wallet
 
 type GetAddressParams struct {
-	IntegratedData string `json:"integrated_data"`
+	IntegratedData *map[string]interface{} `json:"integrated_data"`
 }
 
 type SplitAddressParams struct {
@@ -9,15 +9,17 @@ type SplitAddressParams struct {
 }
 
 type SplitAddressResult struct {
-	Address        string `json:"address"`
-	IntegratedData string `json:"integrated_data"`
+	Address        string                 `json:"address"`
+	IntegratedData map[string]interface{} `json:"integrated_data"`
 }
 
 type GetBalanceParams struct {
 	Asset string `json:"asset"`
 }
 
-type GetTransactionParams = GetBalanceParams
+type GetTransactionParams struct {
+	Hash string `json:"hash"`
+}
 
 type RescanParams struct {
 	UntilTopoheight uint64 `json:"until_topoheight"`
@@ -27,10 +29,17 @@ type GetAssetPrecisionParams struct {
 	Asset string `json:"asset"`
 }
 
-type Transfer struct {
-	Amount uint64 `json:"amount"`
-	Asset  string `json:"asset"`
-	To     string `json:"to"`
+type TransferIn struct {
+	Amount    uint64  `json:"amount"`
+	Asset     string  `json:"asset"`
+	ExtraData *[]byte `json:"extra_data"`
+}
+
+type TransferOut struct {
+	Amount      uint64  `json:"amount"`
+	Asset       string  `json:"asset"`
+	Destination string  `json:"destination"`
+	ExtraData   *[]byte `json:"extra_data"`
 }
 
 type Burn struct {
@@ -38,22 +47,12 @@ type Burn struct {
 	Amount uint64 `json:"amount"`
 }
 
-type SmartContractCall struct {
-	Contract string `json:"contract"`
-	Assets   map[string]uint64
-	Params   map[string]string
-}
-
-type TransactionType struct {
-	Transfers      []Transfer        `json:"transfers"`
-	Burn           Burn              `json:"burn"`
-	CallContract   SmartContractCall `json:"call_contract"`
-	DeployContract string            `json:"deploy_contract"`
-}
-
 type BuildTransactionParams struct {
-	TxType    TransactionType `json:"tx_type"`
-	Broadcast bool            `json:"broadcast"`
+	Transfers *[]TransferOut `json:"transfers"`
+	Burn      *Burn          `json:"burn"`
+	Broadcast bool           `json:"broadcast"`
+	TxAsHex   bool           `json:"tx_as_hex"`
+	Fee       *uint64        `json:"fee"`
 }
 
 type BuildTransactionInner struct {
@@ -66,18 +65,43 @@ type BuildTransactionResult struct {
 	Inner   BuildTransactionInner `json:"inner"`
 }
 
+type Outgoing struct {
+	Fee       uint64        `json:"fee"`
+	Nonce     uint64        `json:"nonce"`
+	Transfers []TransferOut `json:"transfers"`
+}
+
+type Incoming struct {
+	From      string       `json:"from"`
+	Transfers []TransferIn `json:"transfers"`
+}
+
+type Coinbase struct {
+	Reward uint64 `json:"reward"`
+}
+
+type TransactionEntry struct {
+	Hash       string    `json:"hash"`
+	Topoheight uint64    `json:"topoheight"`
+	Outgoing   *Outgoing `json:"outgoing"`
+	Burn       *Burn     `json:"burn"`
+	Incoming   *Incoming `json:"incoming"`
+	Coinbase   *Coinbase `json:"coinbase"`
+}
+
 type ListTransactionsParams struct {
-	MinTopoheight  uint64 `json:"min_topoheight"`
-	MaxTopoheight  uint64 `json:"max_topoheight"`
-	Address        string `json:"address"`
-	AcceptIncoming bool   `json:"accept_incoming"`
-	AcceptOutgoing bool   `json:"accept_outgoing"`
-	AcceptCoinbase bool   `json:"accept_coinbase"`
-	AcceptBurn     bool   `json:"accept_burn"`
+	MinTopoheight  *uint64 `json:"min_topoheight"`
+	MaxTopoheight  *uint64 `json:"max_topoheight"`
+	Address        *string `json:"address"`
+	AcceptIncoming bool    `json:"accept_incoming"`
+	AcceptOutgoing bool    `json:"accept_outgoing"`
+	AcceptCoinbase bool    `json:"accept_coinbase"`
+	AcceptBurn     bool    `json:"accept_burn"`
 }
 
 type EstimateFeesParams struct {
-	TxType TransactionType `json:"tx_type"`
+	Transfers *[]TransferOut `json:"transfers"`
+	Burn      *Burn          `json:"burn"`
 }
 
 const (
