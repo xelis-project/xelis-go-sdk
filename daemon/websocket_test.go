@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/xelis-project/xelis-go-sdk/config"
-	"github.com/xelis-project/xelis-go-sdk/lib"
+	"github.com/xelis-project/xelis-go-sdk/rpc"
 )
 
 func setupWebSocket(t *testing.T) (daemon *WebSocket) {
@@ -115,7 +115,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	err := daemon.WS.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	err := daemon.WS.ListenEventFunc(NewBlock, func(res rpc.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})
@@ -124,7 +124,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 	}
 
 	wg.Add(1)
-	err = daemon.WS.ListenEventFunc(NewBlock, func(res lib.RPCResponse) {
+	err = daemon.WS.ListenEventFunc(NewBlock, func(res rpc.RPCResponse) {
 		t.Logf("%+v", res)
 		wg.Done()
 	})

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/xelis-project/xelis-go-sdk/daemon"
-	"github.com/xelis-project/xelis-go-sdk/lib"
+	"github.com/xelis-project/xelis-go-sdk/rpc"
 	"github.com/xelis-project/xelis-go-sdk/wallet"
 )
 
@@ -27,13 +27,13 @@ type ApplicationData struct {
 }
 
 type XSWD struct {
-	WS     *lib.WebSocket
+	WS     *rpc.WebSocket
 	Daemon *daemon.WebSocket
 	Wallet *wallet.WebSocket
 }
 
 func NewXSWD(endpoint string) (*XSWD, error) {
-	ws, err := lib.NewWebSocket(endpoint, nil)
+	ws, err := rpc.NewWebSocket(endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (x *XSWD) Close() error {
 	return x.WS.Close()
 }
 
-func (x *XSWD) Authorize(app ApplicationData) (res lib.RPCResponse, err error) {
+func (x *XSWD) Authorize(app ApplicationData) (res rpc.RPCResponse, err error) {
 	data, err := json.Marshal(app)
 	if err != nil {
 		return

@@ -1,4 +1,4 @@
-package lib
+package rpc
 
 import (
 	"encoding/json"
