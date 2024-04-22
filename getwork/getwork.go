@@ -31,6 +31,13 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 	rejectedBlocks := make(chan string, 1)
 
 	go func() {
+		defer func() {
+			close(jobs)
+			close(acceptedBlocks)
+			close(rejectedBlocks)
+			ws.Close()
+		}()
+
 		for {
 			msg := <-ws.Notifications
 
@@ -45,9 +52,6 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 			err = json.Unmarshal(msg, &rpcResponse)
 			if err != nil {
 				fmt.Println(err)
-				close(jobs)
-				close(acceptedBlocks)
-				close(rejectedBlocks)
 				return
 			}
 
@@ -58,9 +62,6 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 					err := json.Unmarshal(v, &data)
 					if err != nil {
 						fmt.Println(err)
-						close(jobs)
-						close(acceptedBlocks)
-						close(rejectedBlocks)
 						return
 					}
 
