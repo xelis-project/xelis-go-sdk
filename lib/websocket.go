@@ -12,12 +12,13 @@ import (
 )
 
 type WebSocket struct {
-	CallTimeout time.Duration
-	id          int64
-	conn        *websocket.Conn
-	channels    map[int64]chan RPCResponse
-	events      map[string]int64
-	mutex       sync.Mutex
+	CallTimeout   time.Duration
+	Notifications chan json.RawMessage
+	id            int64
+	conn          *websocket.Conn
+	channels      map[int64]chan RPCResponse
+	events        map[string]int64
+	mutex         sync.Mutex
 }
 
 func NewWebSocket(endpoint string, header http.Header) (*WebSocket, error) {
@@ -32,10 +33,11 @@ func NewWebSocket(endpoint string, header http.Header) (*WebSocket, error) {
 	}
 
 	ws := &WebSocket{
-		CallTimeout: 3 * time.Second,
-		conn:        conn,
-		channels:    make(map[int64]chan RPCResponse),
-		events:      make(map[string]int64),
+		CallTimeout:   3 * time.Second,
+		conn:          conn,
+		channels:      make(map[int64]chan RPCResponse),
+		events:        make(map[string]int64),
+		Notifications: make(chan json.RawMessage, 1),
 	}
 
 	go ws.listen()
@@ -53,6 +55,12 @@ func (w *WebSocket) listen() {
 			w.mutex.Lock()
 			var rpcResponse RPCResponse
 			json.Unmarshal(msg, &rpcResponse)
+
+			// check if this is a notification and not an event
+			if rpcResponse.ID == 0 && rpcResponse.Error == nil && rpcResponse.Result == nil {
+				w.Notifications <- msg
+			}
+
 			id := rpcResponse.ID
 			ch, ok := w.channels[rpcResponse.ID]
 			if ok {
@@ -77,6 +85,10 @@ func (w *WebSocket) listen() {
 			w.mutex.Unlock()
 		}
 	}()
+}
+
+func (w *WebSocket) GetConn() *websocket.Conn {
+	return w.conn
 }
 
 func (w *WebSocket) subscribeEvent(event string) (RPCResponse, error) {
@@ -207,6 +219,18 @@ func (w *WebSocket) RawCall(id int64, data []byte) (res RPCResponse, err error) 
 	}
 
 	return
+}
+
+func (w *WebSocket) Write(data any) error {
+	bin, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	return w.rawWrite(bin)
+}
+func (w *WebSocket) rawWrite(data []byte) error {
+	return w.conn.WriteMessage(websocket.TextMessage, data)
 }
 
 func JsonFormatResponse(res RPCResponse, resErr error, result any) (err error) {
