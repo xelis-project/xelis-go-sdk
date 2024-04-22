@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/xelis-project/xelis-go-sdk/daemon"
 	"github.com/xelis-project/xelis-go-sdk/lib"
 )
 
@@ -73,47 +72,6 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 		}
 	}()
 
-	/*go func() {
-		for {
-			_, msg, err := ws.GetConn().ReadMessage()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-
-			fmt.Println("received a message from websocket:", string(msg))
-
-			var rpcResponse map[string]json.RawMessage
-			err = json.Unmarshal(msg, &rpcResponse)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-
-			for i, v := range rpcResponse {
-				switch i {
-				case NewJob:
-					data := BlockTemplate{}
-					err := json.Unmarshal(v, &data)
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-
-					jobs <- data
-
-				case BlockAccepted:
-
-					acceptedBlocks <- string(v)
-
-				case BlockRejected:
-
-					rejectedBlocks <- string(v)
-				}
-			}
-		}
-	}()*/
-
 	return &Getwork{
 		WS:             ws,
 		Jobs:           jobs,
@@ -138,9 +96,8 @@ func (w *Getwork) Submit(blockminer string) error {
 	return err
 }
 
-func (w *Getwork) SubmitBlock(hexData string) (result bool, err error) {
-	params := map[string]string{"block_template": hexData}
-	res, err := w.WS.Call(daemon.SubmitBlock, params)
-	err = lib.JsonFormatResponse(res, err, &result)
-	return
+func (w *Getwork) SubmitBlock(data string) (err error) {
+	return w.WS.GetConn().WriteJSON(map[string]any{
+		"block_template": data,
+	})
 }

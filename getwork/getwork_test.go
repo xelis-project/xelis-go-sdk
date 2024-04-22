@@ -16,20 +16,18 @@ func setupGetwork(t *testing.T) (getwork *Getwork) {
 }
 
 func TestGetwork(t *testing.T) {
-	t.Logf("doing")
-
 	getwork := setupGetwork(t)
 
 	job := <-getwork.Jobs
 
 	t.Log("job:", job)
 
-	ok, data := getwork.SubmitBlock(job.Template)
-
-	t.Log("ok:", ok, "data:", data)
-
-	if !ok {
-		t.Fatal("SubmitBlock error:", data)
+	err := getwork.SubmitBlock(job.Template)
+	if err != nil {
+		t.Fatal(err)
 	}
 
+	rejbl := <-getwork.RejectedBlocks
+
+	t.Log("rejected block", rejbl)
 }
