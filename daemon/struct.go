@@ -154,9 +154,9 @@ type EqProof struct {
 	Y_0 []byte `json:"Y_0"`
 	Y_1 []byte `json:"Y_1"`
 	Y_2 []byte `json:"Y_2"`
-	Z_R []byte `json:"Z_R"`
-	Z_S []byte `json:"Z_S"`
-	Z_X []byte `json:"Z_X"`
+	Z_R []byte `json:"z_r"`
+	Z_S []byte `json:"z_s"`
+	Z_X []byte `json:"z_x"`
 }
 
 type SourceCommitment struct {
