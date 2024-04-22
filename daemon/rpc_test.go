@@ -7,7 +7,8 @@ import (
 	"github.com/xelis-project/xelis-go-sdk/config"
 )
 
-var TESTING_ADDR = "xet:qf5u2p46jpgqmypqc2xwtq25yek2t7qhnqtdhw5kpfwcrlavs5asq0r83r7"
+const TESTING_ADDR = "xet:qf5u2p46jpgqmypqc2xwtq25yek2t7qhnqtdhw5kpfwcrlavs5asq0r83r7"
+const MAINNET_ADDR = "xel:as3mgjlevw5ve6k70evzz8lwmsa5p0lgws2d60fulxylnmeqrp9qqukwdfg"
 
 func setupRPC(t *testing.T) (daemon *RPC, ctx context.Context) {
 	ctx = context.Background()
@@ -318,4 +319,28 @@ func TestRPCAccount(t *testing.T) {
 	}
 
 	t.Log(assets)
+
+	topoheight, err := daemon.GetAccountRegistrationTopoheight(TESTING_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(topoheight)
+}
+
+func TestRPCRegistrationTopo(t *testing.T) {
+	// using mainnet for this test
+	// we need to resync the blockchain to work on testnet
+	ctx := context.Background()
+	daemon, err := NewRPC(ctx, config.MAINNET_NODE_RPC)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	topoheight, err := daemon.GetAccountRegistrationTopoheight(MAINNET_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(topoheight)
 }

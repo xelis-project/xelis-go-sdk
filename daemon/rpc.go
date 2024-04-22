@@ -232,3 +232,9 @@ func (d *RPC) IsTxExecutedInBlock(params IsTxExecutedInBlockParams) (executed bo
 	err = d.Client.CallResult(d.ctx, string(IsTxExecutedInBlock), params, &executed)
 	return
 }
+
+func (d *RPC) GetAccountRegistrationTopoheight(addr string) (topoheight uint64, err error) {
+	params := map[string]string{"address": addr}
+	err = d.Client.CallResult(d.ctx, string(GetAccountRegistrationTopoheight), params, &topoheight)
+	return
+}

@@ -176,3 +176,19 @@ func TestWSPeerUpdated(t *testing.T) {
 	wg.Wait()
 	daemon.Close()
 }
+
+func TestWSRegistrationTopo(t *testing.T) {
+	// using mainnet for this test
+	// we need to resync the blockchain to work on testnet
+	daemon, err := NewWebSocket(config.MAINNET_NODE_WS)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	topoheight, err := daemon.GetAccountRegistrationTopoheight(MAINNET_ADDR)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(topoheight)
+}

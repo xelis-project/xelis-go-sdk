@@ -320,3 +320,10 @@ func (w *WebSocket) IsTxExecutedInBlock(params IsTxExecutedInBlockParams) (execu
 	err = rpc.JsonFormatResponse(res, err, &executed)
 	return
 }
+
+func (w *WebSocket) GetAccountRegistrationTopoheight(addr string) (topoheight uint64, err error) {
+	params := map[string]string{"address": addr}
+	res, err := w.WS.Call(w.Prefix+GetAccountRegistrationTopoheight, params)
+	err = rpc.JsonFormatResponse(res, err, &topoheight)
+	return
+}
