@@ -1,5 +1,9 @@
 package wallet
 
+import (
+	daemon "github.com/xelis-project/xelis-go-sdk/daemon"
+)
+
 type GetAddressParams struct {
 	IntegratedData *map[string]interface{} `json:"integrated_data"`
 }
@@ -42,27 +46,26 @@ type TransferOut struct {
 	ExtraData   *[]byte `json:"extra_data"`
 }
 
-type Burn struct {
-	Asset  string `json:"asset"`
-	Amount uint64 `json:"amount"`
-}
-
 type BuildTransactionParams struct {
 	Transfers *[]TransferOut `json:"transfers"`
-	Burn      *Burn          `json:"burn"`
+	Burn      *daemon.Burn   `json:"burn"`
 	Broadcast bool           `json:"broadcast"`
 	TxAsHex   bool           `json:"tx_as_hex"`
 	Fee       *uint64        `json:"fee"`
 }
 
-type BuildTransactionInner struct {
-	Hash string      `json:"hash"`
-	Data interface{} `json:"data"`
-}
-
 type BuildTransactionResult struct {
-	TxAsHex string                `json:"tx_as_hex"`
-	Inner   BuildTransactionInner `json:"inner"`
+	Data              daemon.TransactionData    `json:"data"`
+	Fee               uint64                    `json:"fee"`
+	Hash              string                    `json:"hash"`
+	Nonce             uint64                    `json:"nonce"`
+	RangeProof        []byte                    `json:"range_proof"`
+	Reference         daemon.Reference          `json:"reference"`
+	Signature         string                    `json:"signature"`
+	Source            []byte                    `json:"source"`
+	SourceCommitments []daemon.SourceCommitment `json:"source_commitments"`
+	TxAsHex           string                    `json:"tx_as_hex"`
+	Version           uint64                    `json:"version"`
 }
 
 type Outgoing struct {
@@ -81,12 +84,12 @@ type Coinbase struct {
 }
 
 type TransactionEntry struct {
-	Hash       string    `json:"hash"`
-	Topoheight uint64    `json:"topoheight"`
-	Outgoing   *Outgoing `json:"outgoing"`
-	Burn       *Burn     `json:"burn"`
-	Incoming   *Incoming `json:"incoming"`
-	Coinbase   *Coinbase `json:"coinbase"`
+	Hash       string       `json:"hash"`
+	Topoheight uint64       `json:"topoheight"`
+	Outgoing   *Outgoing    `json:"outgoing"`
+	Burn       *daemon.Burn `json:"burn"`
+	Incoming   *Incoming    `json:"incoming"`
+	Coinbase   *Coinbase    `json:"coinbase"`
 }
 
 type ListTransactionsParams struct {
@@ -101,7 +104,7 @@ type ListTransactionsParams struct {
 
 type EstimateFeesParams struct {
 	Transfers *[]TransferOut `json:"transfers"`
-	Burn      *Burn          `json:"burn"`
+	Burn      *daemon.Burn   `json:"burn"`
 }
 
 const (
