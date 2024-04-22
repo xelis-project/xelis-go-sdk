@@ -45,6 +45,9 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 			err = json.Unmarshal(msg, &rpcResponse)
 			if err != nil {
 				fmt.Println(err)
+				close(jobs)
+				close(acceptedBlocks)
+				close(rejectedBlocks)
 				return
 			}
 
@@ -55,6 +58,9 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 					err := json.Unmarshal(v, &data)
 					if err != nil {
 						fmt.Println(err)
+						close(jobs)
+						close(acceptedBlocks)
+						close(rejectedBlocks)
 						return
 					}
 
