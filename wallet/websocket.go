@@ -3,7 +3,6 @@ package wallet
 import (
 	"net/http"
 
-	"github.com/xelis-project/xelis-go-sdk/daemon"
 	"github.com/xelis-project/xelis-go-sdk/lib"
 )
 
@@ -101,7 +100,7 @@ func (w *WebSocket) GetAssetPrecision(params GetAssetPrecisionParams) (decimals 
 	return
 }
 
-func (w *WebSocket) GetTransaction(params GetTransactionParams) (transaction daemon.Transaction, err error) {
+func (w *WebSocket) GetTransaction(params GetTransactionParams) (transaction TransactionEntry, err error) {
 	res, err := w.WS.Call(w.Prefix+GetTransaction, params)
 	err = lib.JsonFormatResponse(res, err, &transaction)
 	return
@@ -113,7 +112,7 @@ func (w *WebSocket) BuildTransaction(params BuildTransactionParams) (result Buil
 	return
 }
 
-func (w *WebSocket) ListTransactions(params ListTransactionsParams) (txs []daemon.Transaction, err error) {
+func (w *WebSocket) ListTransactions(params ListTransactionsParams) (txs []TransactionEntry, err error) {
 	res, err := w.WS.Call(w.Prefix+ListTransactions, params)
 	err = lib.JsonFormatResponse(res, err, &txs)
 	return
