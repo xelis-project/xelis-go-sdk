@@ -2,102 +2,102 @@ package getwork
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"net/url"
 
-	"github.com/xelis-project/xelis-go-sdk/lib"
+	"github.com/gorilla/websocket"
 )
 
 type Getwork struct {
-	WS *lib.WebSocket
+	conn *websocket.Conn
 
-	Jobs           chan BlockTemplate
-	AcceptedBlocks chan string
-	RejectedBlocks chan string
+	Job           chan BlockTemplate
+	AcceptedBlock chan bool
+	RejectedBlock chan string
+	Err           chan error
 }
 
 func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
-	if len(endpoint) < 1 {
-		return nil, errors.New("invalid endpoint")
-	}
-
-	ws, err := lib.NewWebSocket(endpoint+"getwork/"+minerAddress+"/"+worker, nil)
+	socketUrl, err := url.Parse(fmt.Sprintf("%s/%s/%s", endpoint, minerAddress, worker))
 	if err != nil {
 		return nil, err
 	}
 
-	jobs := make(chan BlockTemplate, 1)
-	acceptedBlocks := make(chan string, 1)
-	rejectedBlocks := make(chan string, 1)
+	conn, _, err := websocket.DefaultDialer.Dial(socketUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	getwork := &Getwork{
+		conn:          conn,
+		Job:           make(chan BlockTemplate, 1),
+		AcceptedBlock: make(chan bool, 1),
+		RejectedBlock: make(chan string, 1),
+		Err:           make(chan error, 1),
+	}
 
 	go func() {
+		defer getwork.Close()
+
 		for {
-			msg := <-ws.Notifications
-
-			if msg == nil {
-				fmt.Println("msg is nil")
-				continue
-			}
-
-			fmt.Println("received a message from websocket:", string(msg))
-
-			var rpcResponse map[string]json.RawMessage
-			err = json.Unmarshal(msg, &rpcResponse)
+			_, msg, err := conn.ReadMessage()
 			if err != nil {
-				fmt.Println(err)
+				getwork.Err <- err
 				return
 			}
 
-			for i, v := range rpcResponse {
-				switch i {
-				case NewJob:
-					data := BlockTemplate{}
-					err := json.Unmarshal(v, &data)
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-
-					jobs <- data
-
-				case BlockAccepted:
-
-					acceptedBlocks <- string(v)
-
-				case BlockRejected:
-
-					rejectedBlocks <- string(v)
-				}
-			}
+			getwork.handleMessage(msg)
 		}
 	}()
 
-	return &Getwork{
-		WS:             ws,
-		Jobs:           jobs,
-		AcceptedBlocks: acceptedBlocks,
-		RejectedBlocks: rejectedBlocks,
-	}, nil
+	return getwork, nil
 }
 
-func (w *Getwork) Close() error {
-	return w.WS.Close()
+func (w *Getwork) Close() {
+	close(w.Job)
+	close(w.AcceptedBlock)
+	close(w.RejectedBlock)
+	close(w.Err)
+	w.conn.Close()
 }
 
-func (w *Getwork) CloseEvent(event string) error {
-	return w.WS.CloseEvent(event)
+func (w *Getwork) handleMessage(msg []byte) {
+	var res interface{}
+	err := json.Unmarshal(msg, &res)
+	if err != nil {
+		w.Err <- err
+		return
+	}
+
+	jsonMap, ok := res.(map[string]interface{})
+	if ok {
+		blockTemplate, ok := jsonMap[NewJob].(map[string]interface{})
+		if ok {
+			w.Job <- BlockTemplate{
+				Difficulty: blockTemplate["difficulty"].(string),
+				Height:     uint64(blockTemplate["height"].(float64)),
+				Template:   blockTemplate["template"].(string),
+			}
+			return
+		}
+
+		rejected, ok := jsonMap[BlockRejected].(string)
+		if ok {
+			w.RejectedBlock <- rejected
+			return
+		}
+	}
+
+	value, ok := res.(string)
+	if ok {
+		if value == BlockAccepted {
+			w.AcceptedBlock <- true
+			return
+		}
+	}
 }
 
-func (w *Getwork) Submit(blockminer string) error {
-	d := map[string]any{}
-	d[SubmitBlock] = blockminer
-
-	err := w.WS.Write(d)
-	return err
-}
-
-func (w *Getwork) SubmitBlock(data string) (err error) {
-	return w.WS.GetConn().WriteJSON(map[string]any{
-		"block_template": data,
-	})
+func (w *Getwork) SubmitBlock(hexData string) (err error) {
+	data := map[string]interface{}{"block_template": hexData}
+	return w.conn.WriteJSON(data)
 }
