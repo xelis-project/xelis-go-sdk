@@ -238,3 +238,8 @@ func (d *RPC) GetAccountRegistrationTopoheight(addr string) (topoheight uint64, 
 	err = d.Client.CallResult(d.ctx, string(GetAccountRegistrationTopoheight), params, &topoheight)
 	return
 }
+
+func (d *RPC) IsAccountRegistered(params IsAccountRegisteredParams) (exists bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(IsAccountRegistered), params, &exists)
+	return
+}

@@ -10,7 +10,7 @@ import (
 const TESTING_ADDR = "xet:qf5u2p46jpgqmypqc2xwtq25yek2t7qhnqtdhw5kpfwcrlavs5asq0r83r7"
 const MAINNET_ADDR = "xel:as3mgjlevw5ve6k70evzz8lwmsa5p0lgws2d60fulxylnmeqrp9qqukwdfg"
 
-func setupRPC(t *testing.T) (daemon *RPC, ctx context.Context) {
+func useRPCTestnet(t *testing.T) (daemon *RPC, ctx context.Context) {
 	ctx = context.Background()
 	daemon, err := NewRPC(ctx, config.TESTNET_NODE_RPC)
 	if err != nil {
@@ -20,8 +20,18 @@ func setupRPC(t *testing.T) (daemon *RPC, ctx context.Context) {
 	return
 }
 
+func useRPCMainnet(t *testing.T) (daemon *RPC, ctx context.Context) {
+	ctx = context.Background()
+	daemon, err := NewRPC(ctx, config.MAINNET_NODE_RPC)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return
+}
+
 func TestRPCMethods(t *testing.T) {
-	daemon, _ := setupRPC(t)
+	daemon, _ := useRPCTestnet(t)
 
 	version, err := daemon.GetVersion()
 	if err != nil {
@@ -164,7 +174,7 @@ func TestRPCMethods(t *testing.T) {
 }
 
 func TestRPCUnknownMethod(t *testing.T) {
-	daemon, ctx := setupRPC(t)
+	daemon, ctx := useRPCTestnet(t)
 	res, err := daemon.Client.Call(ctx, "UnknownMethod", nil)
 	if err == nil {
 		t.Fatal("Expected an error")
@@ -174,7 +184,7 @@ func TestRPCUnknownMethod(t *testing.T) {
 }
 
 func TestRPCNonceAndBalance(t *testing.T) {
-	daemon, _ := setupRPC(t)
+	daemon, _ := useRPCTestnet(t)
 	has, err := daemon.HasNonce(TESTING_ADDR)
 	if err != nil {
 		t.Fatal(err)
@@ -232,7 +242,7 @@ func TestRPCNonceAndBalance(t *testing.T) {
 }
 
 func TestRPCGetBlocksRange(t *testing.T) {
-	daemon, _ := setupRPC(t)
+	daemon, _ := useRPCTestnet(t)
 
 	topoheight, err := daemon.GetTopoheight()
 	if err != nil {
@@ -266,7 +276,7 @@ func TestRPCGetBlocksRange(t *testing.T) {
 }
 
 func TestRPCGetTransactions(t *testing.T) {
-	daemon, _ := setupRPC(t)
+	daemon, _ := useRPCTestnet(t)
 	txHash := "1de03df36b75916c2a440e428a854109c9628ed2c2bd628f9b9408baa78c6f52"
 
 	txs, err := daemon.GetTransactions(GetTransactionsParams{
@@ -288,7 +298,7 @@ func TestRPCGetTransactions(t *testing.T) {
 
 func TestRPCExecutedInBlock(t *testing.T) {
 	// https://testnet-explorer.xelis.io/blocks/000000001849d07bbb4165c8ba1d1fc472a0629f56895efb8689e06ce62b3ca8
-	daemon, _ := setupRPC(t)
+	daemon, _ := useRPCTestnet(t)
 	executed, err := daemon.IsTxExecutedInBlock(IsTxExecutedInBlockParams{
 		TxHash:    "6e4bbd77b305fb68e2cc7576b4846d2db3617e3cbc2eb851cb2ae69b879e9d0f",
 		BlockHash: "000000001849d07bbb4165c8ba1d1fc472a0629f56895efb8689e06ce62b3ca8",
@@ -305,7 +315,7 @@ func TestRPCExecutedInBlock(t *testing.T) {
 }
 
 func TestRPCAccount(t *testing.T) {
-	daemon, _ := setupRPC(t)
+	daemon, _ := useRPCTestnet(t)
 	history, err := daemon.GetAccountHistory(TESTING_ADDR)
 	if err != nil {
 		t.Fatal(err)
@@ -328,14 +338,10 @@ func TestRPCAccount(t *testing.T) {
 	t.Log(topoheight)
 }
 
-func TestRPCRegistrationTopo(t *testing.T) {
+func TestRPCRegistration(t *testing.T) {
 	// using mainnet for this test
 	// we need to resync the blockchain to work on testnet
-	ctx := context.Background()
-	daemon, err := NewRPC(ctx, config.MAINNET_NODE_RPC)
-	if err != nil {
-		t.Fatal(err)
-	}
+	daemon, _ := useRPCMainnet(t)
 
 	topoheight, err := daemon.GetAccountRegistrationTopoheight(MAINNET_ADDR)
 	if err != nil {
@@ -343,4 +349,14 @@ func TestRPCRegistrationTopo(t *testing.T) {
 	}
 
 	t.Log(topoheight)
+
+	exists, err := daemon.IsAccountRegistered(IsAccountRegisteredParams{
+		Address:        MAINNET_ADDR,
+		InStableHeight: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(exists)
 }

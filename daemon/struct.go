@@ -298,6 +298,11 @@ type GetPeersResult struct {
 	HiddenPeers int    `json:"hidden_peers"`
 }
 
+type IsAccountRegisteredParams struct {
+	Address        string `json:"address"`
+	InStableHeight bool   `json:"in_stable_height"`
+}
+
 const (
 	NewBlock                  string = `new_block`
 	TransactionAddedInMempool string = `transaction_added_in_mempool`
@@ -348,4 +353,5 @@ const (
 	GetSizeOnDisk                    string = "get_size_on_disk"
 	IsTxExecutedInBlock              string = "is_tx_executed_in_block"
 	GetAccountRegistrationTopoheight string = "get_account_registration_topoheight"
+	IsAccountRegistered              string = "is_account_registered"
 )

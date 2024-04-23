@@ -327,3 +327,9 @@ func (w *WebSocket) GetAccountRegistrationTopoheight(addr string) (topoheight ui
 	err = rpc.JsonFormatResponse(res, err, &topoheight)
 	return
 }
+
+func (w *WebSocket) IsAccountRegistered(params IsAccountRegisteredParams) (exists bool, err error) {
+	res, err := w.WS.Call(w.Prefix+IsAccountRegistered, params)
+	err = rpc.JsonFormatResponse(res, err, &exists)
+	return
+}

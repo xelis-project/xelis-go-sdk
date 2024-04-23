@@ -8,7 +8,7 @@ import (
 	"github.com/xelis-project/xelis-go-sdk/rpc"
 )
 
-func setupWebSocket(t *testing.T) (daemon *WebSocket) {
+func useWSTestnet(t *testing.T) (daemon *WebSocket) {
 	daemon, err := NewWebSocket(config.TESTNET_NODE_WS)
 	if err != nil {
 		t.Fatal(err)
@@ -17,8 +17,17 @@ func setupWebSocket(t *testing.T) (daemon *WebSocket) {
 	return
 }
 
+func useWSMainnet(t *testing.T) (daemon *WebSocket) {
+	daemon, err := NewWebSocket(config.MAINNET_NODE_WS)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return
+}
+
 func TestWSGetInfo(t *testing.T) {
-	daemon := setupWebSocket(t)
+	daemon := useWSTestnet(t)
 
 	version, err := daemon.GetVersion()
 	if err != nil {
@@ -75,7 +84,7 @@ retry:
 }
 
 func TestWSNewBlock(t *testing.T) {
-	daemon := setupWebSocket(t)
+	daemon := useWSTestnet(t)
 	var wg sync.WaitGroup
 	wg.Add(1)
 	err := daemon.NewBlockFunc(func(newBlock Block, err error) {
@@ -92,7 +101,7 @@ func TestWSNewBlock(t *testing.T) {
 }
 
 func TestWSUnsubscribe(t *testing.T) {
-	daemon := setupWebSocket(t)
+	daemon := useWSTestnet(t)
 
 	err := daemon.NewBlockFunc(func(block Block, err error) {
 		t.Logf("%+v", block)
@@ -111,7 +120,7 @@ func TestWSUnsubscribe(t *testing.T) {
 }
 
 func TestWSCallAndMultiSubscribe(t *testing.T) {
-	daemon := setupWebSocket(t)
+	daemon := useWSTestnet(t)
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -144,7 +153,7 @@ func TestWSCallAndMultiSubscribe(t *testing.T) {
 }
 
 func TestWSPeers(t *testing.T) {
-	daemon := setupWebSocket(t)
+	daemon := useWSTestnet(t)
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -164,7 +173,7 @@ func TestWSPeers(t *testing.T) {
 }
 
 func TestWSPeerUpdated(t *testing.T) {
-	daemon := setupWebSocket(t)
+	daemon := useWSTestnet(t)
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -177,13 +186,10 @@ func TestWSPeerUpdated(t *testing.T) {
 	daemon.Close()
 }
 
-func TestWSRegistrationTopo(t *testing.T) {
+func TestWSRegistration(t *testing.T) {
 	// using mainnet for this test
 	// we need to resync the blockchain to work on testnet
-	daemon, err := NewWebSocket(config.MAINNET_NODE_WS)
-	if err != nil {
-		t.Fatal(err)
-	}
+	daemon := useWSMainnet(t)
 
 	topoheight, err := daemon.GetAccountRegistrationTopoheight(MAINNET_ADDR)
 	if err != nil {
@@ -191,4 +197,15 @@ func TestWSRegistrationTopo(t *testing.T) {
 	}
 
 	t.Log(topoheight)
+
+	exists, err := daemon.IsAccountRegistered(IsAccountRegisteredParams{
+		Address:        MAINNET_ADDR,
+		InStableHeight: true,
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(exists)
 }
