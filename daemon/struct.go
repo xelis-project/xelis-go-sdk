@@ -113,13 +113,13 @@ type Block struct {
 }
 
 type Transfer struct {
-	Asset           string `json:"asset"`
-	ExtraData       []byte `json:"extra_data"`
-	Destination     string `json:"destination"`
-	Commitment      []byte `json:"commitment"`
-	SenderHandle    []byte `json:"sender_handle"`
-	ReceiverHandle  []byte `json:"receiver_handle"`
-	CTValidityProof Proof  `json:"ct_validity_proof"`
+	Asset           string  `json:"asset"`
+	ExtraData       *[]byte `json:"extra_data"`
+	Destination     string  `json:"destination"`
+	Commitment      []byte  `json:"commitment"`
+	SenderHandle    []byte  `json:"sender_handle"`
+	ReceiverHandle  []byte  `json:"receiver_handle"`
+	CTValidityProof Proof   `json:"ct_validity_proof"`
 }
 
 type Burn struct {

@@ -34,16 +34,16 @@ type GetAssetPrecisionParams struct {
 }
 
 type TransferIn struct {
-	Amount    uint64  `json:"amount"`
-	Asset     string  `json:"asset"`
-	ExtraData *[]byte `json:"extra_data"`
+	Amount    uint64       `json:"amount"`
+	Asset     string       `json:"asset"`
+	ExtraData *interface{} `json:"extra_data"`
 }
 
 type TransferOut struct {
-	Amount      uint64  `json:"amount"`
-	Asset       string  `json:"asset"`
-	Destination string  `json:"destination"`
-	ExtraData   *[]byte `json:"extra_data"`
+	Amount      uint64       `json:"amount"`
+	Asset       string       `json:"asset"`
+	Destination string       `json:"destination"`
+	ExtraData   *interface{} `json:"extra_data"`
 }
 
 type BuildTransactionParams struct {
