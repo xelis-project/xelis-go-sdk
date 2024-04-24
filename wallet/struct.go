@@ -1,11 +1,13 @@
 package wallet
 
 import (
-	daemon "github.com/xelis-project/xelis-go-sdk/daemon"
+	"encoding/json"
+
+	"github.com/xelis-project/xelis-go-sdk/daemon"
 )
 
 type GetAddressParams struct {
-	IntegratedData *map[string]interface{} `json:"integrated_data"`
+	IntegratedData *DataElement `json:"integrated_data"`
 }
 
 type SplitAddressParams struct {
@@ -13,8 +15,8 @@ type SplitAddressParams struct {
 }
 
 type SplitAddressResult struct {
-	Address        string                 `json:"address"`
-	IntegratedData map[string]interface{} `json:"integrated_data"`
+	Address        string      `json:"address"`
+	IntegratedData DataElement `json:"integrated_data"`
 }
 
 type GetBalanceParams struct {
@@ -36,26 +38,54 @@ type GetAssetPrecisionParams struct {
 type TransferIn struct {
 	Amount    uint64       `json:"amount"`
 	Asset     string       `json:"asset"`
-	ExtraData *interface{} `json:"extra_data"`
+	ExtraData *DataElement `json:"extra_data"`
+}
+
+type DataElement struct {
+	Value  interface{}     `json:"value,omitempty"`
+	Array  []DataElement   `json:"array,omitempty"`
+	Fields json.RawMessage `json:"fields,omitempty"` // can't do map[interface{}]DataElement json unsupported parsing
 }
 
 type TransferOut struct {
 	Amount      uint64       `json:"amount"`
 	Asset       string       `json:"asset"`
 	Destination string       `json:"destination"`
-	ExtraData   *interface{} `json:"extra_data"`
+	ExtraData   *DataElement `json:"extra_data,omitempty"`
+}
+
+type FeeBuilder struct {
+	Multiplier *int    `json:"multiplier"`
+	Value      *uint64 `json:"value"`
 }
 
 type BuildTransactionParams struct {
-	Transfers *[]TransferOut `json:"transfers"`
-	Burn      *daemon.Burn   `json:"burn"`
-	Broadcast bool           `json:"broadcast"`
-	TxAsHex   bool           `json:"tx_as_hex"`
-	Fee       *uint64        `json:"fee"`
+	Transfers []TransferOut `json:"transfers"`
+	Burn      *daemon.Burn  `json:"burn,omitempty"`
+	Broadcast bool          `json:"broadcast"`
+	TxAsHex   bool          `json:"tx_as_hex"`
+	Fee       *FeeBuilder   `json:"fee,omitempty"`
+}
+
+// !!! not the same as daemon.Transfer
+// the destination is []byte and the other it's string
+type Transfer struct {
+	Asset           string       `json:"asset"`
+	ExtraData       *[]byte      `json:"extra_data"`
+	Destination     []byte       `json:"destination"`
+	Commitment      []byte       `json:"commitment"`
+	SenderHandle    []byte       `json:"sender_handle"`
+	ReceiverHandle  []byte       `json:"receiver_handle"`
+	CTValidityProof daemon.Proof `json:"ct_validity_proof"`
+}
+
+type TransactionData struct {
+	Transfers []Transfer   `json:"transfers"`
+	Burn      *daemon.Burn `json:"burn"`
 }
 
 type BuildTransactionResult struct {
-	Data              daemon.TransactionData    `json:"data"`
+	Data              TransactionData           `json:"data"`
 	Fee               uint64                    `json:"fee"`
 	Hash              string                    `json:"hash"`
 	Nonce             uint64                    `json:"nonce"`

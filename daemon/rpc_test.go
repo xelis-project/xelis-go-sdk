@@ -296,6 +296,18 @@ func TestRPCGetTransactions(t *testing.T) {
 	t.Log(tx)
 }
 
+func TestRPCGetTransaction(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
+	txHash := "5f5e2ff1677860ee1f3e3c58ba188f427fbcb2f344dfb15dd0f7ca60b03f624c"
+
+	tx, err := daemon.GetTransaction(txHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(tx)
+}
+
 func TestRPCExecutedInBlock(t *testing.T) {
 	// https://testnet-explorer.xelis.io/blocks/000000001849d07bbb4165c8ba1d1fc472a0629f56895efb8689e06ce62b3ca8
 	daemon, _ := useRPCTestnet(t)

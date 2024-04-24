@@ -58,7 +58,7 @@ func (w *WebSocket) GetTopoheight() (topoheight uint64, err error) {
 	return
 }
 
-func (w *WebSocket) GetAddress(params GetAddressParams) (address uint64, err error) {
+func (w *WebSocket) GetAddress(params GetAddressParams) (address string, err error) {
 	res, err := w.WS.Call(w.Prefix+GetAddress, params)
 	err = rpc.JsonFormatResponse(res, err, &address)
 	return
