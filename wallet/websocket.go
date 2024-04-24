@@ -3,6 +3,7 @@ package wallet
 import (
 	"net/http"
 
+	"github.com/xelis-project/xelis-go-sdk/daemon"
 	"github.com/xelis-project/xelis-go-sdk/rpc"
 )
 
@@ -32,6 +33,60 @@ func (w *WebSocket) Close() error {
 
 func (w *WebSocket) CloseEvent(event string) error {
 	return w.WS.CloseEvent(event)
+}
+
+func (w *WebSocket) NewTopoheightFunc(onData func(uint64, error)) error {
+	return w.WS.ListenEventFunc(NewTopoheight, func(res rpc.RPCResponse) {
+		var result map[string]interface{}
+		err := rpc.JsonFormatResponse(res, nil, &result)
+		topoheight := uint64(result["topoheight"].(float64))
+		onData(topoheight, err)
+	})
+}
+
+func (w *WebSocket) NewAssetFunc(onData func(daemon.AssetWithData, error)) error {
+	return w.WS.ListenEventFunc(NewAsset, func(res rpc.RPCResponse) {
+		var result daemon.AssetWithData
+		err := rpc.JsonFormatResponse(res, nil, &result)
+		onData(result, err)
+	})
+}
+
+func (w *WebSocket) NewTransactionFunc(onData func(TransactionEntry, error)) error {
+	return w.WS.ListenEventFunc(NewTransaction, func(res rpc.RPCResponse) {
+		var result TransactionEntry
+		err := rpc.JsonFormatResponse(res, nil, &result)
+		onData(result, err)
+	})
+}
+
+func (w *WebSocket) BalanceChangedFunc(onData func(BalanceChangedResult, error)) error {
+	return w.WS.ListenEventFunc(BalanceChanged, func(res rpc.RPCResponse) {
+		var result BalanceChangedResult
+		err := rpc.JsonFormatResponse(res, nil, &result)
+		onData(result, err)
+	})
+}
+
+func (w *WebSocket) RescanFunc(onData func(uint64, error)) error {
+	return w.WS.ListenEventFunc(Rescan, func(res rpc.RPCResponse) {
+		var result map[string]interface{}
+		err := rpc.JsonFormatResponse(res, nil, &result)
+		startTopoheight := uint64(result["start_topoheight"].(float64))
+		onData(startTopoheight, err)
+	})
+}
+
+func (w *WebSocket) OnlineFunc(onData func()) error {
+	return w.WS.ListenEventFunc(Online, func(res rpc.RPCResponse) {
+		onData()
+	})
+}
+
+func (w *WebSocket) OfflineFunc(onData func()) error {
+	return w.WS.ListenEventFunc(Offline, func(res rpc.RPCResponse) {
+		onData()
+	})
 }
 
 func (w *WebSocket) GetVersion() (version string, err error) {

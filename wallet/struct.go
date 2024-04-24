@@ -138,6 +138,12 @@ type EstimateFeesParams struct {
 	Burn      *daemon.Burn   `json:"burn"`
 }
 
+type BalanceChangedResult struct {
+	Asset   string `json:"asset"`
+	Balance uint64 `json:"balance"`
+}
+
+// Methods
 const (
 	GetVersion        string = "get_version"
 	GetNetwork        string = "get_network"
@@ -166,4 +172,15 @@ const (
 	Delete          string = "delete"
 	HasKey          string = "has_key"
 	QueryDB         string = "query_db"
+)
+
+// Events
+const (
+	NewTopoheight  string = `new_topo_height`
+	NewAsset       string = `new_asset`
+	NewTransaction string = `new_transaction`
+	BalanceChanged string = `balance_changed`
+	//Rescan         string = `rescan`
+	Online  string = `online`
+	Offline string = `offline`
 )

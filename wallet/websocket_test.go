@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"log"
+	"sync"
 	"testing"
 
 	"github.com/xelis-project/xelis-go-sdk/config"
@@ -32,5 +33,52 @@ func TestWSGetInfo(t *testing.T) {
 
 	t.Logf("%s", network)
 
+	wallet.Close()
+}
+
+func TestWSNewTopoheight(t *testing.T) {
+	wallet := useWSLocal(t)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	err := wallet.NewTopoheightFunc(func(newTopoheight uint64, err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		t.Log(newTopoheight)
+		wg.Done()
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	wg.Wait()
+	wallet.Close()
+}
+
+func TestWSOnlineOffline(t *testing.T) {
+	wallet := useWSLocal(t)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	err := wallet.OnlineFunc(func() {
+		t.Log("Online")
+		wg.Done()
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = wallet.OfflineFunc(func() {
+		t.Log("Offline")
+		wg.Done()
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	wg.Wait()
 	wallet.Close()
 }
