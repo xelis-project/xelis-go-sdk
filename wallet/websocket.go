@@ -35,6 +35,10 @@ func (w *WebSocket) CloseEvent(event string) error {
 	return w.WS.CloseEvent(event)
 }
 
+func (w *WebSocket) ConnectionErr() chan error {
+	return w.WS.ConnectionErr
+}
+
 func (w *WebSocket) NewTopoheightChannel() (chan uint64, chan error, error) {
 	chanTopoheight := make(chan uint64)
 	chanErr := make(chan error)

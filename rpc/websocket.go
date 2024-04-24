@@ -12,12 +12,13 @@ import (
 )
 
 type WebSocket struct {
-	CallTimeout time.Duration
-	id          int64
-	conn        *websocket.Conn
-	channels    map[int64]chan RPCResponse
-	events      map[string]int64
-	mutex       sync.Mutex
+	CallTimeout   time.Duration
+	id            int64
+	conn          *websocket.Conn
+	channels      map[int64]chan RPCResponse
+	events        map[string]int64
+	mutex         sync.Mutex
+	ConnectionErr chan error
 }
 
 func NewWebSocket(endpoint string, header http.Header) (*WebSocket, error) {
@@ -32,10 +33,11 @@ func NewWebSocket(endpoint string, header http.Header) (*WebSocket, error) {
 	}
 
 	ws := &WebSocket{
-		CallTimeout: 3 * time.Second,
-		conn:        conn,
-		channels:    make(map[int64]chan RPCResponse),
-		events:      make(map[string]int64),
+		CallTimeout:   3 * time.Second,
+		conn:          conn,
+		channels:      make(map[int64]chan RPCResponse),
+		events:        make(map[string]int64),
+		ConnectionErr: make(chan error),
 	}
 
 	go ws.listen()
@@ -47,6 +49,7 @@ func (w *WebSocket) listen() {
 		for {
 			_, msg, err := w.conn.ReadMessage()
 			if err != nil {
+				w.ConnectionErr <- err
 				return
 			}
 

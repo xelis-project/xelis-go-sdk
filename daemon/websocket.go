@@ -28,6 +28,10 @@ func (w *WebSocket) CloseEvent(event string) error {
 	return w.WS.CloseEvent(event)
 }
 
+func (w *WebSocket) ConnectionErr() chan error {
+	return w.WS.ConnectionErr
+}
+
 func (w *WebSocket) NewBlockChannel() (chan Block, chan error, error) {
 	chanBlock := make(chan Block)
 	chanErr := make(chan error)

@@ -102,3 +102,10 @@ func TestWSOnlineOffline(t *testing.T) {
 	wg.Wait()
 	wallet.Close()
 }
+
+func TestConnectionErr(t *testing.T) {
+	wallet := useWSLocal(t)
+
+	err := <-wallet.ConnectionErr()
+	t.Log(err)
+}
