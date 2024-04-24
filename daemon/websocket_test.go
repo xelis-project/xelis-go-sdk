@@ -209,3 +209,21 @@ func TestWSRegistration(t *testing.T) {
 
 	t.Log(exists)
 }
+
+func TestNewBlockChannel(t *testing.T) {
+	daemon := useWSMainnet(t)
+
+	newBlock, newBlockErr, err := daemon.NewBlockChannel()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	select {
+	case block := <-newBlock:
+		t.Logf("%+v", block)
+	case err := <-newBlockErr:
+		t.Log(err)
+	}
+
+	daemon.Close()
+}

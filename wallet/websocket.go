@@ -74,9 +74,6 @@ func (w *WebSocket) NewAssetChannel() (chan daemon.AssetWithData, chan error, er
 			chanAssetWithData <- result
 		}
 	})
-	if err != nil {
-		chanErr <- err
-	}
 
 	return chanAssetWithData, chanErr, err
 }
