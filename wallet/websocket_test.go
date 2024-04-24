@@ -57,6 +57,26 @@ func TestWSNewTopoheight(t *testing.T) {
 	wallet.Close()
 }
 
+func TestWSNewTopoheightChannel(t *testing.T) {
+	wallet := useWSLocal(t)
+
+	newTopoheight, newTopoheightErr, err := wallet.NewTopoheightChannel()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	select {
+	case topoheight := <-newTopoheight:
+		t.Log(topoheight)
+	case err := <-newTopoheightErr:
+		t.Fatal(err)
+	}
+
+	close(newTopoheight)
+	close(newTopoheightErr)
+	wallet.Close()
+}
+
 func TestWSOnlineOffline(t *testing.T) {
 	wallet := useWSLocal(t)
 
