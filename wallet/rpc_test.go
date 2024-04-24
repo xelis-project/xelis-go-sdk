@@ -2,7 +2,6 @@ package wallet
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 
 	"github.com/xelis-project/xelis-go-sdk/config"
@@ -65,13 +64,9 @@ func TestRPCGetInfo(t *testing.T) {
 }
 
 func TestRPCIntegratedAddress(t *testing.T) {
-	wallet := useWSLocal(t)
+	wallet, _ := useRPCLocal(t)
 
-	integratedData := DataElement{
-		Value:  "hello world",
-		Array:  []DataElement{DataElement{Value: "test"}},
-		Fields: json.RawMessage(`"more data"`),
-	}
+	var integratedData interface{} = map[string]interface{}{"hello": "world"}
 
 	integratedAddress, err := wallet.GetAddress(GetAddressParams{IntegratedData: &integratedData})
 	if err != nil {
@@ -232,7 +227,7 @@ func TestRPCTransfer(t *testing.T) {
 
 	result, err := wallet.BuildTransaction(BuildTransactionParams{
 		Transfers: []TransferOut{
-			{Amount: 1, Asset: config.XELIS_ASSET, Destination: TESTING_ADDR},
+			{Amount: 1, Asset: config.XELIS_ASSET, Destination: MAINNET_ADDR},
 		},
 		Broadcast: false,
 		TxAsHex:   true,
@@ -246,15 +241,36 @@ func TestRPCTransfer(t *testing.T) {
 func TestRPCSendExtraData(t *testing.T) {
 	wallet, _ := useRPCLocal(t)
 
-	extraData := DataElement{
-		Value:  10,
-		Array:  []DataElement{DataElement{Value: "test"}},
-		Fields: json.RawMessage(`10`),
-	}
+	var extraData interface{} = map[string]interface{}{"hello": "world"}
 
 	result, err := wallet.BuildTransaction(BuildTransactionParams{
 		Transfers: []TransferOut{
 			{Amount: 0, Asset: config.XELIS_ASSET, Destination: MAINNET_ADDR, ExtraData: &extraData},
+		},
+		Broadcast: false,
+		TxAsHex:   true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", result)
+}
+
+func TestRPCSendWithFeeBuilder(t *testing.T) {
+	wallet, _ := useRPCLocal(t)
+
+	// you can only have one of both
+	// either use Multiplier or Value
+	//feeMultiplier := float64(1)
+	feeValue := uint64(1)
+
+	result, err := wallet.BuildTransaction(BuildTransactionParams{
+		Transfers: []TransferOut{
+			{Amount: 0, Asset: config.XELIS_ASSET, Destination: MAINNET_ADDR},
+		},
+		Fee: &FeeBuilder{
+			//Multiplier: &feeMultiplier,
+			Value: &feeValue,
 		},
 		Broadcast: false,
 		TxAsHex:   true,

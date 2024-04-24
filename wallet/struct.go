@@ -1,13 +1,11 @@
 package wallet
 
 import (
-	"encoding/json"
-
 	"github.com/xelis-project/xelis-go-sdk/daemon"
 )
 
 type GetAddressParams struct {
-	IntegratedData *DataElement `json:"integrated_data"`
+	IntegratedData *interface{} `json:"integrated_data,omitempty"`
 }
 
 type SplitAddressParams struct {
@@ -16,7 +14,7 @@ type SplitAddressParams struct {
 
 type SplitAddressResult struct {
 	Address        string      `json:"address"`
-	IntegratedData DataElement `json:"integrated_data"`
+	IntegratedData interface{} `json:"integrated_data"`
 }
 
 type GetBalanceParams struct {
@@ -38,25 +36,28 @@ type GetAssetPrecisionParams struct {
 type TransferIn struct {
 	Amount    uint64       `json:"amount"`
 	Asset     string       `json:"asset"`
-	ExtraData *DataElement `json:"extra_data"`
+	ExtraData *interface{} `json:"extra_data"`
 }
 
+/*
+// we use *interface{} instead of DataElement so user can serialize/deserialize how he wants
 type DataElement struct {
 	Value  interface{}     `json:"value,omitempty"`
 	Array  []DataElement   `json:"array,omitempty"`
 	Fields json.RawMessage `json:"fields,omitempty"` // can't do map[interface{}]DataElement json unsupported parsing
 }
+*/
 
 type TransferOut struct {
 	Amount      uint64       `json:"amount"`
 	Asset       string       `json:"asset"`
 	Destination string       `json:"destination"`
-	ExtraData   *DataElement `json:"extra_data,omitempty"`
+	ExtraData   *interface{} `json:"extra_data,omitempty"`
 }
 
 type FeeBuilder struct {
-	Multiplier *int    `json:"multiplier"`
-	Value      *uint64 `json:"value"`
+	Multiplier *float64 `json:"multiplier,omitempty"`
+	Value      *uint64  `json:"value,omitempty"`
 }
 
 type BuildTransactionParams struct {
