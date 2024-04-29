@@ -199,9 +199,15 @@ type GetInfoResult struct {
 }
 
 type GetBlockTemplateResult struct {
-	Difficulty string `json:"difficulty"`
-	Height     uint64 `json:"height"`
 	Template   string `json:"template"`
+	Height     uint64 `json:"height"`
+	Topoheight uint64 `json:"topoheight"`
+	Difficulty string `json:"difficulty"`
+}
+
+type SubmitBlockParams struct {
+	BlockTemplate string  `json:"block_template"`
+	MinerWork     *string `json:"miner_work,omitempty"`
 }
 
 type GetNonceResult struct {
