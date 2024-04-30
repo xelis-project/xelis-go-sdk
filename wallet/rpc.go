@@ -124,6 +124,10 @@ func (d *RPC) GetTransaction(params GetTransactionParams) (transaction Transacti
 }
 
 func (d *RPC) BuildTransaction(params BuildTransactionParams) (result BuildTransactionResult, err error) {
+	if err = checkFeeBuilder(params.Fee); err != nil {
+		return
+	}
+
 	err = d.Client.CallResult(d.ctx, string(BuildTransaction), params, &result)
 	return
 }
@@ -156,4 +160,12 @@ func (d *RPC) SignData(data interface{}) (signature string, err error) {
 func (d *RPC) EstimateFees(params EstimateFeesParams) (amount uint64, err error) {
 	err = d.Client.CallResult(d.ctx, string(EstimateFees), params, &amount)
 	return
+}
+
+func checkFeeBuilder(fee *FeeBuilder) error {
+	if fee != nil && fee.Multiplier != nil && fee.Value != nil {
+		return fmt.Errorf("you cannot set both Multiplier and Value in FeeBuilder")
+	}
+
+	return nil
 }

@@ -273,6 +273,10 @@ func (w *WebSocket) GetTransaction(params GetTransactionParams) (transaction Tra
 }
 
 func (w *WebSocket) BuildTransaction(params BuildTransactionParams) (result BuildTransactionResult, err error) {
+	if err = checkFeeBuilder(params.Fee); err != nil {
+		return
+	}
+
 	res, err := w.WS.Call(w.Prefix+BuildTransaction, params)
 	err = rpc.JsonFormatResponse(res, err, &result)
 	return
