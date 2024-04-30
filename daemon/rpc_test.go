@@ -186,6 +186,24 @@ func TestRPCMethods(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", validAddr)
+
+	bytePublicKey, err := daemon.ExtractKeyFromAddress(ExtractKeyFromAddressParams{
+		Address: TESTING_ADDR,
+		TxAsHex: false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", bytePublicKey)
+
+	hexPublicKey, err := daemon.ExtractKeyFromAddress(ExtractKeyFromAddressParams{
+		Address: TESTING_ADDR,
+		TxAsHex: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", hexPublicKey)
 }
 
 func TestRPCUnknownMethod(t *testing.T) {

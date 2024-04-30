@@ -468,3 +468,9 @@ func (w *WebSocket) ValidateAddress(params ValidateAddressParams) (valid bool, e
 	err = rpc.JsonFormatResponse(res, err, &valid)
 	return
 }
+
+func (w *WebSocket) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (key interface{}, err error) {
+	res, err := w.WS.Call(w.Prefix+ExtractKeyFromAddress, params)
+	err = rpc.JsonFormatResponse(res, err, &key)
+	return
+}

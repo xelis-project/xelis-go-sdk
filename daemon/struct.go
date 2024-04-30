@@ -320,6 +320,11 @@ type ValidateAddressParams struct {
 	AllowIntegrated bool   `json:"allow_integrated"`
 }
 
+type ExtractKeyFromAddressParams struct {
+	Address string `json:"address"`
+	TxAsHex bool   `json:"tx_as_hex"`
+}
+
 const (
 	NewBlock                  string = `new_block`
 	TransactionAddedInMempool string = `transaction_added_in_mempool`
@@ -373,4 +378,5 @@ const (
 	IsAccountRegistered              string = "is_account_registered"
 	GetDifficulty                    string = "get_difficulty"
 	ValidateAddress                  string = "validate_address"
+	ExtractKeyFromAddress            string = "extract_key_from_address"
 )
