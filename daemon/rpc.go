@@ -248,3 +248,8 @@ func (d *RPC) GetDifficulty() (result GetDifficultyResult, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetDifficulty), nil, &result)
 	return
 }
+
+func (d *RPC) ValidateAddress(params ValidateAddressParams) (valid bool, err error) {
+	err = d.Client.CallResult(d.ctx, string(ValidateAddress), params, &valid)
+	return
+}

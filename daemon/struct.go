@@ -315,6 +315,11 @@ type GetDifficultyResult struct {
 	HashrateFormatted string `json:"hashrate_formatted"`
 }
 
+type ValidateAddressParams struct {
+	Address         string `json:"address"`
+	AllowIntegrated bool   `json:"allow_integrated"`
+}
+
 const (
 	NewBlock                  string = `new_block`
 	TransactionAddedInMempool string = `transaction_added_in_mempool`
@@ -367,4 +372,5 @@ const (
 	GetAccountRegistrationTopoheight string = "get_account_registration_topoheight"
 	IsAccountRegistered              string = "is_account_registered"
 	GetDifficulty                    string = "get_difficulty"
+	ValidateAddress                  string = "validate_address"
 )

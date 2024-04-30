@@ -177,6 +177,15 @@ func TestRPCMethods(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", diff)
+
+	validAddr, err := daemon.ValidateAddress(ValidateAddressParams{
+		Address:         TESTING_ADDR,
+		AllowIntegrated: false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", validAddr)
 }
 
 func TestRPCUnknownMethod(t *testing.T) {

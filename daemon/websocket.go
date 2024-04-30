@@ -462,3 +462,9 @@ func (w *WebSocket) GetDifficulty() (result GetDifficultyResult, err error) {
 	err = rpc.JsonFormatResponse(res, err, &result)
 	return
 }
+
+func (w *WebSocket) ValidateAddress(params ValidateAddressParams) (valid bool, err error) {
+	res, err := w.WS.Call(w.Prefix+ValidateAddress, params)
+	err = rpc.JsonFormatResponse(res, err, &valid)
+	return
+}
