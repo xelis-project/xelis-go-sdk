@@ -473,3 +473,9 @@ func (w *WebSocket) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (k
 	err = rpc.JsonFormatResponse(res, err, &key)
 	return
 }
+
+func (w *WebSocket) CreateMinerWork(params CreateMinerWorkParams) (result CreateMinerWorkResult, err error) {
+	res, err := w.WS.Call(w.Prefix+CreateMinerWork, params)
+	err = rpc.JsonFormatResponse(res, err, &result)
+	return
+}

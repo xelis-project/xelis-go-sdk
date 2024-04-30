@@ -257,3 +257,8 @@ func (d *RPC) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (key int
 	err = d.Client.CallResult(d.ctx, string(ExtractKeyFromAddress), params, &key)
 	return
 }
+
+func (d *RPC) CreateMinerWork(params CreateMinerWorkParams) (result CreateMinerWorkResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(CreateMinerWork), params, &result)
+	return
+}

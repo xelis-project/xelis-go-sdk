@@ -210,6 +210,15 @@ type SubmitBlockParams struct {
 	MinerWork     *string `json:"miner_work,omitempty"`
 }
 
+type CreateMinerWorkParams struct {
+	Template string  `json:"template"`
+	Address  *string `json:"address,omitempty"`
+}
+
+type CreateMinerWorkResult struct {
+	MinerWork string `json:"miner_work"`
+}
+
 type GetNonceResult struct {
 	Nonce              uint64 `json:"nonce"`
 	PreviousTopoheight uint64 `json:"previous_topoheight"`
@@ -379,4 +388,5 @@ const (
 	GetDifficulty                    string = "get_difficulty"
 	ValidateAddress                  string = "validate_address"
 	ExtractKeyFromAddress            string = "extract_key_from_address"
+	CreateMinerWork                  string = "create_miner_work"
 )
