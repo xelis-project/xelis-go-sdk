@@ -158,8 +158,7 @@ func (d *RPC) GetDAGOrder(params GetTopoheightRangeParams) (hashes []string, err
 	return
 }
 
-func (d *RPC) SubmitBlock(blockTemplate string) (result bool, err error) {
-	params := map[string]string{"block_template": blockTemplate}
+func (d *RPC) SubmitBlock(params SubmitBlockParams) (result bool, err error) {
 	err = d.Client.CallResult(d.ctx, string(SubmitBlock), params, &result)
 	return
 }

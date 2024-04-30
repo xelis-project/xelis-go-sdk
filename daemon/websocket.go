@@ -355,8 +355,7 @@ func (w *WebSocket) GetDAGOrder(params GetTopoheightRangeParams) (hashes []strin
 	return
 }
 
-func (w *WebSocket) SubmitBlock(hexData string) (result bool, err error) {
-	params := map[string]string{"block_template": hexData}
+func (w *WebSocket) SubmitBlock(params SubmitBlockParams) (result bool, err error) {
 	res, err := w.WS.Call(w.Prefix+SubmitBlock, params)
 	err = rpc.JsonFormatResponse(res, err, &result)
 	return
