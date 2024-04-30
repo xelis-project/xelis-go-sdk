@@ -243,3 +243,8 @@ func (d *RPC) IsAccountRegistered(params IsAccountRegisteredParams) (exists bool
 	err = d.Client.CallResult(d.ctx, string(IsAccountRegistered), params, &exists)
 	return
 }
+
+func (d *RPC) GetDifficulty() (result GetDifficultyResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetDifficulty), nil, &result)
+	return
+}

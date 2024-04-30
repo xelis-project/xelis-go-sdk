@@ -309,6 +309,12 @@ type IsAccountRegisteredParams struct {
 	InStableHeight bool   `json:"in_stable_height"`
 }
 
+type GetDifficultyResult struct {
+	Difficulty        string `json:"difficulty"`
+	Hashrate          string `json:"hashrate"`
+	HashrateFormatted string `json:"hashrate_formatted"`
+}
+
 const (
 	NewBlock                  string = `new_block`
 	TransactionAddedInMempool string = `transaction_added_in_mempool`
@@ -360,4 +366,5 @@ const (
 	IsTxExecutedInBlock              string = "is_tx_executed_in_block"
 	GetAccountRegistrationTopoheight string = "get_account_registration_topoheight"
 	IsAccountRegistered              string = "is_account_registered"
+	GetDifficulty                    string = "get_difficulty"
 )

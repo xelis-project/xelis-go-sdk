@@ -456,3 +456,9 @@ func (w *WebSocket) IsAccountRegistered(params IsAccountRegisteredParams) (exist
 	err = rpc.JsonFormatResponse(res, err, &exists)
 	return
 }
+
+func (w *WebSocket) GetDifficulty() (result GetDifficultyResult, err error) {
+	res, err := w.WS.Call(w.Prefix+GetDifficulty, nil)
+	err = rpc.JsonFormatResponse(res, err, &result)
+	return
+}

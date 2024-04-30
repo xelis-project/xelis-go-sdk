@@ -75,7 +75,7 @@ func TestRPCMethods(t *testing.T) {
 	}
 	t.Logf("%+v", blocks)
 
-	block, err := daemon.GetBlockByHash(GetBlockByHashParams{Hash: `b715cb0229d13f5f540ae48adf03bc31b094b040b0756a2454631b2ddd899c3a`})
+	block, err := daemon.GetBlockByHash(GetBlockByHashParams{Hash: `23827b240a9e6aeb0e7164a4e402838ffc383efdc92789d705921fccfed516b5`})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,6 +171,12 @@ func TestRPCMethods(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", size)
+
+	diff, err := daemon.GetDifficulty()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", diff)
 }
 
 func TestRPCUnknownMethod(t *testing.T) {
