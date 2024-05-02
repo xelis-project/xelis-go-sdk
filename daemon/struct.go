@@ -43,10 +43,10 @@ type EncryptedBalance struct {
 }
 
 type VersionedBalance struct {
-	BalanceType        BalanceType      `json:"balance_type"`
-	FinalBalance       EncryptedBalance `json:"final_balance"`
-	OutputBalance      EncryptedBalance `json:"output_balance"`
-	PreviousTopoheight uint64           `json:"previous_topoheight"`
+	BalanceType        BalanceType       `json:"balance_type"`
+	FinalBalance       EncryptedBalance  `json:"final_balance"`
+	OutputBalance      *EncryptedBalance `json:"output_balance"`
+	PreviousTopoheight *uint64           `json:"previous_topoheight"`
 }
 
 type GetBalanceResult struct {
