@@ -176,9 +176,9 @@ type Transaction struct {
 	SourceCommitments []SourceCommitment `json:"source_commitments"`
 	RangeProof        []byte             `json:"range_proof"`
 	Signature         string             `json:"signature"`
-	ExecutedInBlock   string             `json:"executed_in_block"`
+	ExecutedInBlock   *string            `json:"executed_in_block"`
 	Version           uint64             `json:"version"`
-	FirstSeen         uint64             `json:"first_seen"`
+	FirstSeen         *uint64            `json:"first_seen"`
 	InMempool         bool               `json:"in_mempool"`
 }
 
