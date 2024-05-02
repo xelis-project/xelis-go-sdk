@@ -95,7 +95,7 @@ func (d *RPC) HasNonce(addr string) (hasNonce bool, err error) {
 	return
 }
 
-func (d *RPC) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (nonce GetNonceResult, err error) {
+func (d *RPC) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (nonce VersionedNonce, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetNonceAtTopoheight), params, &nonce)
 	return
 }

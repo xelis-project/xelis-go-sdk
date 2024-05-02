@@ -275,7 +275,7 @@ func (w *WebSocket) GetNonce(addr string) (nonce GetNonceResult, err error) {
 	return
 }
 
-func (w *WebSocket) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (nonce GetNonceResult, err error) {
+func (w *WebSocket) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (nonce VersionedNonce, err error) {
 	res, err := w.WS.Call(w.Prefix+GetNonceAtTopoheight, params)
 	err = rpc.JsonFormatResponse(res, err, &nonce)
 	return

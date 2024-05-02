@@ -225,6 +225,11 @@ type GetNonceResult struct {
 	Topoheight         uint64  `json:"topoheight"`
 }
 
+type VersionedNonce struct {
+	Nonce              uint64  `json:"nonce"`
+	PreviousTopoheight *uint64 `json:"previous_topoheight"`
+}
+
 type MiningHistory struct {
 	Reward uint64 `json:"reward"`
 }
