@@ -220,9 +220,9 @@ type CreateMinerWorkResult struct {
 }
 
 type GetNonceResult struct {
-	Nonce              uint64 `json:"nonce"`
-	PreviousTopoheight uint64 `json:"previous_topoheight"`
-	Topoheight         uint64 `json:"topoheight"`
+	Nonce              uint64  `json:"nonce"`
+	PreviousTopoheight *uint64 `json:"previous_topoheight"`
+	Topoheight         uint64  `json:"topoheight"`
 }
 
 type MiningHistory struct {
