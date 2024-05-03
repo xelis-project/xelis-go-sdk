@@ -280,6 +280,7 @@ type AccountHistory struct {
 	Burn           *BurnHistory     `json:"burn"`
 	Outgoing       *OutgoingHistory `json:"outgoing"`
 	Incoming       *IncomingHistory `json:"incoming"`
+	DevFee         *MiningHistory   `json:"dev_fee"`
 }
 
 type TransactionExecutedResult struct {
