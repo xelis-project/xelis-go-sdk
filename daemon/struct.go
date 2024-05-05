@@ -101,12 +101,14 @@ type Block struct {
 	Height               uint64   `json:"height"`
 	Miner                string   `json:"miner"`
 	Nonce                uint64   `json:"nonce"`
-	Reward               uint64   `json:"reward"`
-	Supply               uint64   `json:"supply"`
+	Reward               *uint64  `json:"reward"` // full reward miner_reward + dev_reward
+	MinerReward          *uint64  `json:"miner_reward"`
+	DevReward            *uint64  `json:"dev_reward"`
+	Supply               *uint64  `json:"supply"`
 	Timestamp            uint64   `json:"timestamp"`
 	Tips                 []string `json:"tips"`
-	Topoheight           uint64   `json:"topoheight"`
-	TotalFees            uint64   `json:"total_fees"`
+	Topoheight           *uint64  `json:"topoheight"`
+	TotalFees            *uint64  `json:"total_fees"`
 	TotalSizeInBytes     uint64   `json:"total_size_in_bytes"`
 	TxsHashes            []string `json:"txs_hashes"`
 	Version              uint64   `json:"version"`
