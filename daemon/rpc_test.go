@@ -177,6 +177,10 @@ func TestRPCMethods(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", diff)
+}
+
+func TestValidateAddress(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	validAddr, err := daemon.ValidateAddress(ValidateAddressParams{
 		Address:         TESTING_ADDR,
@@ -189,7 +193,7 @@ func TestRPCMethods(t *testing.T) {
 
 	bytePublicKey, err := daemon.ExtractKeyFromAddress(ExtractKeyFromAddressParams{
 		Address: TESTING_ADDR,
-		TxAsHex: false,
+		AsHex:   false,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -198,7 +202,7 @@ func TestRPCMethods(t *testing.T) {
 
 	hexPublicKey, err := daemon.ExtractKeyFromAddress(ExtractKeyFromAddressParams{
 		Address: TESTING_ADDR,
-		TxAsHex: true,
+		AsHex:   true,
 	})
 	if err != nil {
 		t.Fatal(err)

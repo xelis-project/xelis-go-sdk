@@ -337,9 +337,14 @@ type ValidateAddressParams struct {
 	AllowIntegrated bool   `json:"allow_integrated"`
 }
 
+type ValidateAddressResult struct {
+	IsIntegrated bool `json:"is_integrated"`
+	IsValid      bool `json:"is_valid"`
+}
+
 type ExtractKeyFromAddressParams struct {
 	Address string `json:"address"`
-	TxAsHex bool   `json:"tx_as_hex"`
+	AsHex   bool   `json:"as_hex"`
 }
 
 const (
