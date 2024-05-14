@@ -1,5 +1,3 @@
-github.com/cosmos/btcutil v1.0.5 h1:t+ZFcX77LpKtDBhjucvnOH8C2l2ioGsBNEQ3jef8xFk=
-github.com/cosmos/btcutil v1.0.5/go.mod h1:IyB7iuqZMJlthe2tkIFL33xPyzbFYP0XVdS8P5lUPis=
 github.com/creachadair/jrpc2 v0.44.0 h1:O7H8XMliOemo2u598dN7Knld8K3TZgOnY9Mm0IIqt28=
 github.com/creachadair/jrpc2 v0.44.0/go.mod h1:mVyD3HybrKVaZqFNRVGZGWH9Gd1OXtnmfqZT7T1oLQw=
 github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8vw=
