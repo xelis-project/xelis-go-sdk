@@ -2,6 +2,7 @@ package address
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 )
 
@@ -10,14 +11,16 @@ var TestnetPrefixAddress string = "xet"
 
 var ExtraDataLimit = 1024
 
+var ErrIntegratedDataLimit = errors.New("invalid data in integrated address, maximum size reached")
+
 type Address struct {
-	Mainnet    bool
-	Integrated bool
-	ExtraData  DataElement
-	Key        []byte
+	publicKey    []byte
+	isMainnet    bool
+	isIntegrated bool
+	extraData    *DataElement
 }
 
-func NewAddress(data []byte, hrp string) (addr *Address, err error) {
+func NewAddressFromData(data []byte, hrp string) (addr *Address, err error) {
 	reader := bytes.NewReader(data)
 
 	publicKey := make([]byte, 32)
@@ -32,7 +35,7 @@ func NewAddress(data []byte, hrp string) (addr *Address, err error) {
 	}
 
 	integrated := false
-	var dataElement DataElement
+	var extraData DataElement
 
 	switch addrType {
 	case 0:
@@ -41,13 +44,13 @@ func NewAddress(data []byte, hrp string) (addr *Address, err error) {
 		integrated = true
 
 		dataValueReader := &DataValueReader{Reader: reader}
-		dataElement, err = dataValueReader.Read()
+		extraData, err = dataValueReader.Read()
 		if err != nil {
 			return
 		}
 
 		if reader.Size() > int64(ExtraDataLimit) {
-			// error
+			err = ErrIntegratedDataLimit
 			return
 		}
 	default:
@@ -56,10 +59,10 @@ func NewAddress(data []byte, hrp string) (addr *Address, err error) {
 	}
 
 	addr = &Address{
-		Mainnet:    hrp == PrefixAddress,
-		Key:        publicKey,
-		Integrated: integrated,
-		ExtraData:  dataElement,
+		isMainnet:    hrp == PrefixAddress,
+		publicKey:    publicKey,
+		isIntegrated: integrated,
+		extraData:    &extraData,
 	}
 
 	return
@@ -80,7 +83,7 @@ func NewAddressFromString(address string) (addr *Address, err error) {
 		return
 	}
 
-	addr, err = NewAddress(bits, hrp)
+	addr, err = NewAddressFromData(bits, hrp)
 	if err != nil {
 		return
 	}
@@ -88,23 +91,84 @@ func NewAddressFromString(address string) (addr *Address, err error) {
 	return
 }
 
+func IsValidAddress(address string) (valid bool, err error) {
+	_, err = NewAddressFromString(address)
+	if err == nil {
+		valid = true
+	}
+
+	return
+}
+
+func (a *Address) IsMainnet() bool {
+	return a.isMainnet
+}
+
+func (a *Address) IsIntegrated() bool {
+	return a.isIntegrated
+}
+
+func (a *Address) GetPublicKey() []byte {
+	return a.publicKey
+}
+
+func (a *Address) GetExtraData() *DataElement {
+	return a.extraData
+}
+
+func (a *Address) SetExtraData(data *DataElement) {
+	if data != nil {
+		a.isIntegrated = true
+		a.extraData = data
+	} else {
+		a.isIntegrated = false
+		a.extraData = nil
+	}
+}
+
+// Same as using SetExtraData(nil)
+func (a *Address) ClearExtraData() {
+	a.isIntegrated = false
+	a.extraData = nil
+}
+
 func (a *Address) Format() (addr string, err error) {
 	var buf bytes.Buffer
-	buf.Write(a.Key)
-	if a.Integrated {
-		buf.Write([]byte{1})
-	} else {
-		buf.Write([]byte{0})
+	_, err = buf.Write(a.publicKey)
+	if err != nil {
+		return
 	}
-	data := buf.Bytes()
 
-	bits, err := convertBits(data, 8, 5, true)
+	if a.isIntegrated {
+		_, err = buf.Write([]byte{1})
+		if err != nil {
+			return
+		}
+
+		var extraData bytes.Buffer
+		dataValueWriter := &DataValueWriter{Writer: &extraData}
+		err = dataValueWriter.Write(*a.extraData)
+		if err != nil {
+			return
+		}
+		_, err = buf.Write(extraData.Bytes())
+		if err != nil {
+			return
+		}
+	} else {
+		_, err = buf.Write([]byte{0})
+		if err != nil {
+			return
+		}
+	}
+
+	bits, err := convertBits(buf.Bytes(), 8, 5, true)
 	if err != nil {
 		return
 	}
 
 	hrp := PrefixAddress
-	if !a.Mainnet {
+	if !a.isMainnet {
 		hrp = TestnetPrefixAddress
 	}
 
