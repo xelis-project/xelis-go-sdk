@@ -268,9 +268,18 @@ func TestToMap(t *testing.T) {
 			},
 		},
 		Fields: map[DataValue]DataElement{
-			34:             {Value: false},
-			"hello":        {Value: "world"},
-			23456923846034: {Value: hash},
+			true:                        {Value: false},
+			"hello":                     {Value: "world"},
+			uint8(21):                   {Value: hash},
+			uint16(23452):               {Value: "16"},
+			uint32(3567456756):          {Value: "32"},
+			uint64(8796789678967899678): {Value: "64"},
+			hash:                        {Value: "test_hash"},
+			"sub_map": {
+				Fields: map[DataValue]DataElement{
+					"test": {Value: "test"},
+				},
+			},
 		},
 	}
 
