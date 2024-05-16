@@ -3,6 +3,7 @@ package address
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/json"
 	"math/big"
 	"testing"
 )
@@ -240,4 +241,48 @@ func TestLongStringMaxLimit(t *testing.T) {
 		t.Log(err)
 		t.Fail()
 	}
+}
+
+func TestToMap(t *testing.T) {
+	var hash Hash
+
+	shaHash := sha256.Sum256([]byte("asd"))
+	copy(hash[:], shaHash[:])
+
+	var bigNumber big.Int
+	bigNumber.SetString("2093458230498572039452039485702938475", 10)
+
+	dataElement := DataElement{
+		Value: bigNumber,
+		Array: []DataElement{
+			{Value: true},
+			{Value: "test"},
+			{Value: uint8(34)},
+			{Value: uint16(34523)},
+			{Value: uint32(3452305469)},
+			{Value: uint64(3452305469567567456)},
+			{
+				Array: []DataElement{
+					{Value: "sub_array"},
+				},
+			},
+		},
+		Fields: map[DataValue]DataElement{
+			34:             {Value: false},
+			"hello":        {Value: "world"},
+			23456923846034: {Value: hash},
+		},
+	}
+
+	sMap := dataElement.ToMap()
+
+	jsonBytes, err := json.Marshal(sMap)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jsonString := string(jsonBytes)
+
+	t.Logf("%+v", sMap)
+	t.Logf("%+v", string(jsonString))
 }
