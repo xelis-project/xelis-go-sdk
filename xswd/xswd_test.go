@@ -1,6 +1,7 @@
 package xswd
 
 import (
+	"fmt"
 	"log"
 	"testing"
 
@@ -14,6 +15,26 @@ func setupWebSocket(t *testing.T) (xswd *XSWD) {
 	}
 
 	return
+}
+
+func TestWSAuthError(t *testing.T) {
+	xswd := setupWebSocket(t)
+
+	go func() {
+		err := <-xswd.WS.ConnectionErr
+		fmt.Println(err)
+	}()
+
+	_, err := xswd.Authorize(ApplicationData{
+		ID:          "ertherth",
+		Name:        "Test App",
+		Description: "This is a test app.",
+		Permissions: make(map[string]Permission),
+	})
+
+	if err.Error() != "Invalid application ID" {
+		t.Fail()
+	}
 }
 
 func TestWSGetInfo(t *testing.T) {
