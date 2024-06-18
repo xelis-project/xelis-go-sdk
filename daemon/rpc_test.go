@@ -409,3 +409,24 @@ func TestRPCRegistration(t *testing.T) {
 
 	t.Log(exists)
 }
+
+func TestGetMinerWork(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
+
+	var addr = "xet:w64wu066sq7jq4v9f37a5gy8hgyvc2gvt237u2457mme2m2r7avqqtmufz3"
+
+	blockTemplate, err := daemon.GetBlockTemplate(addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := daemon.GetMinerWork(GetMinerWorkParams{
+		Template: blockTemplate.Template,
+		Address:  &addr,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(result)
+}
