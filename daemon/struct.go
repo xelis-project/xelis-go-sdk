@@ -54,6 +54,12 @@ type GetBalanceResult struct {
 	Topoheight uint64           `json:"topoheight"`
 }
 
+type GetStableBalanceResult struct {
+	StableTopoheight uint64           `json:"stable_topoheight"`
+	StableBlockHash  string           `json:"stable_block_hash"`
+	Version          VersionedBalance `json:"version"`
+}
+
 type GetNonceAtTopoheightParams struct {
 	Address    string `json:"address"`
 	Topoheight uint64 `json:"topoheight"`
@@ -212,13 +218,17 @@ type SubmitBlockParams struct {
 	MinerWork     *string `json:"miner_work,omitempty"`
 }
 
-type CreateMinerWorkParams struct {
+type GetMinerWorkParams struct {
 	Template string  `json:"template"`
 	Address  *string `json:"address,omitempty"`
 }
 
-type CreateMinerWorkResult struct {
-	MinerWork string `json:"miner_work"`
+type GetMinerWorkResult struct {
+	MinerWork  string `json:"miner_work"`
+	Algorithm  string `json:"algorithm"`
+	Height     uint64 `json:"height"`
+	Difficulty string `json:"difficulty"`
+	Topoheight uint64 `json:"topoheight"`
 }
 
 type GetNonceResult struct {
@@ -362,7 +372,9 @@ const (
 	GetInfo                          string = "get_info"
 	GetHeight                        string = "get_height"
 	GetTopoHeight                    string = "get_topoheight"
-	GetStableHeight                  string = "get_stableheight"
+	GetStableHeight                  string = "get_stable_height"
+	GetStableTopoheight              string = "get_stable_topoheight"
+	GetStableBalance                 string = "get_stable_balance"
 	GetBlockTemplate                 string = "get_block_template"
 	GetBlockAtTopoheight             string = "get_block_at_topoheight"
 	GetBlocksAtHeight                string = "get_blocks_at_height"
@@ -401,5 +413,5 @@ const (
 	GetDifficulty                    string = "get_difficulty"
 	ValidateAddress                  string = "validate_address"
 	ExtractKeyFromAddress            string = "extract_key_from_address"
-	CreateMinerWork                  string = "create_miner_work"
+	GetMinerWork                     string = "get_miner_work"
 )
