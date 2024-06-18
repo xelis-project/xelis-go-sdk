@@ -7,7 +7,7 @@ import (
 	"github.com/xelis-project/xelis-go-sdk/config"
 )
 
-const TESTING_ADDR = "xet:qf5u2p46jpgqmypqc2xwtq25yek2t7qhnqtdhw5kpfwcrlavs5asq0r83r7"
+const TESTING_ADDR = "xet:62wnkswt0rmrdd9d2lawgpzuh87fkpmp4gx9j3g4u24yrdkdxgksqnuuucf"
 const MAINNET_ADDR = "xel:as3mgjlevw5ve6k70evzz8lwmsa5p0lgws2d60fulxylnmeqrp9qqukwdfg"
 
 func useRPCTestnet(t *testing.T) (daemon *RPC, ctx context.Context) {
@@ -51,11 +51,17 @@ func TestRPCMethods(t *testing.T) {
 	}
 	t.Logf("%+v", topoheight)
 
-	stableheight, err := daemon.GetStableheight()
+	stableheight, err := daemon.GetStableHeight()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", stableheight)
+
+	stableTopoheight, err := daemon.GetStableTopoheight()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", stableTopoheight)
 
 	template, err := daemon.GetBlockTemplate(TESTING_ADDR)
 	if err != nil {
@@ -265,6 +271,16 @@ func TestRPCNonceAndBalance(t *testing.T) {
 	}
 
 	t.Log(balance)
+
+	stableBalance, err := daemon.GetStableBalance(GetBalanceParams{
+		Address: TESTING_ADDR,
+		Asset:   config.XELIS_ASSET,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(stableBalance)
 
 	versionedBalance, err := daemon.GetBalanceAtTopoheight(GetBalanceAtTopoheightParams{
 		Address:    TESTING_ADDR,

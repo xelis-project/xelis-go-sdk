@@ -50,8 +50,18 @@ func (d *RPC) GetTopoheight() (topoheight uint64, err error) {
 	return
 }
 
-func (d *RPC) GetStableheight() (stableheight uint64, err error) {
+func (d *RPC) GetStableHeight() (stableheight uint64, err error) {
 	err = d.Client.CallResult(d.ctx, string(GetStableHeight), nil, &stableheight)
+	return
+}
+
+func (d *RPC) GetStableTopoheight() (topoheight uint64, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetStableTopoheight), nil, &topoheight)
+	return
+}
+
+func (d *RPC) GetStableBalance(params GetBalanceParams) (result GetStableBalanceResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(GetStableBalance), params, &result)
 	return
 }
 

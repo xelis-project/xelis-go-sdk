@@ -54,6 +54,12 @@ type GetBalanceResult struct {
 	Topoheight uint64           `json:"topoheight"`
 }
 
+type GetStableBalanceResult struct {
+	StableTopoheight uint64           `json:"stable_topoheight"`
+	StableBlockHash  string           `json:"stable_block_hash"`
+	Version          VersionedBalance `json:"version"`
+}
+
 type GetNonceAtTopoheightParams struct {
 	Address    string `json:"address"`
 	Topoheight uint64 `json:"topoheight"`
@@ -366,7 +372,9 @@ const (
 	GetInfo                          string = "get_info"
 	GetHeight                        string = "get_height"
 	GetTopoHeight                    string = "get_topoheight"
-	GetStableHeight                  string = "get_stableheight"
+	GetStableHeight                  string = "get_stable_height"
+	GetStableTopoheight              string = "get_stable_topoheight"
+	GetStableBalance                 string = "get_stable_balance"
 	GetBlockTemplate                 string = "get_block_template"
 	GetBlockAtTopoheight             string = "get_block_at_topoheight"
 	GetBlocksAtHeight                string = "get_blocks_at_height"

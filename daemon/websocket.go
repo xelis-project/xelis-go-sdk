@@ -231,9 +231,21 @@ func (w *WebSocket) GetTopoheight() (topoheight uint64, err error) {
 	return
 }
 
-func (w *WebSocket) GetStableheight() (stableheight uint64, err error) {
+func (w *WebSocket) GetStableHeight() (stableheight uint64, err error) {
 	res, err := w.WS.Call(w.Prefix+GetStableHeight, nil)
 	err = rpc.JsonFormatResponse(res, err, &stableheight)
+	return
+}
+
+func (w *WebSocket) GetStableTopoheight() (topoheight uint64, err error) {
+	res, err := w.WS.Call(w.Prefix+GetStableTopoheight, nil)
+	err = rpc.JsonFormatResponse(res, err, &topoheight)
+	return
+}
+
+func (w *WebSocket) GetStableBalance(params GetBalanceParams) (result GetStableBalanceResult, err error) {
+	res, err := w.WS.Call(w.Prefix+GetStableBalance, nil)
+	err = rpc.JsonFormatResponse(res, err, &result)
 	return
 }
 
