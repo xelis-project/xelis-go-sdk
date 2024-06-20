@@ -9,6 +9,7 @@ const (
 )
 
 type BlockTemplate struct {
+	Algorithm  string `json:"algorithm"`
 	Difficulty string `json:"difficulty"`
 	Height     uint64 `json:"height"`
 	Template   string `json:"template"`
