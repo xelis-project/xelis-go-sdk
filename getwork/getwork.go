@@ -30,10 +30,10 @@ func NewGetwork(endpoint, minerAddress, worker string) (*Getwork, error) {
 
 	getwork := &Getwork{
 		conn:          conn,
-		Job:           make(chan BlockTemplate, 1),
-		AcceptedBlock: make(chan bool, 1),
-		RejectedBlock: make(chan string, 1),
-		Err:           make(chan error, 1),
+		Job:           make(chan BlockTemplate),
+		AcceptedBlock: make(chan bool),
+		RejectedBlock: make(chan string),
+		Err:           make(chan error),
 	}
 
 	go func() {
@@ -73,11 +73,24 @@ func (w *Getwork) handleMessage(msg []byte) {
 	if ok {
 		blockTemplate, ok := jsonMap[NewJob].(map[string]interface{})
 		if ok {
-			w.Job <- BlockTemplate{
-				Difficulty: blockTemplate["difficulty"].(string),
-				Height:     uint64(blockTemplate["height"].(float64)),
-				Template:   blockTemplate["template"].(string),
+			bt := BlockTemplate{}
+
+			if blockTemplate["difficulty"] != nil {
+				bt.Difficulty = blockTemplate["difficulty"].(string)
 			}
+			if blockTemplate["height"] != nil {
+				bt.Height = uint64(blockTemplate["height"].(float64))
+			}
+			if blockTemplate["miner_work"] != nil {
+				bt.Template = blockTemplate["miner_work"].(string)
+			} else if blockTemplate["template"] != nil {
+				bt.Template = blockTemplate["template"].(string)
+			}
+			if blockTemplate["algorithm"] != nil {
+				bt.Algorithm = blockTemplate["algorithm"].(string)
+			}
+
+			w.Job <- bt
 			return
 		}
 
