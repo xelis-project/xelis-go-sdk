@@ -330,7 +330,7 @@ func TestRPCGetBlocksRange(t *testing.T) {
 
 func TestRPCGetTransactions(t *testing.T) {
 	daemon, _ := useRPCTestnet(t)
-	txHash := "1de03df36b75916c2a440e428a854109c9628ed2c2bd628f9b9408baa78c6f52"
+	txHash := "d9a6810d667c212e499ceb2acf60a8fbc0096da66b1e7a59fb3ae5d412ad58f2"
 
 	txs, err := daemon.GetTransactions(GetTransactionsParams{
 		TxHashes: []string{txHash},

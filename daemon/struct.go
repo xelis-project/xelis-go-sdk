@@ -188,6 +188,7 @@ type Transaction struct {
 	Version           uint64             `json:"version"`
 	FirstSeen         *uint64            `json:"first_seen"`
 	InMempool         bool               `json:"in_mempool"`
+	Size              uint64             `json:"size"`
 }
 
 type GetInfoResult struct {
