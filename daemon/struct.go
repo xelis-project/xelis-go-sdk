@@ -209,6 +209,7 @@ type GetInfoResult struct {
 
 type GetBlockTemplateResult struct {
 	Template   string `json:"template"`
+	Algorithm  string `json:"algorithm"`
 	Height     uint64 `json:"height"`
 	Topoheight uint64 `json:"topoheight"`
 	Difficulty string `json:"difficulty"`
