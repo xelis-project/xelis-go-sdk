@@ -23,7 +23,7 @@ func useRPCLocal(t *testing.T) (wallet *RPC, ctx context.Context) {
 	return
 }
 
-func TestRPCGetInfo(t *testing.T) {
+func TestRPCGetVersion(t *testing.T) {
 	wallet, _ := useRPCLocal(t)
 
 	version, err := wallet.GetVersion()
@@ -31,30 +31,50 @@ func TestRPCGetInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", version)
+}
+
+func TestRPCGetNetwork(t *testing.T) {
+	wallet, _ := useRPCLocal(t)
 
 	network, err := wallet.GetNetwork()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", network)
+}
+
+func TestRPCGetNonce(t *testing.T) {
+	wallet, _ := useRPCLocal(t)
 
 	nonce, err := wallet.GetNonce()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", nonce)
+}
+
+func TestRPCGetTopoheight(t *testing.T) {
+	wallet, _ := useRPCLocal(t)
 
 	topo, err := wallet.GetTopoheight()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", topo)
+}
+
+func TestRPCGetAddress(t *testing.T) {
+	wallet, _ := useRPCLocal(t)
 
 	address, err := wallet.GetAddress(GetAddressParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", address)
+}
+
+func TestRPCIsOnline(t *testing.T) {
+	wallet, _ := useRPCLocal(t)
 
 	isOnline, err := wallet.IsOnline()
 	if err != nil {

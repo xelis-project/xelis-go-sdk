@@ -17,7 +17,7 @@ func useWSLocal(t *testing.T) (wallet *WebSocket) {
 	return
 }
 
-func TestWSGetInfo(t *testing.T) {
+func TestWSGetVersion(t *testing.T) {
 	wallet := useWSLocal(t)
 	version, err := wallet.GetVersion()
 	if err != nil {
@@ -25,14 +25,17 @@ func TestWSGetInfo(t *testing.T) {
 	}
 
 	t.Logf("%s", version)
+	wallet.Close()
+}
 
+func TestWSGetNetwork(t *testing.T) {
+	wallet := useWSLocal(t)
 	network, err := wallet.GetNetwork()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	t.Logf("%s", network)
-
 	wallet.Close()
 }
 

@@ -30,7 +30,7 @@ func useRPCMainnet(t *testing.T) (daemon *RPC, ctx context.Context) {
 	return
 }
 
-func TestRPCMethods(t *testing.T) {
+func TestGetVersion(t *testing.T) {
 	daemon, _ := useRPCTestnet(t)
 
 	version, err := daemon.GetVersion()
@@ -38,90 +38,140 @@ func TestRPCMethods(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", version)
+}
+
+func TestGetHeight(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	height, err := daemon.GetHeight()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", height)
+}
+
+func TestGetTopoheight(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	topoheight, err := daemon.GetTopoheight()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", topoheight)
+}
+
+func TestGetStableHeight(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	stableheight, err := daemon.GetStableHeight()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", stableheight)
+}
 
-	stableTopoheight, err := daemon.GetStableTopoheight()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%+v", stableTopoheight)
+func TestGetBlockTemplate(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	template, err := daemon.GetBlockTemplate(TESTING_ADDR)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", template)
+}
+
+func TestGetBlockAtTopoheight(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	genesisBlock, err := daemon.GetBlockAtTopoheight(GetBlockAtTopoheightParams{Topoheight: 0})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", genesisBlock)
+}
+
+func TestGetBlocksAtHeight(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	blocks, err := daemon.GetBlocksAtHeight(GetBlocksAtHeightParams{Height: 0})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", blocks)
+}
+
+func TestGetBlockByHash(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	block, err := daemon.GetBlockByHash(GetBlockByHashParams{Hash: `23827b240a9e6aeb0e7164a4e402838ffc383efdc92789d705921fccfed516b5`})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", block)
+}
+
+func TestGetTopBlock(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	topBlock, err := daemon.GetTopBlock(GetTopBlockParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", topBlock)
+}
+
+func TestGetInfo(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	info, err := daemon.GetInfo()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", info)
+}
+
+func TestGetAsset(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	asset, err := daemon.GetAsset(config.XELIS_ASSET)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", asset)
+}
+
+func TestGetAssets(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	assets, err := daemon.GetAssets(GetAssetsParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", assets)
+}
+
+func TestCountAssets(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	countAssets, err := daemon.CountAssets()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", countAssets)
+}
+
+func TestCountAccounts(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	countAccounts, err := daemon.CountAccounts()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", countAccounts)
+}
+
+func TestCountTransactions(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	countTransactions, err := daemon.CountTransactions()
 	if err != nil {
@@ -129,11 +179,20 @@ func TestRPCMethods(t *testing.T) {
 	}
 	t.Logf("%+v", countTransactions)
 
+}
+
+func TestP2PStatus(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
+
 	status, err := daemon.P2PStatus()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", status)
+}
+
+func TestGetPeers(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	result, err := daemon.GetPeers()
 	if err != nil {
@@ -141,42 +200,70 @@ func TestRPCMethods(t *testing.T) {
 	}
 
 	t.Log(result)
+}
+
+func TestGetMempool(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	mempool, err := daemon.GetMempool()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", mempool)
+}
+
+func TestGetTips(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	tips, err := daemon.GetTips()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", tips)
+}
+
+func TestGetDAGOrder(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	dagOrder, err := daemon.GetDAGOrder(GetTopoheightRangeParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", dagOrder)
+}
+
+func TestGetAccounts(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	accounts, err := daemon.GetAccounts(GetAccountsParams{Maximum: 5})
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", accounts)
+}
+
+func TestGetDevFeeThresholds(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	fees, err := daemon.GetDevFeeThresholds()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", fees)
+}
+
+func TestGetSizeOnDisk(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	size, err := daemon.GetSizeOnDisk()
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", size)
+}
+
+func TestGetDifficulty(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
 
 	diff, err := daemon.GetDifficulty()
 	if err != nil {

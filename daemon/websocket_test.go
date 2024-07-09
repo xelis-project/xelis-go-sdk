@@ -26,7 +26,7 @@ func useWSMainnet(t *testing.T) (daemon *WebSocket) {
 	return
 }
 
-func TestWSGetInfo(t *testing.T) {
+func TestWSGetVersion(t *testing.T) {
 	daemon := useWSTestnet(t)
 
 	version, err := daemon.GetVersion()
@@ -35,6 +35,11 @@ func TestWSGetInfo(t *testing.T) {
 	}
 
 	t.Logf("%+v", version)
+	daemon.Close()
+}
+
+func TestWSGetInfo(t *testing.T) {
+	daemon := useWSTestnet(t)
 
 	info, err := daemon.GetInfo()
 	if err != nil {
@@ -42,6 +47,11 @@ func TestWSGetInfo(t *testing.T) {
 	}
 
 	t.Logf("%+v", info)
+	daemon.Close()
+}
+
+func TestWSGetDevFeeThresholds(t *testing.T) {
+	daemon := useWSTestnet(t)
 
 	fees, err := daemon.GetDevFeeThresholds()
 	if err != nil {
@@ -49,6 +59,11 @@ func TestWSGetInfo(t *testing.T) {
 	}
 
 	t.Logf("%+v", fees)
+	daemon.Close()
+}
+
+func TestWSGetSizeOnDisk(t *testing.T) {
+	daemon := useWSTestnet(t)
 
 	size, err := daemon.GetSizeOnDisk()
 	if err != nil {
@@ -56,7 +71,6 @@ func TestWSGetInfo(t *testing.T) {
 	}
 
 	t.Logf("%+v", size)
-
 	daemon.Close()
 }
 
