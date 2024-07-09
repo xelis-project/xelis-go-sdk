@@ -92,10 +92,10 @@ type P2PStatusResult struct {
 type GetAssetsParams = GetAccountsParams
 
 type GetAccountsParams struct {
-	Skip              uint64 `json:"skip"`
-	Maximum           uint64 `json:"maximum"`
-	MinimumTopoheight uint64 `json:"minimum_topoheight"`
-	MaximumTopoheight uint64 `json:"maximum_topoheight"`
+	Skip              uint64 `json:"skip,omitempty"`
+	Maximum           uint64 `json:"maximum,omitempty"`
+	MinimumTopoheight uint64 `json:"minimum_topoheight,omitempty"`
+	MaximumTopoheight uint64 `json:"maximum_topoheight,omitempty"`
 }
 
 type Block struct {
