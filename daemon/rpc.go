@@ -272,3 +272,8 @@ func (d *RPC) GetMinerWork(params GetMinerWorkParams) (result GetMinerWorkResult
 	err = d.Client.CallResult(d.ctx, string(GetMinerWork), params, &result)
 	return
 }
+
+func (d *RPC) SplitAddress(params SplitAddressParams) (result SplitAddressResult, err error) {
+	err = d.Client.CallResult(d.ctx, string(SplitAddress), params, &result)
+	return
+}

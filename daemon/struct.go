@@ -194,6 +194,8 @@ type Transaction struct {
 type GetInfoResult struct {
 	AverageBlocktime uint64 `json:"average_block_time"`
 	BlockReward      uint64 `json:"block_reward"`
+	MinerReward      uint64 `json:"miner_reward"`
+	DevReward        uint64 `json:"dev_reward"`
 	BlockTimeTarget  uint64 `json:"block_time_target"`
 	Difficulty       string `json:"difficulty"`
 	Height           uint64 `json:"height"`
@@ -359,6 +361,15 @@ type ExtractKeyFromAddressParams struct {
 	AsHex   bool   `json:"as_hex"`
 }
 
+type SplitAddressParams struct {
+	Address string `json:"address"`
+}
+
+type SplitAddressResult struct {
+	Address        string      `json:"address"`
+	IntegratedData interface{} `json:"integrated_data"`
+}
+
 const (
 	NewBlock                  string = `new_block`
 	TransactionAddedInMempool string = `transaction_added_in_mempool`
@@ -416,4 +427,5 @@ const (
 	ValidateAddress                  string = "validate_address"
 	ExtractKeyFromAddress            string = "extract_key_from_address"
 	GetMinerWork                     string = "get_miner_work"
+	SplitAddress                     string = "split_address"
 )

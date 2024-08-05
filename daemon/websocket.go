@@ -491,3 +491,9 @@ func (w *WebSocket) GetMinerWork(params GetMinerWorkParams) (result GetMinerWork
 	err = rpc.JsonFormatResponse(res, err, &result)
 	return
 }
+
+func (w *WebSocket) SplitAddress(params SplitAddressParams) (result SplitAddressResult, err error) {
+	res, err := w.WS.Call(w.Prefix+SplitAddress, params)
+	err = rpc.JsonFormatResponse(res, err, &result)
+	return
+}

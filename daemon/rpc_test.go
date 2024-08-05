@@ -533,3 +533,14 @@ func TestGetMinerWork(t *testing.T) {
 
 	t.Log(result)
 }
+
+func TestSplitAddress(t *testing.T) {
+	daemon, _ := useRPCTestnet(t)
+
+	result, err := daemon.SplitAddress(SplitAddressParams{Address: "xet:upqflhm65lmjtukavf4de93kphk4j990hw9x9hhrc8rwleduruhqzqqpqvcnydgd3plda"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(result)
+}
