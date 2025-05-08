@@ -366,13 +366,29 @@ type TransactionExecutedEvent struct {
 
 type PeerDirection string
 
+const (
+	PeerDirectionIn   PeerDirection = "In"
+	PeerDirectionOut  PeerDirection = "Out"
+	PeerDirectionBoth PeerDirection = "Both"
+)
+
 type TimestampMillis int64
 
 type TimedPeerDirection struct {
-	Type PeerDirection `json:"type"`
-	In   *In           `json:"in,omitempty"`
-	Out  *Out          `json:"out,omitempty"`
-	Both *Both         `json:"both,omitempty"`
+	In   *In   `json:"in,omitempty"`
+	Out  *Out  `json:"out,omitempty"`
+	Both *Both `json:"both,omitempty"`
+}
+
+func (td *TimedPeerDirection) GetDirection() PeerDirection {
+	if td.Both != nil {
+		return PeerDirectionBoth
+	} else if td.In != nil {
+		return PeerDirectionIn
+	} else if td.Out != nil {
+		return PeerDirectionOut
+	}
+	return ""
 }
 
 type In struct {
@@ -387,12 +403,6 @@ type Both struct {
 	ReceivedAt TimestampMillis `json:"received_at"`
 	SentAt     TimestampMillis `json:"sent_at"`
 }
-
-const (
-	PeerDirectionIn   PeerDirection = "In"
-	PeerDirectionOut  PeerDirection = "Out"
-	PeerDirectionBoth PeerDirection = "Both"
-)
 
 type Peer struct {
 	Id                   uint64                        `json:"id"`
