@@ -366,6 +366,28 @@ type TransactionExecutedEvent struct {
 
 type PeerDirection string
 
+type TimestampMillis int64
+
+type TimedPeerDirection struct {
+	Type PeerDirection `json:"type"`
+	In   *In           `json:"in,omitempty"`
+	Out  *Out          `json:"out,omitempty"`
+	Both *Both         `json:"both,omitempty"`
+}
+
+type In struct {
+	ReceivedAt TimestampMillis `json:"received_at"`
+}
+
+type Out struct {
+	SentAt TimestampMillis `json:"sent_at"`
+}
+
+type Both struct {
+	ReceivedAt TimestampMillis `json:"received_at"`
+	SentAt     TimestampMillis `json:"sent_at"`
+}
+
 const (
 	PeerDirectionIn   PeerDirection = "In"
 	PeerDirectionOut  PeerDirection = "Out"
@@ -373,21 +395,21 @@ const (
 )
 
 type Peer struct {
-	Id                   uint64                   `json:"id"`
-	Addr                 string                   `json:"addr"`
-	LocalPort            int                      `json:"local_port"`
-	Tag                  *string                  `json:"tag"`
-	Version              string                   `json:"version"`
-	TopBlockHash         string                   `json:"top_block_hash"`
-	Topoheight           uint64                   `json:"topoheight"`
-	Height               uint64                   `json:"height"`
-	LastPing             uint64                   `json:"last_ping"`
-	PrunedTopoheight     *uint64                  `json:"pruned_topoheight"`
-	Peers                map[string]PeerDirection `json:"peers"`
-	CumulativeDifficulty string                   `json:"cumulative_difficulty"`
-	ConnectedOn          uint64                   `json:"connected_on"`
-	BytesSent            uint64                   `json:"bytes_sent"`
-	BytesReceived        uint64                   `json:"bytes_recv"`
+	Id                   uint64                        `json:"id"`
+	Addr                 string                        `json:"addr"`
+	LocalPort            int                           `json:"local_port"`
+	Tag                  *string                       `json:"tag"`
+	Version              string                        `json:"version"`
+	TopBlockHash         string                        `json:"top_block_hash"`
+	Topoheight           uint64                        `json:"topoheight"`
+	Height               uint64                        `json:"height"`
+	LastPing             uint64                        `json:"last_ping"`
+	PrunedTopoheight     *uint64                       `json:"pruned_topoheight"`
+	Peers                map[string]TimedPeerDirection `json:"peers"`
+	CumulativeDifficulty string                        `json:"cumulative_difficulty"`
+	ConnectedOn          uint64                        `json:"connected_on"`
+	BytesSent            uint64                        `json:"bytes_sent"`
+	BytesReceived        uint64                        `json:"bytes_recv"`
 }
 
 type GetPeersResult struct {
