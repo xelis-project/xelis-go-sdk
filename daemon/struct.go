@@ -270,12 +270,18 @@ type GetInfoResult struct {
 	Network           string `json:"network"`
 }
 
+type AlgorithmVersion = string
+
+const AlgorithmV1 AlgorithmVersion = "xel/v1"
+const AlgorithmV2 AlgorithmVersion = "xel/v2"
+const AlgorithmV3 AlgorithmVersion = "xel/v3"
+
 type GetBlockTemplateResult struct {
-	Template   string `json:"template"`
-	Algorithm  string `json:"algorithm"`
-	Height     uint64 `json:"height"`
-	Topoheight uint64 `json:"topoheight"`
-	Difficulty string `json:"difficulty"`
+	Template   string           `json:"template"`
+	Algorithm  AlgorithmVersion `json:"algorithm"`
+	Height     uint64           `json:"height"`
+	Topoheight uint64           `json:"topoheight"`
+	Difficulty string           `json:"difficulty"`
 }
 
 type SubmitBlockParams struct {
