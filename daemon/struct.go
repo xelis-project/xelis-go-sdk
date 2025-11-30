@@ -250,25 +250,42 @@ type TransactionResponse struct {
 	FirstSeen       *uint64  `json:"first_seen"`
 }
 
+type BlockVersion uint8
+
+// hardforks
+const BlockV0 BlockVersion = 0 // genesis
+const BlockV1 BlockVersion = 1 // pow algo, diff adjust
+const BlockV2 BlockVersion = 2 // multisig, p2p upgrade
+const BlockV3 BlockVersion = 3 // smart contracts
+
+type Network string
+
+const NetworkDev Network = "Dev"
+const NetworkTestnet Network = "Testnet"
+const NetworkStagenet Network = "Stagenet"
+const NetworkMainnet Network = "Mainnet"
+
 type GetInfoResult struct {
-	Height            uint64 `json:"height"`
-	Topoheight        uint64 `json:"topoheight"`
-	Stableheight      uint64 `json:"stableheight"`
-	PrunedTopoheight  uint64 `json:"pruned_topoheight"`
-	TopBlockHash      string `json:"top_block_hash"`
-	CirculatingSupply uint64 `json:"circulating_supply"`
-	BurnedSupply      uint64 `json:"burned_supply"`
-	EmittedSupply     uint64 `json:"emitted_supply"`
-	MaximumSupply     uint64 `json:"maximum_supply"`
-	Difficulty        string `json:"difficulty"`
-	BlockTimeTarget   uint64 `json:"block_time_target"`
-	AverageBlockTime  uint64 `json:"average_block_time"`
-	BlockReward       uint64 `json:"block_reward"`
-	DevReward         uint64 `json:"dev_reward"`
-	MinerReward       uint64 `json:"miner_reward"`
-	MempoolSize       uint64 `json:"mempool_size"`
-	Version           string `json:"version"`
-	Network           string `json:"network"`
+	Height            uint64       `json:"height"`
+	Topoheight        uint64       `json:"topoheight"`
+	Stableheight      uint64       `json:"stableheight"`
+	StableTopoheight  uint64       `json:"stable_topoheight"`
+	PrunedTopoheight  *uint64      `json:"pruned_topoheight"`
+	TopBlockHash      string       `json:"top_block_hash"`
+	CirculatingSupply uint64       `json:"circulating_supply"`
+	BurnedSupply      uint64       `json:"burned_supply"`
+	EmittedSupply     uint64       `json:"emitted_supply"`
+	MaximumSupply     uint64       `json:"maximum_supply"`
+	Difficulty        string       `json:"difficulty"`
+	BlockTimeTarget   uint64       `json:"block_time_target"`
+	AverageBlockTime  uint64       `json:"average_block_time"`
+	BlockReward       uint64       `json:"block_reward"`
+	DevReward         uint64       `json:"dev_reward"`
+	MinerReward       uint64       `json:"miner_reward"`
+	MempoolSize       uint64       `json:"mempool_size"`
+	Version           string       `json:"version"`
+	Network           Network      `json:"network"`
+	BlockVersion      BlockVersion `json:"block_version"`
 }
 
 type AlgorithmVersion = string
