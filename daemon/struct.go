@@ -120,6 +120,7 @@ type Block struct {
 	DevReward            *uint64       `json:"dev_reward"`
 	CumulativeDifficulty string        `json:"cumulative_difficulty"`
 	TotalFees            *uint64       `json:"total_fees"`
+	TotalFeesBurned      *uint64       `json:"total_fees_burned"`
 	TotalSizeInBytes     uint64        `json:"total_size_in_bytes"`
 	Version              uint64        `json:"version"`
 	Tips                 []string      `json:"tips"`
