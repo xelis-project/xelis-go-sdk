@@ -214,6 +214,11 @@ type MultiSig struct {
 	Signatures map[uint8]SignatureId `json:"signatures"`
 }
 
+type GetMempoolResult struct {
+	Total        uint64                `json:"total"`
+	Transactions []TransactionResponse `json:"transactions"`
+}
+
 type Transaction struct {
 	Hash              string             `json:"hash"`
 	Version           uint64             `json:"version"`
@@ -236,6 +241,7 @@ type TransactionResponse struct {
 	Source            string             `json:"source"`
 	Data              TransactionType    `json:"data"`
 	Fee               uint64             `json:"fee"`
+	FeeLimit          uint64             `json:"fee_limit"`
 	Nonce             uint64             `json:"nonce"`
 	SourceCommitments []SourceCommitment `json:"source_commitments"`
 	RangeProof        []uint             `json:"range_proof"`

@@ -585,8 +585,8 @@ func (w *WebSocket) SubmitTransaction(hexData string) (result bool, err error) {
 	return
 }
 
-func (w *WebSocket) GetMempool() (txs []Transaction, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetMempool, nil, &txs)
+func (w *WebSocket) GetMempool() (result GetMempoolResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetMempool, nil, &result)
 	return
 }
 

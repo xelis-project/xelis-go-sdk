@@ -181,8 +181,8 @@ func (d *RPC) SubmitTransaction(data string) (result bool, err error) {
 	return
 }
 
-func (d *RPC) GetMempool() (txs []TransactionResponse, err error) {
-	_, err = d.Request(methods.GetMempool, nil, &txs)
+func (d *RPC) GetMempool() (result GetMempoolResult, err error) {
+	_, err = d.Request(methods.GetMempool, nil, &result)
 	return
 }
 
