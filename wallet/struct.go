@@ -2,7 +2,7 @@ package wallet
 
 import (
 	"github.com/xelis-project/xelis-go-sdk/daemon"
-	"github.com/xelis-project/xelis-go-sdk/sc_constant"
+	"github.com/xelis-project/xelis-go-sdk/xvm"
 )
 
 // use []uint instead of []byte or []uint8 to avoid json.Marshal base64 encoding on params
@@ -79,8 +79,8 @@ type ContractDepositBuilder struct {
 type InvokeContractBuilder struct {
 	Contract   string                            `json:"contract"`
 	MaxGas     uint64                            `json:"max_gas"`
-	ChunkId    uint16                            `json:"chunk_id"`
-	Parameters []sc_constant.Constant            `json:"parameters"`
+	EntryId    uint16                            `json:"entry_id"`
+	Parameters []xvm.ValueCell                   `json:"parameters"`
 	Deposits   map[string]ContractDepositBuilder `json:"deposits"`
 }
 

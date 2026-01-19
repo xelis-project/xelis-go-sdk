@@ -1,6 +1,6 @@
 package daemon
 
-import "github.com/xelis-project/xelis-go-sdk/sc_constant"
+import "github.com/xelis-project/xelis-go-sdk/xvm"
 
 type GetTopoheightRangeParams struct {
 	StartTopoheight uint64 `json:"start_topoheight"`
@@ -157,6 +157,10 @@ type MultiSigPayload struct {
 	Participants []string `json:"participants"`
 }
 
+type ValueCell struct {
+	Type xvm.ValueCell `json:"type"`
+}
+
 type ContractDeposit struct {
 	Public uint64 `json:"public"`
 	// TODO: Private
@@ -165,9 +169,20 @@ type ContractDeposit struct {
 type InvokeContractPayload struct {
 	Contract   string                     `json:"contract"`
 	Deposits   map[string]ContractDeposit `json:"deposits"`
-	ChunkId    uint16                     `json:"chunk_id"`
+	EntryId    uint16                     `json:"entry_id"`
 	MaxGas     uint64                     `json:"max_gas"`
-	Parameters [][]uint                   `json:"parameters"`
+	Parameters []xvm.ValueCell            `json:"parameters"`
+}
+
+type InvokeConstructorPayload struct {
+	MaxGas   uint64                     `json:"max_gas"`
+	Deposits map[string]ContractDeposit `json:"deposits"`
+}
+
+type DeployContractPayload struct {
+	Version string                    `json:"version"`
+	Module  Module                    `json:"module"`
+	Invoke  *InvokeConstructorPayload `json:"invoke,omitempty"`
 }
 
 type TransactionType struct {
@@ -175,7 +190,7 @@ type TransactionType struct {
 	Burn           *Burn                  `json:"burn"`
 	MultiSig       *MultiSigPayload       `json:"multi_sig"`
 	InvokeContract *InvokeContractPayload `json:"invoke_contract"`
-	DeployContract *Module                `json:"deploy_contract"`
+	DeployContract *DeployContractPayload `json:"deploy_contract"`
 }
 
 type Reference struct {
@@ -546,14 +561,14 @@ type GetContractModuleParams struct {
 }
 
 type GetContractDataParams struct {
-	Contract string               `json:"contract"`
-	Key      sc_constant.Constant `json:"key"`
+	Contract string        `json:"contract"`
+	Key      xvm.ValueCell `json:"key"`
 }
 
 type GetContractDataAtTopoheightParams struct {
-	Contract   string               `json:"contract"`
-	Key        sc_constant.Constant `json:"key"`
-	Topoheight uint64               `json:"topoheight"`
+	Contract   string        `json:"contract"`
+	Key        xvm.ValueCell `json:"key"`
+	Topoheight uint64        `json:"topoheight"`
 }
 
 type GetContractBalanceParams struct {
@@ -585,16 +600,25 @@ type ContractOutputRefundDeposits struct{}
 
 type ContractOutput interface{}
 
-type Chunk struct {
-	Instructions []uint `json:"instructions"`
+type ChunkAccessType string
+
+const (
+	ChunkAccessAll      ChunkAccessType = "all"
+	ChunkAccessInternal ChunkAccessType = "internal"
+	ChunkAccessEntry    ChunkAccessType = "entry"
+	ChunkAccessHook     ChunkAccessType = "hook"
+)
+
+type ModuleChunk struct {
+	// Instructions is hex string of bytecode instructions
+	Instructions string          `json:"instructions"`
+	Type         ChunkAccessType `json:"type"`
+	Id           *uint8          `json:"id,omitempty"`
 }
 
 type Module struct {
-	Constants     []sc_constant.Constant `json:"constants"`
-	Chunks        []Chunk                `json:"chunks"`
-	EntryChunkIds []uint64               `json:"entry_chunk_ids"`
-	Structs       []interface{}          `json:"structs"`
-	Enums         []interface{}          `json:"enums"`
+	Constants     []xvm.ValueCell `json:"constants"`
+	Chunks        []ModuleChunk   `json:"chunks"`
 }
 
 type GetContractModuleResult struct {

@@ -6,7 +6,7 @@ import (
 	"github.com/xelis-project/xelis-go-sdk/config"
 	"github.com/xelis-project/xelis-go-sdk/daemon/methods"
 	"github.com/xelis-project/xelis-go-sdk/rpc"
-	"github.com/xelis-project/xelis-go-sdk/sc_constant"
+	"github.com/xelis-project/xelis-go-sdk/xvm"
 )
 
 const WALLET_ADDR = "xet:62wnkswt0rmrdd9d2lawgpzuh87fkpmp4gx9j3g4u24yrdkdxgksqnuuucf"
@@ -104,7 +104,7 @@ func TestGetBlocksAtHeight(t *testing.T) {
 func TestGetBlockByHash(t *testing.T) {
 	daemon := prepareRPC(t)
 
-	block, err := daemon.GetBlockByHash(GetBlockByHashParams{Hash: `23827b240a9e6aeb0e7164a4e402838ffc383efdc92789d705921fccfed516b5`})
+	block, err := daemon.GetBlockByHash(GetBlockByHashParams{Hash: `8ee2a309fcc6e33b0770e6b604812da44ec71ee30bc1a924ebbd6000eb5faa5f`, IncludeTxs: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -728,7 +728,7 @@ func TestGetContractData(t *testing.T) {
 
 	result, err := daemon.GetContractData(GetContractDataParams{
 		Contract: "04cb8da2caa2f7642287b244069da4fe5eadc17b5b6bb5b9fd9502dbcbb70370",
-		Key:      sc_constant.DefaultString("test"),
+		Key:      xvm.NewPrimitive(xvm.String, "test"),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -742,9 +742,10 @@ func TestGetContractDataAtTopoheight(t *testing.T) {
 
 	result, err := daemon.GetContractDataAtTopoheight(GetContractDataAtTopoheightParams{
 		Contract:   "bbabe3b0442f3d794a2ca5208ae429781c27c26b1ee4571f62b7d40755204d63",
-		Key:        sc_constant.DefaultString("test"),
-		Topoheight: uint64(2954),
+		Key:        xvm.NewPrimitive(xvm.String, "test"),
+		Topoheight: 2954,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -8,8 +8,8 @@ import (
 	"github.com/xelis-project/xelis-go-sdk/config"
 	da "github.com/xelis-project/xelis-go-sdk/daemon"
 	d "github.com/xelis-project/xelis-go-sdk/data"
-	"github.com/xelis-project/xelis-go-sdk/sc_constant"
 	"github.com/xelis-project/xelis-go-sdk/signature"
+	"github.com/xelis-project/xelis-go-sdk/xvm"
 )
 
 const TESTING_ADDR = "xet:qf5u2p46jpgqmypqc2xwtq25yek2t7qhnqtdhw5kpfwcrlavs5asq0r83r7"
@@ -447,10 +447,10 @@ func TestRPCInvokeSC(t *testing.T) {
 		InvokeContract: &InvokeContractBuilder{
 			Contract: "f8ffd882e1907c501c23a86c3947b8222cc544a55d448cadcb28798e5f554be0",
 			MaxGas:   300,
-			ChunkId:  0,
-			Parameters: []sc_constant.Constant{
-				sc_constant.DefaultU64(1),
-				sc_constant.Default(sc_constant.Value{Type: sc_constant.ValueTypeU64, Value: 2}),
+			EntryId:  0,
+			Parameters: []xvm.ValueCell{
+				xvm.NewPrimitive(xvm.U64, uint64(1)),
+				xvm.NewPrimitive(xvm.U64, uint64(2)),
 			},
 			Deposits: map[string]ContractDepositBuilder{
 				config.XELIS_ASSET: {Amount: 100, Private: false},
