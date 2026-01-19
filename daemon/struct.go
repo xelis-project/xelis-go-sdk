@@ -152,7 +152,7 @@ type CallContract struct {
 	Contract string `json:"contract"`
 }
 
-type MutliSigPayload struct {
+type MultiSigPayload struct {
 	Threshold    uint8    `json:"threshold"`
 	Participants []string `json:"participants"`
 }
@@ -173,7 +173,7 @@ type InvokeContractPayload struct {
 type TransactionType struct {
 	Transfers      *[]Transfer            `json:"transfers"`
 	Burn           *Burn                  `json:"burn"`
-	MultiSig       *MutliSigPayload       `json:"multi_sig"`
+	MultiSig       *MultiSigPayload       `json:"multi_sig"`
 	InvokeContract *InvokeContractPayload `json:"invoke_contract"`
 	DeployContract *Module                `json:"deploy_contract"`
 }
