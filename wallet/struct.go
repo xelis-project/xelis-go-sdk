@@ -1,7 +1,7 @@
 package wallet
 
 import (
-	"github.com/xelis-project/xelis-go-sdk/daemon"
+	"github.com/xelis-project/xelis-go-sdk/transaction"
 	"github.com/xelis-project/xelis-go-sdk/xvm"
 )
 
@@ -91,7 +91,7 @@ type SignerId struct {
 
 type BuildTransactionParams struct {
 	Transfers      []TransferBuilder      `json:"transfers,omitempty"`
-	Burn           *daemon.Burn           `json:"burn,omitempty"`
+	Burn           *transaction.Burn      `json:"burn,omitempty"`
 	MultiSig       *MutliSigBuilder       `json:"multi_sig,omitempty"`
 	InvokeContract *InvokeContractBuilder `json:"invoke_contract,omitempty"`
 	DeployContract *string                `json:"deploy_contract,omitempty"`
@@ -103,16 +103,16 @@ type BuildTransactionParams struct {
 	Signers        *[]SignerId            `json:"signers,omitempty"`
 }
 
-// !!! not the same as daemon.Transfer
-// the destination is []uint8 and the other it's string
+// !!! not the same as transaction.Transfer
+// the destination is []uint and the other can be string
 type Transfer struct {
-	Asset           string       `json:"asset"`
-	ExtraData       *[]uint      `json:"extra_data"`
-	Destination     []uint       `json:"destination"`
-	Commitment      []uint       `json:"commitment"`
-	SenderHandle    []uint       `json:"sender_handle"`
-	ReceiverHandle  []uint       `json:"receiver_handle"`
-	CTValidityProof daemon.Proof `json:"ct_validity_proof"`
+	Asset           string            `json:"asset"`
+	ExtraData       *[]uint           `json:"extra_data"`
+	Destination     []uint            `json:"destination"`
+	Commitment      []uint            `json:"commitment"`
+	SenderHandle    []uint            `json:"sender_handle"`
+	ReceiverHandle  []uint            `json:"receiver_handle"`
+	CTValidityProof transaction.Proof `json:"ct_validity_proof"`
 }
 
 type Outgoing struct {
@@ -131,29 +131,19 @@ type Coinbase struct {
 }
 
 type TransactionEntry struct {
-	Hash       string       `json:"hash"`
-	Topoheight uint64       `json:"topoheight"`
-	Outgoing   *Outgoing    `json:"outgoing"`
-	Burn       *daemon.Burn `json:"burn"`
-	Incoming   *Incoming    `json:"incoming"`
-	Coinbase   *Coinbase    `json:"coinbase"`
+	Hash       string            `json:"hash"`
+	Topoheight uint64            `json:"topoheight"`
+	Outgoing   *Outgoing         `json:"outgoing"`
+	Burn       *transaction.Burn `json:"burn"`
+	Incoming   *Incoming         `json:"incoming"`
+	Coinbase   *Coinbase         `json:"coinbase"`
 }
 
-// copy of daemon.Transaction with TxAsHex and source as []uint
+type Transaction = transaction.Transaction
+
 type TransactionResponse struct {
-	Hash              string                    `json:"hash"`
-	Version           uint64                    `json:"version"`
-	Source            []uint                    `json:"source"`
-	Data              daemon.TransactionType    `json:"data"`
-	Fee               uint64                    `json:"fee"`
-	Nonce             uint64                    `json:"nonce"`
-	SourceCommitments []daemon.SourceCommitment `json:"source_commitments"`
-	RangeProof        []uint                    `json:"range_proof"`
-	Reference         daemon.Reference          `json:"reference"`
-	MultiSig          *daemon.MultiSig          `json:"multisig"`
-	Signature         string                    `json:"signature"`
-	Size              uint64                    `json:"size"`
-	TxAsHex           *string                   `json:"tx_as_hex"`
+	transaction.Transaction
+	TxAsHex *string `json:"tx_as_hex,omitempty"`
 }
 
 type ListTransactionsParams struct {
@@ -168,7 +158,7 @@ type ListTransactionsParams struct {
 
 type EstimateFeesParams struct {
 	Transfers      []TransferBuilder      `json:"transfers"`
-	Burn           *daemon.Burn           `json:"burn,omitempty"`
+	Burn           *transaction.Burn      `json:"burn,omitempty"`
 	MultiSig       *MutliSigBuilder       `json:"multi_sig,omitempty"`
 	InvokeContract *InvokeContractBuilder `json:"invoke_contract,omitempty"`
 	DeployContract *string                `json:"deploy_contract,omitempty"`
@@ -181,21 +171,21 @@ type BalanceChangedResult struct {
 
 type BuildTransactionOfflineParams struct {
 	Transfers      []TransferOut          `json:"transfers"`
-	Burn           *daemon.Burn           `json:"burn,omitempty"`
+	Burn           *transaction.Burn      `json:"burn,omitempty"`
 	MultiSig       *MutliSigBuilder       `json:"multi_sig,omitempty"`
 	InvokeContract *InvokeContractBuilder `json:"invoke_contract,omitempty"`
 	DeployContract *string                `json:"deploy_contract,omitempty"`
 	Fee            *FeeBuilder            `json:"fee,omitempty"`
 	TxVersion      *uint8                 `json:"tx_version,omitempty"`
 	TxAsHex        bool                   `json:"tx_as_hex"`
-	Reference      daemon.Reference       `json:"reference"`
+	Reference      transaction.Reference  `json:"reference"`
 	Nonce          uint64                 `json:"nonce"`
 	Signers        *[]SignerId            `json:"signers,omitempty"`
 }
 
 type BuildUnsignedTransactionParams struct {
 	Transfers      []TransferOut          `json:"transfers"`
-	Burn           *daemon.Burn           `json:"burn,omitempty"`
+	Burn           *transaction.Burn      `json:"burn,omitempty"`
 	MultiSig       *MutliSigBuilder       `json:"multi_sig,omitempty"`
 	InvokeContract *InvokeContractBuilder `json:"invoke_contract,omitempty"`
 	DeployContract *string                `json:"deploy_contract,omitempty"`
@@ -220,18 +210,18 @@ type RangeProof struct {
 }
 
 type UnsignedTransactionResponse struct {
-	Version           uint8                     `json:"version"`
-	Source            []uint                    `json:"source"`
-	Data              interface{}               `json:"data"`
-	Fee               uint64                    `json:"fee"`
-	Nonce             uint64                    `json:"nonce"`
-	SourceCommitments []daemon.SourceCommitment `json:"source_commitments"`
-	Reference         daemon.Reference          `json:"reference"`
-	RangeProof        RangeProof                `json:"range_proof"`
-	MultiSig          []string                  `json:"multisig"`
-	Hash              string                    `json:"hash"`
-	Threshold         uint8                     `json:"threshold"`
-	TxAsHex           bool                      `json:"tx_as_hex"`
+	Version           uint8                          `json:"version"`
+	Source            []uint                         `json:"source"`
+	Data              interface{}                    `json:"data"`
+	Fee               uint64                         `json:"fee"`
+	Nonce             uint64                         `json:"nonce"`
+	SourceCommitments []transaction.SourceCommitment `json:"source_commitments"`
+	Reference         transaction.Reference          `json:"reference"`
+	RangeProof        RangeProof                     `json:"range_proof"`
+	MultiSig          []string                       `json:"multisig"`
+	Hash              string                         `json:"hash"`
+	Threshold         uint8                          `json:"threshold"`
+	TxAsHex           bool                           `json:"tx_as_hex"`
 }
 
 type SignUnsignedTransactionParams struct {
