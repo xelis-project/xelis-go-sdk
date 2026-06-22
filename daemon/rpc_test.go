@@ -228,7 +228,7 @@ func TestGetPeers(t *testing.T) {
 func TestGetMempool(t *testing.T) {
 	daemon := prepareRPC(t)
 
-	mempool, err := daemon.GetMempool()
+	mempool, err := daemon.GetMempool(GetMempoolParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -692,19 +692,11 @@ func TestGetContractOutputs(t *testing.T) {
 	daemon := prepareRPC(t)
 
 	result, err := daemon.GetContractOutputs(GetContractOutputsParams{
-		Transaction: "5fd92b6c61780a003f91f6c52a44de34e69e17e41602cf98cf88d08b35406150",
+		Address:    WALLET_ADDR,
+		Topoheight: 0,
 	})
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	for _, output := range result {
-		switch out := output.(type) {
-		case ContractOutputExitCode:
-			t.Log("Exit code", out.ExitCode)
-		case ContractOutputRefundGas:
-			t.Log("Refund gas", out.Amount)
-		}
 	}
 
 	t.Log(result)

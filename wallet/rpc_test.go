@@ -244,7 +244,7 @@ func TestRPCBalanceAndAsset(t *testing.T) {
 	}
 	t.Logf("%+v", precision)
 
-	assets, err := wallet.GetTrackedAssets()
+	assets, err := wallet.GetTrackedAssets(GetAssetsParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -574,7 +574,7 @@ func TestRPCGetAsset(t *testing.T) {
 func TestRPCGetAssets(t *testing.T) {
 	wallet := prepareRPC(t)
 
-	assets, err := wallet.GetAssets()
+	assets, err := wallet.GetAssets(GetAssetsParams{})
 	if err != nil {
 		t.Fatal(err)
 	}

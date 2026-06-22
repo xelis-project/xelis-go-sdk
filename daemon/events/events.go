@@ -1,6 +1,7 @@
 package events
 
 const (
+	NewTopoheight             string = `new_topo_height`
 	NewBlock                  string = `new_block`
 	BlockOrdered              string = `block_ordered`
 	BlockOrphaned             string = `block_orphaned`
@@ -9,8 +10,10 @@ const (
 	TransactionOrphaned       string = `transaction_orphaned`
 	TransactionAddedInMempool string = `transaction_added_in_mempool`
 	TransactionExecuted       string = `transaction_executed`
-	InvokeContract            string = `invoke_contract`
-	DeployContract            string = `deploy_contract`
+	InvokeContract            string = `contract_invoke`
+	DeployContract            string = `contract_deploy`
+	ContractTransfers         string = `contract_transfers`
+	ContractEvent             string = `contract_event`
 	NewAsset                  string = `new_asset`
 	PeerConnected             string = `peer_connected`
 	PeerDisconnected          string = `peer_disconnected`

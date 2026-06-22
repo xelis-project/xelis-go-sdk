@@ -269,7 +269,7 @@ func (w *WebSocket) Rescan(params RescanParams) (success bool, err error) {
 }
 
 func (w *WebSocket) GetBalance(params GetBalanceParams) (balance uint64, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.Rescan, params, &balance)
+	_, err = w.WS.Call(w.Prefix+methods.GetBalance, params, &balance)
 	return
 }
 
@@ -278,28 +278,53 @@ func (w *WebSocket) HasBalance(params GetBalanceParams) (exists bool, err error)
 	return
 }
 
-func (w *WebSocket) GetTrackedAssets() (assets []string, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetTrackedAssets, nil, &assets)
+func (w *WebSocket) GetTrackedAssets(params GetAssetsParams) (assets []string, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetTrackedAssets, params, &assets)
+	return
+}
+
+func (w *WebSocket) IsAssetTracked(params IsAssetTrackedParams) (tracked bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.IsAssetTracked, params, &tracked)
+	return
+}
+
+func (w *WebSocket) TrackAsset(params TrackAssetParams) (tracked bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.TrackAsset, params, &tracked)
+	return
+}
+
+func (w *WebSocket) UntrackAsset(params TrackAssetParams) (untracked bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.UntrackAsset, params, &untracked)
 	return
 }
 
 func (w *WebSocket) GetAssetPrecision(params GetAssetPrecisionParams) (decimals int, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetAssetPrecision, nil, &decimals)
+	_, err = w.WS.Call(w.Prefix+methods.GetAssetPrecision, params, &decimals)
 	return
 }
 
-func (w *WebSocket) GetAssets() (assets map[string]Asset, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetAssets, nil, &assets)
+func (w *WebSocket) GetAssets(params GetAssetsParams) (assets []GetAssetsEntry, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetAssets, params, &assets)
 	return
 }
 
 func (w *WebSocket) GetAsset(params GetAssetPrecisionParams) (asset Asset, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetAsset, nil, &asset)
+	_, err = w.WS.Call(w.Prefix+methods.GetAsset, params, &asset)
 	return
 }
 
 func (w *WebSocket) GetTransaction(params GetTransactionParams) (transaction TransactionEntry, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetTransaction, params, &transaction)
+	return
+}
+
+func (w *WebSocket) SearchTransaction(params SearchTransactionParams) (result SearchTransactionResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.SearchTransaction, params, &result)
+	return
+}
+
+func (w *WebSocket) DumpTransaction(params GetTransactionParams) (tx string, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.DumpTransaction, params, &tx)
 	return
 }
 
@@ -340,8 +365,13 @@ func (w *WebSocket) FinalizeUnsignedTransaction(params FinalizeUnsignedTransacti
 	return
 }
 
+func (w *WebSocket) GetPendingTransactions() (txs []TransactionPending, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetPendingTransactions, nil, &txs)
+	return
+}
+
 func (w *WebSocket) ClearTxCache() (result bool, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.ListTransactions, nil, &result)
+	_, err = w.WS.Call(w.Prefix+methods.ClearTxCache, nil, &result)
 	return
 }
 
@@ -355,8 +385,8 @@ func (w *WebSocket) IsOnline() (online bool, err error) {
 	return
 }
 
-func (w *WebSocket) SetOnlineMode() (success bool, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.SetOnlineMode, nil, &success)
+func (w *WebSocket) SetOnlineMode(params SetOnlineModeParams) (success bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.SetOnlineMode, params, &success)
 	return
 }
 
@@ -367,6 +397,11 @@ func (w *WebSocket) SetOfflineMode() (success bool, err error) {
 
 func (w *WebSocket) SignData(data data.Element) (signature string, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.SignData, data, &signature)
+	return
+}
+
+func (w *WebSocket) VerifySignedData(params VerifySignedDataParams) (valid bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.VerifySignedData, params, &valid)
 	return
 }
 
@@ -385,13 +420,28 @@ func (w *WebSocket) NetworkInfo() (result NetworkInfoResult, err error) {
 	return
 }
 
-func (w *WebSocket) DecryptExtraData(params DecryptExtraDataParams) (result interface{}, err error) {
+func (w *WebSocket) DecryptExtraData(params DecryptExtraDataParams) (result PlaintextExtraData, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.DecryptExtraData, params, &result)
 	return
 }
 
-func (w *WebSocket) DecryptCiphertext(params DecryptCiphertextParams) (result uint64, err error) {
+func (w *WebSocket) DecryptCiphertext(params DecryptCiphertextParams) (result *uint64, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.DecryptCiphertext, params, &result)
+	return
+}
+
+func (w *WebSocket) CreateOwnershipProof(params CreateOwnershipProofParams) (result interface{}, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.CreateOwnershipProof, params, &result)
+	return
+}
+
+func (w *WebSocket) CreateBalanceProof(params CreateBalanceProofParams) (result interface{}, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.CreateBalanceProof, params, &result)
+	return
+}
+
+func (w *WebSocket) VerifyHumanReadableProof(params VerifyHumanReadableProofParams) (valid bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.VerifyHumanReadableProof, params, &valid)
 	return
 }
 

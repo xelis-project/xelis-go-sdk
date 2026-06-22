@@ -38,6 +38,51 @@ func (w *WebSocket) ConnectionErr() chan error {
 	return w.WS.ConnectionErr
 }
 
+func (w *WebSocket) BatchLimit() (limit *uint64, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.BatchLimit, nil, &limit)
+	return
+}
+
+func (w *WebSocket) Schema() (result []RPCMethodInfo, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.Schema, nil, &result)
+	return
+}
+
+func (w *WebSocket) Subscribe(notify interface{}) (result bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.Subscribe, SubscribeParams{Notify: notify}, &result)
+	return
+}
+
+func (w *WebSocket) Unsubscribe(notify interface{}) (result bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.Unsubscribe, SubscribeParams{Notify: notify}, &result)
+	return
+}
+
+func (w *WebSocket) NewTopoheightChannel() (chan uint64, chan error, error) {
+	chanResult := make(chan uint64)
+	chanErr := make(chan error)
+
+	err := w.WS.ListenEventFunc(w.Prefix+events.NewTopoheight, func(res rpc.RPCResponse) {
+		var result uint64
+		err := rpc.ParseResponseResult(res, &result)
+		if err != nil {
+			chanErr <- err
+		} else {
+			chanResult <- result
+		}
+	})
+
+	return chanResult, chanErr, err
+}
+
+func (w *WebSocket) NewTopoheightFunc(onData func(uint64, error)) error {
+	return w.WS.ListenEventFunc(w.Prefix+events.NewTopoheight, func(res rpc.RPCResponse) {
+		var result uint64
+		err := rpc.ParseResponseResult(res, &result)
+		onData(result, err)
+	})
+}
+
 func (w *WebSocket) NewBlockChannel() (chan Block, chan error, error) {
 	chanResult := make(chan Block)
 	chanErr := make(chan error)
@@ -465,13 +510,18 @@ func (w *WebSocket) GetStableHeight() (stableheight uint64, err error) {
 	return
 }
 
+func (w *WebSocket) GetStableheight() (stableheight uint64, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetStableheight, nil, &stableheight)
+	return
+}
+
 func (w *WebSocket) GetStableTopoheight() (topoheight uint64, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetStableTopoheight, nil, &topoheight)
 	return
 }
 
 func (w *WebSocket) GetStableBalance(params GetBalanceParams) (result GetStableBalanceResult, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetStableBalance, nil, &result)
+	_, err = w.WS.Call(w.Prefix+methods.GetStableBalance, params, &result)
 	return
 }
 
@@ -496,6 +546,26 @@ func (w *WebSocket) GetBlockByHash(params GetBlockByHashParams) (block Block, er
 	return
 }
 
+func (w *WebSocket) GetBlockDifficultyByHash(params GetBlockDifficultyByHashParams) (result GetDifficultyResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetBlockDifficultyByHash, params, &result)
+	return
+}
+
+func (w *WebSocket) GetBlockBaseFeeByHash(params GetBlockBaseFeeByHashParams) (result GetBlockBaseFeeByHashResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetBlockBaseFeeByHash, params, &result)
+	return
+}
+
+func (w *WebSocket) GetBlockSummaryAtTopoheight(params GetBlockSummaryAtTopoheightParams) (result BlockSummary, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetBlockSummaryAtTopoheight, params, &result)
+	return
+}
+
+func (w *WebSocket) GetBlockSummaryByHash(params GetBlockSummaryByHashParams) (result BlockSummary, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetBlockSummaryByHash, params, &result)
+	return
+}
+
 func (w *WebSocket) GetTopBlock(params GetTopBlockParams) (block Block, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetTopBlock, params, &block)
 	return
@@ -514,7 +584,9 @@ func (w *WebSocket) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (non
 
 func (w *WebSocket) HasNonce(addr string) (hasNonce bool, err error) {
 	params := map[string]string{"address": addr}
-	_, err = w.WS.Call(w.Prefix+methods.HasNonce, params, &hasNonce)
+	var result ExistResult
+	_, err = w.WS.Call(w.Prefix+methods.HasNonce, params, &result)
+	hasNonce = result.Exist
 	return
 }
 
@@ -524,7 +596,9 @@ func (w *WebSocket) GetBalance(params GetBalanceParams) (balance GetBalanceResul
 }
 
 func (w *WebSocket) HasBalance(params GetBalanceParams) (hasBalance bool, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.HasBalance, params, &hasBalance)
+	var result ExistResult
+	_, err = w.WS.Call(w.Prefix+methods.HasBalance, params, &result)
+	hasBalance = result.Exist
 	return
 }
 
@@ -533,9 +607,24 @@ func (w *WebSocket) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) 
 	return
 }
 
+func (w *WebSocket) GetBalancesAtMaximumTopoheight(params GetBalancesAtMaximumTopoheightParams) (result interface{}, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetBalancesAtMaximumTopoheight, params, &result)
+	return
+}
+
 func (w *WebSocket) GetAsset(assetId string) (asset AssetData, err error) {
 	params := map[string]string{"asset": assetId}
 	_, err = w.WS.Call(w.Prefix+methods.GetAsset, params, &asset)
+	return
+}
+
+func (w *WebSocket) GetAssetSupply(params GetAssetParams) (result VersionedUint64, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetAssetSupply, params, &result)
+	return
+}
+
+func (w *WebSocket) GetAssetSupplyAtTopoheight(params GetAssetSupplyAtTopoheightParams) (result VersionedUint64AtTopoheight, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetAssetSupplyAtTopoheight, params, &result)
 	return
 }
 
@@ -569,6 +658,11 @@ func (w *WebSocket) P2PStatus() (status P2PStatusResult, err error) {
 	return
 }
 
+func (w *WebSocket) GetP2PBlockPropagation(params GetP2PBlockPropagationParams) (result P2PBlockPropagationResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetP2PBlockPropagation, params, &result)
+	return
+}
+
 func (w *WebSocket) GetDAGOrder(params GetTopoheightRangeParams) (hashes []string, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetDAGOrder, params, &hashes)
 	return
@@ -581,28 +675,38 @@ func (w *WebSocket) SubmitBlock(params SubmitBlockParams) (result bool, err erro
 
 func (w *WebSocket) SubmitTransaction(hexData string) (result bool, err error) {
 	params := map[string]string{"data": hexData}
-	_, err = w.WS.Call(w.Prefix+methods.SubmitTransaction, params, &hexData)
+	_, err = w.WS.Call(w.Prefix+methods.SubmitTransaction, params, &result)
 	return
 }
 
-func (w *WebSocket) GetMempool() (result GetMempoolResult, err error) {
-	_, err = w.WS.Call(w.Prefix+methods.GetMempool, nil, &result)
-	return
-}
-
-func (w *WebSocket) GetMempoolCache(params GetMempoolCacheParams) (result GetMempoolCacheResult, err error) {
+func (w *WebSocket) GetMempool(params GetMempoolParams) (result GetMempoolResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetMempool, params, &result)
 	return
 }
 
-func (w *WebSocket) GetTransaction(hash string) (tx Transaction, err error) {
+func (w *WebSocket) GetMempoolSummary(params GetMempoolParams) (result GetMempoolSummaryResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetMempoolSummary, params, &result)
+	return
+}
+
+func (w *WebSocket) GetMempoolCache(params GetMempoolCacheParams) (result GetMempoolCacheResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetMempoolCache, params, &result)
+	return
+}
+
+func (w *WebSocket) GetTransaction(hash string) (tx TransactionResponse, err error) {
 	params := map[string]string{"hash": hash}
 	_, err = w.WS.Call(w.Prefix+methods.GetTransaction, params, &tx)
 	return
 }
 
-func (w *WebSocket) GetTransactions(params GetTransactionsParams) (txs []Transaction, err error) {
+func (w *WebSocket) GetTransactions(params GetTransactionsParams) (txs []*TransactionResponse, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetTransactions, params, &txs)
+	return
+}
+
+func (w *WebSocket) GetTransactionsSummary(params GetTransactionsParams) (txs []*TransactionSummary, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetTransactionsSummary, params, &txs)
 	return
 }
 
@@ -679,6 +783,11 @@ func (w *WebSocket) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (k
 	return
 }
 
+func (w *WebSocket) KeyToAddress(params KeyToAddressParams) (address string, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.KeyToAddress, params, &address)
+	return
+}
+
 func (w *WebSocket) GetMinerWork(params GetMinerWorkParams) (result GetMinerWorkResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetMinerWork, params, &result)
 	return
@@ -694,12 +803,17 @@ func (w *WebSocket) GetHardForks() (result []HardFork, err error) {
 	return
 }
 
-func (w *WebSocket) GetEstimatedFeeRates() (result []FeeRatesEstimated, err error) {
+func (w *WebSocket) GetEstimatedFeeRates() (result FeeRatesEstimated, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetEstimatedFeeRates, nil, &result)
 	return
 }
 
-func (w *WebSocket) GetPrunedTopoheight() (result uint64, err error) {
+func (w *WebSocket) GetEstimatedFeePerKB() (result PredicatedBaseFeeResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetEstimatedFeePerKB, nil, &result)
+	return
+}
+
+func (w *WebSocket) GetPrunedTopoheight() (result *uint64, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetPrunedTopoheight, nil, &result)
 	return
 }
@@ -729,10 +843,28 @@ func (w *WebSocket) HasMultisig(params HasMultisigParams) (result bool, err erro
 	return
 }
 
-func (w *WebSocket) GetContractOutputs(params GetContractOutputsParams) (result []ContractOutput, err error) {
-	var outputs []interface{}
-	_, err = w.WS.Call(w.Prefix+methods.GetContractOutputs, params, &outputs)
-	result = parseContractOutputs(outputs)
+func (w *WebSocket) GetContractOutputs(params GetContractOutputsParams) (result GetContractsOutputsResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractOutputs, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractsOutputs(params GetContractOutputsParams) (result GetContractsOutputsResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractOutputs, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractLogs(params GetContractLogsParams) (result []ContractLog, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractLogs, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractScheduledExecutionsAtTopoheight(params GetContractExecutionsAtTopoheightParams) (result []ScheduledExecution, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractScheduledExecutionsAtTopoheight, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractRegisteredExecutionsAtTopoheight(params GetContractExecutionsAtTopoheightParams) (result []RegisteredExecution, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractRegisteredExecutionsAtTopoheight, params, &result)
 	return
 }
 
@@ -741,23 +873,48 @@ func (w *WebSocket) GetContractModule(params GetContractModuleParams) (result Ge
 	return
 }
 
-func (w *WebSocket) GetContractData(params GetContractDataParams) (result interface{}, err error) {
+func (w *WebSocket) GetContractData(params GetContractDataParams) (result GetContractDataResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetContractData, params, &result)
 	return
 }
 
-func (w *WebSocket) GetContractDataAtTopoheight(params GetContractDataAtTopoheightParams) (result interface{}, err error) {
+func (w *WebSocket) GetContractDataAtTopoheight(params GetContractDataAtTopoheightParams) (result GetContractDataAtTopoheightResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetContractDataAtTopoheight, params, &result)
 	return
 }
 
-func (w *WebSocket) GetContractBalance(params GetContractBalanceParams) (result interface{}, err error) {
+func (w *WebSocket) GetContractBalance(params GetContractBalanceParams) (result GetContractBalanceResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetContractBalance, params, &result)
 	return
 }
 
-func (w *WebSocket) GetContractBalanceAtTopoheight(params GetContractBalanceAtTopoheightParams) (result interface{}, err error) {
+func (w *WebSocket) GetContractBalanceAtTopoheight(params GetContractBalanceAtTopoheightParams) (result GetContractBalanceAtTopoheightResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetContractBalanceAtTopoheight, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractAssets(params GetContractModuleParams) (result []string, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractAssets, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContracts(params GetContractsParams) (result []string, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContracts, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractDataEntries(params GetContractDataEntriesParams) (result []ContractDataEntry, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractDataEntries, params, &result)
+	return
+}
+
+func (w *WebSocket) GetContractTransactions(params GetContractTransactionsParams) (result []string, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.GetContractTransactions, params, &result)
+	return
+}
+
+func (w *WebSocket) SimulateContractInvoke(params interface{}) (result interface{}, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.SimulateContractInvoke, params, &result)
 	return
 }
 
@@ -773,5 +930,20 @@ func (w *WebSocket) MakeIntegratedAddress(params MakeIntegratedAddressParams) (r
 
 func (w *WebSocket) DecryptExtraData(params DecryptExtraDataParams) (result interface{}, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.DecryptExtraData, params, &result)
+	return
+}
+
+func (w *WebSocket) PruneChain(params PruneChainParams) (result PruneChainResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.PruneChain, params, &result)
+	return
+}
+
+func (w *WebSocket) RewindChain(params RewindChainParams) (result RewindChainResult, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.RewindChain, params, &result)
+	return
+}
+
+func (w *WebSocket) ClearCaches() (result bool, err error) {
+	_, err = w.WS.Call(w.Prefix+methods.ClearCaches, nil, &result)
 	return
 }
