@@ -196,7 +196,9 @@ func TestWSPeerUpdated(t *testing.T) {
 func TestWSRegistration(t *testing.T) {
 	daemon := prepareWS(t)
 
-	topoheight, err := daemon.GetAccountRegistrationTopoheight(WALLET_ADDR)
+	topoheight, err := daemon.GetAccountRegistrationTopoheight(GetAccountRegistrationParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

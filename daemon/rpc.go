@@ -32,6 +32,16 @@ func (d *RPC) Request(method string, params interface{}, result interface{}) (re
 	return d.http.Request(method, params, result)
 }
 
+func (d *RPC) BatchLimit() (limit *uint64, err error) {
+	_, err = d.Request(methods.BatchLimit, nil, &limit)
+	return
+}
+
+func (d *RPC) Schema() (result RPCSchemaResponse, err error) {
+	_, err = d.Request(methods.Schema, nil, &result)
+	return
+}
+
 func (d *RPC) GetVersion() (version string, err error) {
 	_, err = d.Request(methods.GetVersion, nil, &version)
 	return
@@ -57,6 +67,11 @@ func (d *RPC) GetStableHeight() (stableheight uint64, err error) {
 	return
 }
 
+func (d *RPC) GetStableheight() (stableheight uint64, err error) {
+	_, err = d.Request(methods.GetStableheight, nil, &stableheight)
+	return
+}
+
 func (d *RPC) GetStableTopoheight() (topoheight uint64, err error) {
 	_, err = d.Request(methods.GetStableTopoheight, nil, &topoheight)
 	return
@@ -67,8 +82,7 @@ func (d *RPC) GetStableBalance(params GetBalanceParams) (result GetStableBalance
 	return
 }
 
-func (d *RPC) GetBlockTemplate(addr string) (result GetBlockTemplateResult, err error) {
-	params := map[string]string{"address": addr}
+func (d *RPC) GetBlockTemplate(params GetBlockTemplateParams) (result GetBlockTemplateResult, err error) {
 	_, err = d.Request(methods.GetBlockTemplate, params, &result)
 	return
 }
@@ -88,22 +102,40 @@ func (d *RPC) GetBlockByHash(params GetBlockByHashParams) (block Block, err erro
 	return
 }
 
+func (d *RPC) GetBlockDifficultyByHash(params GetBlockDifficultyByHashParams) (result GetDifficultyResult, err error) {
+	_, err = d.Request(methods.GetBlockDifficultyByHash, params, &result)
+	return
+}
+
+func (d *RPC) GetBlockBaseFeeByHash(params GetBlockBaseFeeByHashParams) (result GetBlockBaseFeeByHashResult, err error) {
+	_, err = d.Request(methods.GetBlockBaseFeeByHash, params, &result)
+	return
+}
+
+func (d *RPC) GetBlockSummaryAtTopoheight(params GetBlockSummaryAtTopoheightParams) (result BlockSummary, err error) {
+	_, err = d.Request(methods.GetBlockSummaryAtTopoheight, params, &result)
+	return
+}
+
+func (d *RPC) GetBlockSummaryByHash(params GetBlockSummaryByHashParams) (result BlockSummary, err error) {
+	_, err = d.Request(methods.GetBlockSummaryByHash, params, &result)
+	return
+}
+
 func (d *RPC) GetTopBlock(params GetTopBlockParams) (block Block, err error) {
 	_, err = d.Request(methods.GetTopBlock, params, &block)
 	return
 }
 
-func (d *RPC) GetNonce(addr string) (nonce GetNonceResult, err error) {
-	params := map[string]string{"address": addr}
+func (d *RPC) GetNonce(params GetNonceParams) (nonce GetNonceResult, err error) {
 	_, err = d.Request(methods.GetNonce, params, &nonce)
 	return
 }
 
-func (d *RPC) HasNonce(addr string) (hasNonce bool, err error) {
-	params := map[string]string{"address": addr}
-	var result map[string]bool
+func (d *RPC) HasNonce(params HasNonceParams) (hasNonce bool, err error) {
+	var result ExistResult
 	_, err = d.Request(methods.HasNonce, params, &result)
-	hasNonce = result["exist"]
+	hasNonce = result.Exist
 	return
 }
 
@@ -117,10 +149,10 @@ func (d *RPC) GetBalance(params GetBalanceParams) (balance GetBalanceResult, err
 	return
 }
 
-func (d *RPC) HasBalance(params GetBalanceParams) (hasBalance bool, err error) {
-	var result map[string]bool
+func (d *RPC) HasBalance(params HasBalanceParams) (hasBalance bool, err error) {
+	var result ExistResult
 	_, err = d.Request(methods.HasBalance, params, &result)
-	hasBalance = result["exists"]
+	hasBalance = result.Exist
 	return
 }
 
@@ -129,9 +161,23 @@ func (d *RPC) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) (balan
 	return
 }
 
-func (d *RPC) GetAsset(assetId string) (asset AssetData, err error) {
-	params := map[string]string{"asset": assetId}
+func (d *RPC) GetBalancesAtMaximumTopoheight(params GetBalancesAtMaximumTopoheightParams) (result []*RPCVersionedBalance, err error) {
+	_, err = d.Request(methods.GetBalancesAtMaximumTopoheight, params, &result)
+	return
+}
+
+func (d *RPC) GetAsset(params GetAssetParams) (asset AssetData, err error) {
 	_, err = d.Request(methods.GetAsset, params, &asset)
+	return
+}
+
+func (d *RPC) GetAssetSupply(params GetAssetParams) (result VersionedUint64, err error) {
+	_, err = d.Request(methods.GetAssetSupply, params, &result)
+	return
+}
+
+func (d *RPC) GetAssetSupplyAtTopoheight(params GetAssetSupplyAtTopoheightParams) (result VersionedUint64AtTopoheight, err error) {
+	_, err = d.Request(methods.GetAssetSupplyAtTopoheight, params, &result)
 	return
 }
 
@@ -165,6 +211,11 @@ func (d *RPC) P2PStatus() (status P2PStatusResult, err error) {
 	return
 }
 
+func (d *RPC) GetP2PBlockPropagation(params GetP2PBlockPropagationParams) (result P2PBlockPropagationResult, err error) {
+	_, err = d.Request(methods.GetP2PBlockPropagation, params, &result)
+	return
+}
+
 func (d *RPC) GetDAGOrder(params GetTopoheightRangeParams) (hashes []string, err error) {
 	_, err = d.Request(methods.GetDAGOrder, params, &hashes)
 	return
@@ -175,14 +226,18 @@ func (d *RPC) SubmitBlock(params SubmitBlockParams) (result bool, err error) {
 	return
 }
 
-func (d *RPC) SubmitTransaction(data string) (result bool, err error) {
-	params := map[string]string{"data": data}
+func (d *RPC) SubmitTransaction(params SubmitTransactionParams) (result bool, err error) {
 	_, err = d.Request(methods.SubmitTransaction, params, &result)
 	return
 }
 
-func (d *RPC) GetMempool() (result GetMempoolResult, err error) {
-	_, err = d.Request(methods.GetMempool, nil, &result)
+func (d *RPC) GetMempool(params GetMempoolParams) (result GetMempoolResult, err error) {
+	_, err = d.Request(methods.GetMempool, params, &result)
+	return
+}
+
+func (d *RPC) GetMempoolSummary(params GetMempoolParams) (result GetMempoolSummaryResult, err error) {
+	_, err = d.Request(methods.GetMempoolSummary, params, &result)
 	return
 }
 
@@ -191,14 +246,18 @@ func (d *RPC) GetMempoolCache(params GetMempoolCacheParams) (result GetMempoolCa
 	return
 }
 
-func (d *RPC) GetTransaction(hash string) (tx TransactionResponse, err error) {
-	params := map[string]string{"hash": hash}
+func (d *RPC) GetTransaction(params GetTransactionParams) (tx TransactionResponse, err error) {
 	_, err = d.Request(methods.GetTransaction, params, &tx)
 	return
 }
 
-func (d *RPC) GetTransactions(params GetTransactionsParams) (txs []TransactionResponse, err error) {
+func (d *RPC) GetTransactions(params GetTransactionsParams) (txs []*TransactionResponse, err error) {
 	_, err = d.Request(methods.GetTransactions, params, &txs)
+	return
+}
+
+func (d *RPC) GetTransactionsSummary(params GetTransactionsParams) (txs []*TransactionSummary, err error) {
+	_, err = d.Request(methods.GetTransactionsSummary, params, &txs)
 	return
 }
 
@@ -217,14 +276,12 @@ func (d *RPC) GetAccounts(params GetAccountsParams) (addresses []string, err err
 	return
 }
 
-func (d *RPC) GetAccountHistory(addr string) (history []AccountHistory, err error) {
-	params := map[string]string{"address": addr}
+func (d *RPC) GetAccountHistory(params GetAccountHistoryParams) (history []AccountHistory, err error) {
 	_, err = d.Request(methods.GetAccountHistory, params, &history)
 	return
 }
 
-func (d *RPC) GetAccountAssets(addr string) (assets []string, err error) {
-	params := map[string]string{"address": addr}
+func (d *RPC) GetAccountAssets(params GetAccountAssetsParams) (assets []string, err error) {
 	_, err = d.Request(methods.GetAccountAssets, params, &assets)
 	return
 }
@@ -249,8 +306,7 @@ func (d *RPC) IsTxExecutedInBlock(params IsTxExecutedInBlockParams) (executed bo
 	return
 }
 
-func (d *RPC) GetAccountRegistrationTopoheight(addr string) (topoheight uint64, err error) {
-	params := map[string]string{"address": addr}
+func (d *RPC) GetAccountRegistrationTopoheight(params GetAccountRegistrationParams) (topoheight uint64, err error) {
 	_, err = d.Request(methods.GetAccountRegistrationTopoheight, params, &topoheight)
 	return
 }
@@ -275,6 +331,11 @@ func (d *RPC) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (key Ext
 	return
 }
 
+func (d *RPC) KeyToAddress(params KeyToAddressParams) (address string, err error) {
+	_, err = d.Request(methods.KeyToAddress, params, &address)
+	return
+}
+
 func (d *RPC) GetMinerWork(params GetMinerWorkParams) (result GetMinerWorkResult, err error) {
 	_, err = d.Request(methods.GetMinerWork, params, &result)
 	return
@@ -295,7 +356,12 @@ func (d *RPC) GetEstimatedFeeRates() (result FeeRatesEstimated, err error) {
 	return
 }
 
-func (d *RPC) GetPrunedTopoheight() (result uint64, err error) {
+func (d *RPC) GetEstimatedFeePerKB() (result PredicatedBaseFeeResult, err error) {
+	_, err = d.Request(methods.GetEstimatedFeePerKB, nil, &result)
+	return
+}
+
+func (d *RPC) GetPrunedTopoheight() (result *uint64, err error) {
 	_, err = d.Request(methods.GetPrunedTopoheight, nil, &result)
 	return
 }
@@ -325,10 +391,28 @@ func (d *RPC) HasMultisig(params HasMultisigParams) (result bool, err error) {
 	return
 }
 
-func (d *RPC) GetContractOutputs(params GetContractOutputsParams) (result []ContractOutput, err error) {
-	var outputs []interface{}
-	_, err = d.Request(methods.GetContractOutputs, params, &outputs)
-	result = parseContractOutputs(outputs)
+func (d *RPC) GetContractOutputs(params GetContractOutputsParams) (result GetContractsOutputsResult, err error) {
+	_, err = d.Request(methods.GetContractOutputs, params, &result)
+	return
+}
+
+func (d *RPC) GetContractsOutputs(params GetContractOutputsParams) (result GetContractsOutputsResult, err error) {
+	_, err = d.Request(methods.GetContractOutputs, params, &result)
+	return
+}
+
+func (d *RPC) GetContractLogs(params GetContractLogsParams) (result []ContractLog, err error) {
+	_, err = d.Request(methods.GetContractLogs, params, &result)
+	return
+}
+
+func (d *RPC) GetContractScheduledExecutionsAtTopoheight(params GetContractExecutionsAtTopoheightParams) (result []ScheduledExecution, err error) {
+	_, err = d.Request(methods.GetContractScheduledExecutionsAtTopoheight, params, &result)
+	return
+}
+
+func (d *RPC) GetContractRegisteredExecutionsAtTopoheight(params GetContractExecutionsAtTopoheightParams) (result []RegisteredExecution, err error) {
+	_, err = d.Request(methods.GetContractRegisteredExecutionsAtTopoheight, params, &result)
 	return
 }
 
@@ -337,12 +421,12 @@ func (d *RPC) GetContractModule(params GetContractModuleParams) (result GetContr
 	return
 }
 
-func (d *RPC) GetContractData(params GetContractDataParams) (result interface{}, err error) {
+func (d *RPC) GetContractData(params GetContractDataParams) (result GetContractDataResult, err error) {
 	_, err = d.Request(methods.GetContractData, params, &result)
 	return
 }
 
-func (d *RPC) GetContractDataAtTopoheight(params GetContractDataAtTopoheightParams) (result interface{}, err error) {
+func (d *RPC) GetContractDataAtTopoheight(params GetContractDataAtTopoheightParams) (result GetContractDataAtTopoheightResult, err error) {
 	_, err = d.Request(methods.GetContractDataAtTopoheight, params, &result)
 	return
 }
@@ -357,8 +441,33 @@ func (d *RPC) GetContractBalanceAtTopoheight(params GetContractBalanceAtTopoheig
 	return
 }
 
+func (d *RPC) GetContractAssets(params GetContractAssetsParams) (result []string, err error) {
+	_, err = d.Request(methods.GetContractAssets, params, &result)
+	return
+}
+
+func (d *RPC) GetContracts(params GetContractsParams) (result []string, err error) {
+	_, err = d.Request(methods.GetContracts, params, &result)
+	return
+}
+
+func (d *RPC) GetContractDataEntries(params GetContractDataEntriesParams) (result []ContractDataEntry, err error) {
+	_, err = d.Request(methods.GetContractDataEntries, params, &result)
+	return
+}
+
+func (d *RPC) GetContractTransactions(params GetContractTransactionsParams) (result []string, err error) {
+	_, err = d.Request(methods.GetContractTransactions, params, &result)
+	return
+}
+
+func (d *RPC) SimulateContractInvoke(params interface{}) (result interface{}, err error) {
+	_, err = d.Request(methods.SimulateContractInvoke, params, &result)
+	return
+}
+
 func (d *RPC) CountContracts() (result uint64, err error) {
-	_, err = d.Request(methods.CountAccounts, nil, &result)
+	_, err = d.Request(methods.CountContracts, nil, &result)
 	return
 }
 
@@ -369,6 +478,31 @@ func (d *RPC) MakeIntegratedAddress(params MakeIntegratedAddressParams) (result 
 
 func (d *RPC) DecryptExtraData(params DecryptExtraDataParams) (result interface{}, err error) {
 	_, err = d.Request(methods.DecryptExtraData, params, &result)
+	return
+}
+
+func (d *RPC) PruneChain(params PruneChainParams) (result PruneChainResult, err error) {
+	_, err = d.Request(methods.PruneChain, params, &result)
+	return
+}
+
+func (d *RPC) RewindChain(params RewindChainParams) (result RewindChainResult, err error) {
+	_, err = d.Request(methods.RewindChain, params, &result)
+	return
+}
+
+func (d *RPC) ClearCaches() (result bool, err error) {
+	_, err = d.Request(methods.ClearCaches, nil, &result)
+	return
+}
+
+func (d *RPC) Subscribe(notify interface{}) (result bool, err error) {
+	_, err = d.Request(methods.Subscribe, SubscribeParams{Notify: notify}, &result)
+	return
+}
+
+func (d *RPC) Unsubscribe(notify interface{}) (result bool, err error) {
+	_, err = d.Request(methods.Unsubscribe, SubscribeParams{Notify: notify}, &result)
 	return
 }
 
