@@ -41,6 +41,12 @@ type RPCMethodInfo struct {
 	Schema RPCSchema `json:"schema"`
 }
 
+type RPCSchemaResponse struct {
+	Schema  string                     `json:"$schema"`
+	Defs    map[string]json.RawMessage `json:"$defs"`
+	Methods []RPCMethodInfo            `json:"methods"`
+}
+
 type RPCSchema struct {
 	ParamsSchema  *json.RawMessage `json:"params_schema"`
 	ReturnsSchema json.RawMessage  `json:"returns_schema"`
@@ -51,8 +57,8 @@ type SubscribeParams struct {
 }
 
 type GetTopoheightRangeParams struct {
-	StartTopoheight uint64 `json:"start_topoheight"`
-	EndTopoheight   uint64 `json:"end_topoheight"`
+	StartTopoheight *uint64 `json:"start_topoheight,omitempty"`
+	EndTopoheight   *uint64 `json:"end_topoheight,omitempty"`
 }
 
 type GetBlockAtTopoheightParams struct {
@@ -111,7 +117,16 @@ type GetTopBlockParams struct {
 	IncludeTxs bool `json:"include_txs"`
 }
 
+type GetBlockTemplateParams struct {
+	Address string `json:"address"`
+}
+
 type GetBalanceParams struct {
+	Address string `json:"address"`
+	Asset   string `json:"asset"`
+}
+
+type HasBalanceParams struct {
 	Address    string  `json:"address"`
 	Asset      string  `json:"asset"`
 	Topoheight *uint64 `json:"topoheight,omitempty"`
@@ -126,8 +141,7 @@ var (
 )
 
 type EncryptedBalance struct {
-	Commitment []uint `json:"commitment"`
-	Handle     []uint `json:"handle"`
+	Compressed []uint `json:"Compressed"`
 }
 
 type VersionedBalance struct {
@@ -135,6 +149,11 @@ type VersionedBalance struct {
 	FinalBalance       EncryptedBalance  `json:"final_balance"`
 	OutputBalance      *EncryptedBalance `json:"output_balance"`
 	PreviousTopoheight *uint64           `json:"previous_topoheight"`
+}
+
+type RPCVersionedBalance struct {
+	Topoheight uint64 `json:"topoheight"`
+	VersionedBalance
 }
 
 type GetBalanceResult struct {
@@ -158,6 +177,15 @@ type GetNonceAtTopoheightParams struct {
 	Topoheight uint64 `json:"topoheight"`
 }
 
+type GetNonceParams struct {
+	Address string `json:"address"`
+}
+
+type HasNonceParams struct {
+	Address    string  `json:"address"`
+	Topoheight *uint64 `json:"topoheight,omitempty"`
+}
+
 type GetBalanceAtTopoheightParams struct {
 	Address    string `json:"address"`
 	Asset      string `json:"asset"`
@@ -171,8 +199,16 @@ type GetBalancesAtMaximumTopoheightParams struct {
 }
 
 type GetHeightRangeParams struct {
-	StartHeight uint64 `json:"start_height"`
-	EndHeight   uint64 `json:"end_height"`
+	StartHeight *uint64 `json:"start_height,omitempty"`
+	EndHeight   *uint64 `json:"end_height,omitempty"`
+}
+
+type SubmitTransactionParams struct {
+	Data string `json:"data"`
+}
+
+type GetTransactionParams struct {
+	Hash string `json:"hash"`
 }
 
 type GetTransactionsParams struct {
@@ -187,12 +223,13 @@ type TransactionSummary struct {
 }
 
 type P2PStatusResult struct {
-	BestTopoheight uint64 `json:"best_topoheight"`
-	MaxPeers       uint64 `json:"max_peers"`
-	OurTopoheight  uint64 `json:"our_topoheight"`
-	PeerCount      uint64 `json:"peer_count"`
-	PeerId         uint64 `json:"peer_id"`
-	Tag            string `json:"tag"`
+	BestTopoheight   uint64  `json:"best_topoheight"`
+	MaxPeers         uint64  `json:"max_peers"`
+	MedianTopoheight uint64  `json:"median_topoheight"`
+	OurTopoheight    uint64  `json:"our_topoheight"`
+	PeerCount        uint64  `json:"peer_count"`
+	PeerId           uint64  `json:"peer_id"`
+	Tag              *string `json:"tag"`
 }
 
 type GetP2PBlockPropagationParams struct {
@@ -230,10 +267,10 @@ type VersionedUint64AtTopoheight struct {
 }
 
 type GetAccountsParams struct {
-	Skip              uint64 `json:"skip,omitempty"`
-	Maximum           uint64 `json:"maximum,omitempty"`
-	MinimumTopoheight uint64 `json:"minimum_topoheight,omitempty"`
-	MaximumTopoheight uint64 `json:"maximum_topoheight,omitempty"`
+	Skip              *uint64 `json:"skip,omitempty"`
+	Maximum           *uint64 `json:"maximum,omitempty"`
+	MinimumTopoheight *uint64 `json:"minimum_topoheight,omitempty"`
+	MaximumTopoheight *uint64 `json:"maximum_topoheight,omitempty"`
 }
 
 type BlockType string
@@ -263,7 +300,7 @@ type Block struct {
 	Timestamp            uint64        `json:"timestamp"`
 	Height               uint64        `json:"height"`
 	Nonce                uint64        `json:"nonce"`
-	ExtraNonce           []uint8       `json:"extra_nonce"`
+	ExtraNonce           string        `json:"extra_nonce"`
 	Miner                string        `json:"miner"`
 	TxsHashes            []string      `json:"txs_hashes"`
 	Transactions         []Transaction `json:"transactions"` // if include_txs is true in params
@@ -387,15 +424,39 @@ type MiningHistory struct {
 }
 
 type BurnHistory struct {
+	Asset  string `json:"asset"`
 	Amount uint64 `json:"amount"`
 }
 
 type OutgoingHistory struct {
-	To string `json:"to"`
+	Asset string `json:"asset"`
+	To    string `json:"to"`
 }
 
 type IncomingHistory struct {
-	From string `json:"from"`
+	Asset string `json:"asset"`
+	From  string `json:"from"`
+}
+
+type MultiSigHistory struct {
+	Participants []string `json:"participants"`
+	Threshold    uint8    `json:"threshold"`
+}
+
+type InvokeContractHistory struct {
+	Contract string   `json:"contract"`
+	EntryID  uint16   `json:"entry_id"`
+	Deposits []string `json:"deposits"`
+}
+
+type DeployContractHistory struct {
+	Deposits []string `json:"deposits"`
+}
+
+type FromContractHistory struct {
+	Contract string `json:"contract"`
+	Asset    string `json:"asset"`
+	Amount   uint64 `json:"amount"`
 }
 
 type AssetData struct {
@@ -409,7 +470,7 @@ type AssetData struct {
 }
 
 type Fee struct {
-	FeePercentage int    `json:"fee_percentage"`
+	FeePercentage uint64 `json:"fee_percentage"`
 	Height        uint64 `json:"height"`
 }
 
@@ -424,14 +485,38 @@ type IsTxExecutedInBlockParams struct {
 }
 
 type AccountHistory struct {
-	Topoheight     uint64           `json:"topoheight"`
-	BlockTimestamp uint64           `json:"block_timestamp"`
-	Hash           string           `json:"hash"`
-	Mining         *MiningHistory   `json:"mining"`
-	Burn           *BurnHistory     `json:"burn"`
-	Outgoing       *OutgoingHistory `json:"outgoing"`
-	Incoming       *IncomingHistory `json:"incoming"`
-	DevFee         *MiningHistory   `json:"dev_fee"`
+	Topoheight     uint64                 `json:"topoheight"`
+	BlockTimestamp uint64                 `json:"block_timestamp"`
+	Hash           string                 `json:"hash"`
+	Mining         *MiningHistory         `json:"mining"`
+	Burn           *BurnHistory           `json:"burn"`
+	Outgoing       *OutgoingHistory       `json:"outgoing"`
+	Incoming       *IncomingHistory       `json:"incoming"`
+	DevFee         *MiningHistory         `json:"dev_fee"`
+	MultiSig       *MultiSigHistory       `json:"multi_sig"`
+	InvokeContract *InvokeContractHistory `json:"invoke_contract"`
+	DeployContract *DeployContractHistory `json:"deploy_contract"`
+	FromContract   *FromContractHistory   `json:"from_contract"`
+	Blob           *json.RawMessage       `json:"blob"`
+}
+
+type GetAccountHistoryParams struct {
+	Address           string  `json:"address"`
+	Asset             *string `json:"asset,omitempty"`
+	IncomingFlow      *bool   `json:"incoming_flow,omitempty"`
+	OutgoingFlow      *bool   `json:"outgoing_flow,omitempty"`
+	MinimumTopoheight *uint64 `json:"minimum_topoheight,omitempty"`
+	MaximumTopoheight *uint64 `json:"maximum_topoheight,omitempty"`
+}
+
+type GetAccountAssetsParams struct {
+	Address string  `json:"address"`
+	Skip    *uint64 `json:"skip,omitempty"`
+	Maximum *uint64 `json:"maximum,omitempty"`
+}
+
+type GetAccountRegistrationParams struct {
+	Address string `json:"address"`
 }
 
 type TransactionExecutedEvent struct {
@@ -535,8 +620,9 @@ type GetDifficultyResult struct {
 }
 
 type ValidateAddressParams struct {
-	Address         string `json:"address"`
-	AllowIntegrated bool   `json:"allow_integrated"`
+	Address               string  `json:"address"`
+	AllowIntegrated       bool    `json:"allow_integrated"`
+	MaxIntegratedDataSize *uint64 `json:"max_integrated_data_size,omitempty"`
 }
 
 type ValidateAddressResult struct {
@@ -563,6 +649,7 @@ type SplitAddressParams struct {
 type SplitAddressResult struct {
 	Address        string      `json:"address"`
 	IntegratedData interface{} `json:"integrated_data"`
+	Size           uint64      `json:"size"`
 }
 
 type GetTransactionExecutorParams struct {
@@ -586,7 +673,7 @@ type GetMultisigAtTopoheightParams struct {
 }
 
 type GetMultisigAtTopoheightResult struct {
-	State string `json:"state"`
+	State MultisigState `json:"state"`
 }
 
 type GetMultisigParams struct {
@@ -594,13 +681,53 @@ type GetMultisigParams struct {
 }
 
 type GetMultisigResult struct {
-	State      string `json:"state"`
-	Topoheight uint64 `json:"topoheight"`
+	State      MultisigState `json:"state"`
+	Topoheight uint64        `json:"topoheight"`
 }
 
 type HasMultisigParams struct {
-	Address    string  `json:"address"`
-	Topoheight *uint64 `json:"topoheight,omitempty"`
+	Address string `json:"address"`
+}
+
+type MultisigActiveState struct {
+	Participants []string `json:"participants"`
+	Threshold    uint8    `json:"threshold"`
+}
+
+type MultisigState struct {
+	Deleted bool
+	Active  *MultisigActiveState
+}
+
+func (s *MultisigState) UnmarshalJSON(data []byte) error {
+	if string(data) == `"deleted"` {
+		s.Deleted = true
+		s.Active = nil
+		return nil
+	}
+
+	var state struct {
+		Active *MultisigActiveState `json:"active"`
+	}
+	if err := json.Unmarshal(data, &state); err != nil {
+		return err
+	}
+
+	s.Deleted = false
+	s.Active = state.Active
+	return nil
+}
+
+func (s MultisigState) MarshalJSON() ([]byte, error) {
+	if s.Deleted {
+		return []byte(`"deleted"`), nil
+	}
+
+	return json.Marshal(struct {
+		Active *MultisigActiveState `json:"active"`
+	}{
+		Active: s.Active,
+	})
 }
 
 type GetContractOutputsParams struct {
@@ -630,8 +757,15 @@ type GetContractModuleParams struct {
 	Contract string `json:"contract"`
 }
 
+type GetContractAssetsParams struct {
+	Contract string  `json:"contract"`
+	Skip     *uint64 `json:"skip,omitempty"`
+	Maximum  *uint64 `json:"maximum,omitempty"`
+}
+
 type GetContractLogsParams struct {
-	Contract          string  `json:"contract"`
+	Caller            string  `json:"caller"`
+	Contract          string  `json:"contract,omitempty"`
 	MinimumTopoheight *uint64 `json:"minimum_topoheight,omitempty"`
 	MaximumTopoheight *uint64 `json:"maximum_topoheight,omitempty"`
 	Skip              *uint64 `json:"skip,omitempty"`
@@ -785,7 +919,7 @@ type MakeIntegratedAddressParams struct {
 }
 
 type DecryptExtraDataParams struct {
-	SharedKey []uint `json:"shared_key"`
+	SharedKey string `json:"shared_key"`
 	ExtraData []uint `json:"extra_data"`
 }
 
@@ -797,13 +931,13 @@ type GetMempoolCacheResult struct {
 	Min      uint64                       `json:"min"`
 	Max      uint64                       `json:"max"`
 	Txs      []string                     `json:"txs"`
-	Balances map[string][]uint8           `json:"balances"`
+	Balances map[string][]uint            `json:"balances"`
 	Multisig *MempoolCacheMultiSigPayload `json:"multisig"`
 }
 
 type MempoolCacheMultiSigPayload struct {
-	Threshold    uint8     `json:"threshold"`
-	Participants [][]uint8 `json:"participants"`
+	Threshold    uint8    `json:"threshold"`
+	Participants [][]uint `json:"participants"`
 }
 
 type GetContractBalanceResult struct {

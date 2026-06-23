@@ -43,7 +43,7 @@ func (w *WebSocket) BatchLimit() (limit *uint64, err error) {
 	return
 }
 
-func (w *WebSocket) Schema() (result []RPCMethodInfo, err error) {
+func (w *WebSocket) Schema() (result RPCSchemaResponse, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.Schema, nil, &result)
 	return
 }
@@ -525,8 +525,7 @@ func (w *WebSocket) GetStableBalance(params GetBalanceParams) (result GetStableB
 	return
 }
 
-func (w *WebSocket) GetBlockTemplate(addr string) (result GetBlockTemplateResult, err error) {
-	params := map[string]string{"address": addr}
+func (w *WebSocket) GetBlockTemplate(params GetBlockTemplateParams) (result GetBlockTemplateResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetBlockTemplate, params, &result)
 	return
 }
@@ -536,7 +535,7 @@ func (w *WebSocket) GetBlockAtTopoheight(params GetBlockAtTopoheightParams) (blo
 	return
 }
 
-func (w *WebSocket) GetBlocksAtHeight(params GetBlockAtTopoheightParams) (blocks []Block, err error) {
+func (w *WebSocket) GetBlocksAtHeight(params GetBlocksAtHeightParams) (blocks []Block, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetBlocksAtHeight, params, &blocks)
 	return
 }
@@ -571,8 +570,7 @@ func (w *WebSocket) GetTopBlock(params GetTopBlockParams) (block Block, err erro
 	return
 }
 
-func (w *WebSocket) GetNonce(addr string) (nonce GetNonceResult, err error) {
-	params := map[string]string{"address": addr}
+func (w *WebSocket) GetNonce(params GetNonceParams) (nonce GetNonceResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetNonce, params, &nonce)
 	return
 }
@@ -582,8 +580,7 @@ func (w *WebSocket) GetNonceAtTopoheight(params GetNonceAtTopoheightParams) (non
 	return
 }
 
-func (w *WebSocket) HasNonce(addr string) (hasNonce bool, err error) {
-	params := map[string]string{"address": addr}
+func (w *WebSocket) HasNonce(params HasNonceParams) (hasNonce bool, err error) {
 	var result ExistResult
 	_, err = w.WS.Call(w.Prefix+methods.HasNonce, params, &result)
 	hasNonce = result.Exist
@@ -595,7 +592,7 @@ func (w *WebSocket) GetBalance(params GetBalanceParams) (balance GetBalanceResul
 	return
 }
 
-func (w *WebSocket) HasBalance(params GetBalanceParams) (hasBalance bool, err error) {
+func (w *WebSocket) HasBalance(params HasBalanceParams) (hasBalance bool, err error) {
 	var result ExistResult
 	_, err = w.WS.Call(w.Prefix+methods.HasBalance, params, &result)
 	hasBalance = result.Exist
@@ -607,13 +604,12 @@ func (w *WebSocket) GetBalanceAtTopoheight(params GetBalanceAtTopoheightParams) 
 	return
 }
 
-func (w *WebSocket) GetBalancesAtMaximumTopoheight(params GetBalancesAtMaximumTopoheightParams) (result interface{}, err error) {
+func (w *WebSocket) GetBalancesAtMaximumTopoheight(params GetBalancesAtMaximumTopoheightParams) (result []*RPCVersionedBalance, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetBalancesAtMaximumTopoheight, params, &result)
 	return
 }
 
-func (w *WebSocket) GetAsset(assetId string) (asset AssetData, err error) {
-	params := map[string]string{"asset": assetId}
+func (w *WebSocket) GetAsset(params GetAssetParams) (asset AssetData, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetAsset, params, &asset)
 	return
 }
@@ -673,8 +669,7 @@ func (w *WebSocket) SubmitBlock(params SubmitBlockParams) (result bool, err erro
 	return
 }
 
-func (w *WebSocket) SubmitTransaction(hexData string) (result bool, err error) {
-	params := map[string]string{"data": hexData}
+func (w *WebSocket) SubmitTransaction(params SubmitTransactionParams) (result bool, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.SubmitTransaction, params, &result)
 	return
 }
@@ -694,8 +689,7 @@ func (w *WebSocket) GetMempoolCache(params GetMempoolCacheParams) (result GetMem
 	return
 }
 
-func (w *WebSocket) GetTransaction(hash string) (tx TransactionResponse, err error) {
-	params := map[string]string{"hash": hash}
+func (w *WebSocket) GetTransaction(params GetTransactionParams) (tx TransactionResponse, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetTransaction, params, &tx)
 	return
 }
@@ -725,14 +719,12 @@ func (w *WebSocket) GetAccounts(params GetAccountsParams) (addresses []string, e
 	return
 }
 
-func (w *WebSocket) GetAccountHistory(addr string) (history []AccountHistory, err error) {
-	params := map[string]string{"address": addr}
+func (w *WebSocket) GetAccountHistory(params GetAccountHistoryParams) (history []AccountHistory, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetAccountHistory, params, &history)
 	return
 }
 
-func (w *WebSocket) GetAccountAssets(addr string) (assets []string, err error) {
-	params := map[string]string{"address": addr}
+func (w *WebSocket) GetAccountAssets(params GetAccountAssetsParams) (assets []string, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetAccountAssets, params, &assets)
 	return
 }
@@ -757,8 +749,7 @@ func (w *WebSocket) IsTxExecutedInBlock(params IsTxExecutedInBlockParams) (execu
 	return
 }
 
-func (w *WebSocket) GetAccountRegistrationTopoheight(addr string) (topoheight uint64, err error) {
-	params := map[string]string{"address": addr}
+func (w *WebSocket) GetAccountRegistrationTopoheight(params GetAccountRegistrationParams) (topoheight uint64, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetAccountRegistrationTopoheight, params, &topoheight)
 	return
 }
@@ -778,7 +769,7 @@ func (w *WebSocket) ValidateAddress(params ValidateAddressParams) (result Valida
 	return
 }
 
-func (w *WebSocket) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (key interface{}, err error) {
+func (w *WebSocket) ExtractKeyFromAddress(params ExtractKeyFromAddressParams) (key ExtractKeyFromAddressResult, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.ExtractKeyFromAddress, params, &key)
 	return
 }
@@ -893,7 +884,7 @@ func (w *WebSocket) GetContractBalanceAtTopoheight(params GetContractBalanceAtTo
 	return
 }
 
-func (w *WebSocket) GetContractAssets(params GetContractModuleParams) (result []string, err error) {
+func (w *WebSocket) GetContractAssets(params GetContractAssetsParams) (result []string, err error) {
 	_, err = w.WS.Call(w.Prefix+methods.GetContractAssets, params, &result)
 	return
 }

@@ -11,6 +11,10 @@ import (
 
 const WALLET_ADDR = "xet:62wnkswt0rmrdd9d2lawgpzuh87fkpmp4gx9j3g4u24yrdkdxgksqnuuucf"
 
+func uint64Ptr(value uint64) *uint64 {
+	return &value
+}
+
 func prepareRPC(t *testing.T) (daemon *RPC) {
 	// daemon, err := NewRPC(ctx, config.TESTNET_NODE_RPC)
 	daemon, err := NewRPC(config.LOCAL_NODE_RPC)
@@ -74,7 +78,9 @@ func TestGetStableTopoheight(t *testing.T) {
 func TestGetBlockTemplate(t *testing.T) {
 	daemon := prepareRPC(t)
 
-	template, err := daemon.GetBlockTemplate(WALLET_ADDR)
+	template, err := daemon.GetBlockTemplate(GetBlockTemplateParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +153,9 @@ func TestGetInfo(t *testing.T) {
 func TestGetAsset(t *testing.T) {
 	daemon := prepareRPC(t)
 
-	asset, err := daemon.GetAsset(config.XELIS_ASSET)
+	asset, err := daemon.GetAsset(GetAssetParams{
+		Asset: config.XELIS_ASSET,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,7 +278,7 @@ func TestGetDAGOrder(t *testing.T) {
 func TestGetAccounts(t *testing.T) {
 	daemon := prepareRPC(t)
 
-	accounts, err := daemon.GetAccounts(GetAccountsParams{Maximum: 5})
+	accounts, err := daemon.GetAccounts(GetAccountsParams{Maximum: uint64Ptr(5)})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -365,14 +373,16 @@ func TestRPCUnknownMethod(t *testing.T) {
 
 func TestRPCNonceAndBalance(t *testing.T) {
 	daemon := prepareRPC(t)
-	has, err := daemon.HasNonce(WALLET_ADDR)
+	has, err := daemon.HasNonce(HasNonceParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(has)
 
-	has, err = daemon.HasBalance(GetBalanceParams{
+	has, err = daemon.HasBalance(HasBalanceParams{
 		Address: WALLET_ADDR,
 		Asset:   config.XELIS_ASSET,
 	})
@@ -382,7 +392,9 @@ func TestRPCNonceAndBalance(t *testing.T) {
 
 	t.Log(has)
 
-	nonce, err := daemon.GetNonce(WALLET_ADDR)
+	nonce, err := daemon.GetNonce(GetNonceParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -440,8 +452,8 @@ func TestRPCGetBlocksRange(t *testing.T) {
 	}
 
 	blocks, err := daemon.GetBlocksRangeByTopoheight(GetTopoheightRangeParams{
-		StartTopoheight: topoheight - 10,
-		EndTopoheight:   topoheight,
+		StartTopoheight: uint64Ptr(topoheight - 10),
+		EndTopoheight:   uint64Ptr(topoheight),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -455,8 +467,8 @@ func TestRPCGetBlocksRange(t *testing.T) {
 	}
 
 	blocks, err = daemon.GetBlocksRangeByHeight(GetHeightRangeParams{
-		StartHeight: height - 10,
-		EndHeight:   height,
+		StartHeight: uint64Ptr(height - 10),
+		EndHeight:   uint64Ptr(height),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -483,7 +495,9 @@ func TestRPCGetTransaction(t *testing.T) {
 	daemon := prepareRPC(t)
 	txHash := "ad408903671458da4df55d96d8b407c79fae126b67b92750159da4eb8a46814d"
 
-	tx, err := daemon.GetTransaction(txHash)
+	tx, err := daemon.GetTransaction(GetTransactionParams{
+		Hash: txHash,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -511,21 +525,27 @@ func TestRPCExecutedInBlock(t *testing.T) {
 
 func TestRPCAccount(t *testing.T) {
 	daemon := prepareRPC(t)
-	history, err := daemon.GetAccountHistory(WALLET_ADDR)
+	history, err := daemon.GetAccountHistory(GetAccountHistoryParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(history)
 
-	assets, err := daemon.GetAccountAssets(WALLET_ADDR)
+	assets, err := daemon.GetAccountAssets(GetAccountAssetsParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(assets)
 
-	topoheight, err := daemon.GetAccountRegistrationTopoheight(WALLET_ADDR)
+	topoheight, err := daemon.GetAccountRegistrationTopoheight(GetAccountRegistrationParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -538,7 +558,9 @@ func TestRPCRegistration(t *testing.T) {
 	// we need to resync the blockchain to work on testnet
 	daemon := prepareRPC(t)
 
-	topoheight, err := daemon.GetAccountRegistrationTopoheight(WALLET_ADDR)
+	topoheight, err := daemon.GetAccountRegistrationTopoheight(GetAccountRegistrationParams{
+		Address: WALLET_ADDR,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -561,7 +583,9 @@ func TestGetMinerWork(t *testing.T) {
 
 	var addr = "xet:w64wu066sq7jq4v9f37a5gy8hgyvc2gvt237u2457mme2m2r7avqqtmufz3"
 
-	blockTemplate, err := daemon.GetBlockTemplate(addr)
+	blockTemplate, err := daemon.GetBlockTemplate(GetBlockTemplateParams{
+		Address: addr,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
